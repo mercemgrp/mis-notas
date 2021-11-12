@@ -1,0 +1,42 @@
+<ion-header [translucent]="true" class="note-header">
+  <ng-content *ngTemplateOutlet="mainToolbar"></ng-content>
+  <ng-content *ngTemplateOutlet="showToolbarImage && toolbarImageTmpl"></ng-content>
+</ion-header>
+
+<ng-template #mainToolbar>
+<ion-toolbar [class.note-header__toolbar]="true" [class.note-header__toolbar--hide]="showToolbarImage">
+  <ion-buttons slot="start">
+    <ion-back-button defaultHref="/"></ion-back-button>
+  </ion-buttons>
+  <ion-buttons slot="end"> 
+    <ion-button *ngIf="action !== actions.view && notesStatus === status.active" class="important-button" [disabled]="loading"
+      (click)="emitAction(actionButtons.save)">
+      <ion-icon slot="icon-only" name="save"></ion-icon>
+    </ion-button>
+    <ion-button  *ngIf="notesStatus === status.active" [disabled]="loading" (click)="emitAction(actionButtons.switchColorSelector)">
+      <ion-icon slot="icon-only" name="color-palette"></ion-icon>
+    </ion-button>
+    <ion-button *ngIf="notesStatus === status.active" [disabled]="loading" (click)="emitAction(actionButtons.pickImage)">
+      <ion-icon slot="icon-only" name="image"></ion-icon>
+    </ion-button>
+    <ion-button *ngIf="action !== actions.create" (click)="emitAction(actionButtons.delete)">
+      <ion-icon slot="icon-only" name="trash"></ion-icon>
+    </ion-button>
+  </ion-buttons>
+</ion-toolbar>
+</ng-template>
+
+<ng-template #toolbarImageTmpl>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="emitAction(actionButtons.closeImage)">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="emitAction(actionButtons.deleteImage)">
+        <ion-icon slot="icon-only" name="trash"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ng-template>

@@ -1,0 +1,55 @@
+.my-notes-page {
+  &__list {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    flex-wrap: wrap;
+    .note-wrapper {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      &--unselected{
+        opacity: 0.4;
+      }
+      &--archived {
+        opacity: 0.4;
+        .note-wrapper__content {
+          ::ng-deep {
+            ion-card {
+              text-decoration: line-through;
+            }
+          }
+        }
+      }
+      &__btn {
+        position: absolute;
+        z-index: 1;
+        float: right;
+        right: 8px;
+        top: 8px;
+        height: calc(100% - 22px);
+      &::part(native) {
+        background: rgb(0 0 0 / 10%);
+        border-radius: 0px 0px 0px;
+        }
+      }
+      &__content {
+        ::ng-deep {
+          ion-card {
+            padding-right: 31px;
+          }
+        }
+      }
+    }
+  }
+
+  &__fab-icon{
+    transition: margin-bottom 700ms;
+    margin-bottom: -100px;
+    &--show {
+      margin-bottom: 5px;
+    }
+  }
+}
+

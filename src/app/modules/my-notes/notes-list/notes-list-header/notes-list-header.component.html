@@ -1,0 +1,70 @@
+<ion-header [translucent]="true" class="notes-list-header" [class]="{
+  'transition-margin-top-700': true,
+  'marginTop56': hide && selectedLenght === 0
+
+}">
+  <ng-content *ngTemplateOutlet="mainToolbar"></ng-content>
+  <ng-content *ngTemplateOutlet="filterByColorsToolbar"></ng-content>
+  <ng-content *ngTemplateOutlet="notesToolsToolbar"></ng-content>
+</ion-header>
+
+
+
+<ng-template #filterByColorsToolbar>
+  <ion-segment [class.ion-hide]="!this.showFilterToolbar || selectedLenght > 0 || hide" scrollable mode="md" class="notes-list-header__segments" [value]=""
+  (ionChange)="filterByColor($event)">
+  <ion-segment-button [value]="''">
+    <div class="rectangle u-border" ></div>
+  </ion-segment-button>
+  <ion-segment-button [value]="color" *ngFor="let color of colors;let i = index">
+    <div class="rectangle" [style]="'background:' + color"></div>
+  </ion-segment-button>
+</ion-segment>
+</ng-template>
+<ng-template #mainToolbar>
+  <ion-toolbar [class.header__toolbar]="true" [class.ion-hide]="selectedLenght > 0">
+    <ion-title color="primary">{{title}}</ion-title>
+    <ion-buttons  slot="end">
+      <ion-button (click)="onSwitchFilter()">
+        <ion-icon slot="icon-only" name="filter"></ion-icon>
+      </ion-button>
+      <ion-button (click)="onOpenMainMenu()">
+        <ion-icon slot="icon-only" name="menu"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ng-template>
+<ng-template #notesToolsToolbar>
+  <ion-toolbar [class.marginTop56]="selectedLenght === 0"
+  [class.notes-list-header__secondary-toolbar]="true"
+  [class.notes-list-header__secondary-toolbar--hide]="selectedLenght === 0">
+    <ion-buttons slot="start">
+      <ion-button slot="start" (click)="emitAction(actionButtons.closeToolbar)">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button *ngIf="typeNotesSelected === 1" [disabled]="loading || selectedLenght !== 1" (click)="emitAction(actionButtons.switchAscendent)">
+        <ion-icon slot="icon-only" name="arrow-up"></ion-icon>
+      </ion-button>
+      <ion-button *ngIf="typeNotesSelected === 1" [disabled]="loading || selectedLenght !== 1" (click)="emitAction(actionButtons.switchDescendent)">
+        <ion-icon slot="icon-only" name="arrow-down"></ion-icon>
+      </ion-button>
+      <ion-button  *ngIf="typeNotesSelected === 3"  [disabled]="loading" (click)="emitAction(actionButtons.unarchive)">
+        <ion-icon slot="icon-only" name="push"></ion-icon>
+      </ion-button>
+      <ion-button *ngIf="typeNotesSelected === 1" [disabled]="loading" (click)="emitAction(actionButtons.archive)">
+        <ion-icon slot="icon-only" name="archive"></ion-icon>
+      </ion-button>
+      <ion-button  *ngIf="typeNotesSelected === 1"  [disabled]="loading || selectedLenght !== 1" class="important-button" (click)="emitAction(actionButtons.edit)">
+        <ion-icon slot="icon-only" name="pencil"></ion-icon>
+      </ion-button>
+      <ion-button  *ngIf="typeNotesSelected === 1"  [disabled]="loading" (click)="emitAction(actionButtons.switchColorSelector)">
+        <ion-icon slot="icon-only" name="color-palette"></ion-icon>
+      </ion-button>
+      <ion-button [disabled]="loading" (click)="emitAction(actionButtons.delete)">
+        <ion-icon slot="icon-only" name="trash"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ng-template>

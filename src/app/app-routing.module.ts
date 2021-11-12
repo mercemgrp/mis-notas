@@ -3,8 +3,18 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
   {
+    path: 'my-notes',
+    loadChildren: () => import('./modules/my-notes/my-notes.module').then(m => m.MyNotesPageModule)
+  },
+  {
     path: '',
-    loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule)
+    redirectTo: 'my-notes',
+    pathMatch: 'full'
+  },
+  {
+    path: '**',
+    redirectTo: 'my-notes',
+    pathMatch: 'full'
   }
 ];
 @NgModule({

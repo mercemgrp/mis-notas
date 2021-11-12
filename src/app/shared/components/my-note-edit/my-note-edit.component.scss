@@ -1,0 +1,18 @@
+.my-note-edit {
+  ion-item {
+    --highlight-height: 0px;
+  }
+
+  ion-item.sc-ion-input-md-h:not(.item-label),
+  ion-item:not(.item-label) .sc-ion-input-md-h {
+    padding: 0px 5px;
+    --padding-start: 5px;
+  }
+
+  .sc-ion-textarea-md-h {
+    min-height: 300px;
+    padding: 0px 5px;
+  }
+  
+}
+

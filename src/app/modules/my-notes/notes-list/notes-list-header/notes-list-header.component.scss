@@ -1,0 +1,40 @@
+.notes-list-header {
+  &__toolbar {
+    position: relative;
+    transition: opacity 700ms;
+    opacity: 1;
+    z-index: 10;
+    @media (min-width: 992px) {
+      text-align: center;
+    }
+    &--hide {
+      position: absolute;
+      opacity: 0;
+      z-index: -1;
+    }
+    ion-title {
+      @media (min-width: 992px) {
+        padding: 0px;
+      }
+    }
+  }
+  &__secondary-toolbar {
+    position: relative;
+    transition: opacity 700ms;
+    opacity: 1;
+    z-index: 10;
+    &--hide {
+      position: absolute;
+      opacity: 0;
+      z-index: -1;
+    }
+  }
+  &__segments {
+    background-color: var(--ion-color-light);
+    .rectangle {
+      width:50px;
+      height:25px;
+    }
+  }
+
+}

@@ -1,0 +1,26 @@
+.my-card {
+  ion-card-header {
+    padding: 10px 5px 0px 10px;
+    ion-card-title {
+      font-size: 14px;
+      color: var(--ion-color-dark);
+    }
+    ion-card-subtitle {
+      font-size: 10px;
+      margin-top: 2px;
+      color: var(--ion-color-dark);
+    }
+  }
+  
+  ion-card-content {
+    padding: 5px 10px;
+    color: var(--ion-color-dark);
+    font-size: 14px;
+  }
+  &--full-height {
+    height: calc(100% - 48px);
+  }
+  &--checked {
+    text-decoration: line-through;
+  }
+}

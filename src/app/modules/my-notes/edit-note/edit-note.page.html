@@ -1,0 +1,18 @@
+<app-note-header
+  [action]="data?.id ? actions.edit : actions.create"
+  [notesStatus]="data?.archived ? notesStatus.archived : notesStatus.active"
+   [loading]="loading"
+   [showToolbarImage]="!!imageSelected"
+  (backButtonPressedEv)="onBack()" (clickNoteToolEv)="onFireHeaderButtonAction($event)">
+</app-note-header>
+<ion-content [fullscreen]="true" [scrollEvents]="true">
+  <app-my-note-edit #myNoteEdit *ngIf="data" [data]="data"></app-my-note-edit>
+  <app-images-list [images]="data?.images" (openImageEv)="onSelectImage($event)"></app-images-list>
+  <app-options-selector *ngIf="showColorSelector" (selectColorEv)="onSelectColor($event)"
+    (closeEv)="showColorSelector=false">
+  </app-options-selector>
+</ion-content>
+
+<app-full-screen-image [srcImage]="imageSelected"></app-full-screen-image>
+
+

@@ -1,0 +1,18 @@
+.full-screen-img {
+  transition: opacity 700ms;
+  opacity: 1;
+  background: rgb(0 0 0 / 90%);
+  width: 100%;
+  min-height: calc(100% - 56px);
+  position: absolute;
+  z-index: -1;
+  text-align: -webkit-center;
+  top: calc(56px);
+  ion-thumbnail {
+    width: 90%;
+    height: auto;
+  }
+  &__image {
+    margin-top: 68px;
+  }
+}

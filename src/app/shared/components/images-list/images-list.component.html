@@ -1,0 +1,7 @@
+<div class="images-list" *ngIf="images">
+  <ion-item *ngFor="let image of images || []">
+    <ion-thumbnail slot="start">
+      <ion-img [src]="image" (click)="onOpenImage(image)"></ion-img>
+    </ion-thumbnail>
+  </ion-item>
+</div>

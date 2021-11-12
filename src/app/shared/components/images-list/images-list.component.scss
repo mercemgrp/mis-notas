@@ -1,0 +1,12 @@
+.images-list {
+  display: flex;
+    flex-wrap: wrap;
+    ion-item {
+      display: flex;
+      width: 33.3%;
+      ion-thumbnail {
+        width: 100%;
+        height: auto;
+      }
+    }
+}

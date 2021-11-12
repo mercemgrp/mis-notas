@@ -1,0 +1,14 @@
+<div class="my-note-edit">
+  <form *ngIf="editForm" [formGroup]="editForm">
+    <ion-item>
+      <ion-input formControlName="title" type="text" [style]="'background-color: '+ data.color"></ion-input>
+    </ion-item>
+    <div>
+    <ion-item>
+      <ion-textarea required formControlName="content" type="text" [style]="'background-color: '+ data.color"
+        [autoGrow]="true"></ion-textarea>
+    </ion-item>
+    </div>
+  </form>
+</div>
+

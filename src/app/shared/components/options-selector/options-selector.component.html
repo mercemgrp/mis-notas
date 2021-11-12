@@ -1,0 +1,13 @@
+<div class="options-selector" (click)="onHide($event)">
+  <div class="options-selector__content"
+    (click)="$event.stopPropagation()">
+    <ul class="colors-list">
+      <li *ngFor="let color of colors">
+        <button (click)="onSelectStyle(color)">
+          <ion-icon slot="icon-only" name="square" [style]="'color:' + color"></ion-icon>
+        </button>
+      </li>
+    </ul>
+  </div>
+</div>
+
