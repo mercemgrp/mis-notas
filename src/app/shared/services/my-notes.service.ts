@@ -59,23 +59,23 @@ export class MyNotesService {
 
   switch(data: MyNote, ascendant: boolean, color?): Promise<MyNote[]> {
     const myNotesActived = this.getActived(color);
-    let idNoteSwich = '';
-    const indexNoteSelected = myNotesActived.findIndex(elem => elem.id === data.id);
-    const indexNoteToSwitch = ascendant ? indexNoteSelected - 1 : indexNoteSelected + 1;
+    let idNoteSwitch;
+    const currentIndexNoteSelected = myNotesActived.findIndex(elem => elem.id === data.id);
+    const indexNoteToSwitch = ascendant ? currentIndexNoteSelected - 1 : currentIndexNoteSelected + 1;
     if (indexNoteToSwitch > -1 && indexNoteToSwitch < myNotesActived.length) {
-      idNoteSwich = myNotesActived[indexNoteToSwitch].id;
+      idNoteSwitch = myNotesActived[indexNoteToSwitch].id;
     }
-    if (!idNoteSwich) {
+    if (!idNoteSwitch) {
       return new Promise(resolve => resolve(null));
     }
     const index1 = this.myNotes.findIndex(elem => elem.id === data.id);
-    const index2 = this.myNotes.findIndex(elem => elem.id === idNoteSwich);
+    const index2 = this.myNotes.findIndex(elem => elem.id === idNoteSwitch);
     const myNoteSwitch1 = this.myNotes[index1];
     const myNoteSwitch2 = this.myNotes[index2];
     const currentNotes = this.myNotes;
     currentNotes[index1] = myNoteSwitch2;
     currentNotes[index2] = myNoteSwitch1;
-    return this.setInStorage(currentNotes);
+    return new Promise(resolve => resolve(null));
   }
 
   archive(data: MyNote | MyNote[]): Promise<MyNote[]> {
