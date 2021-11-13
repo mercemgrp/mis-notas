@@ -1,12 +1,15 @@
-import { Component, OnDestroy, ViewChild } from '@angular/core';
+import { AfterContentChecked, AfterContentInit, AfterViewChecked, Component, OnDestroy, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { ToastController } from '@ionic/angular';
+import { AlertController, ToastController } from '@ionic/angular';
 import { Subject } from 'rxjs';
 import { OptionsSelectorComponent } from 'src/app/shared/components/options-selector/options-selector.component';
 import { NoteActionButtons } from 'src/app/shared/constants/note-action-buttons';
 import { HEADER_HEIGHT } from 'src/app/shared/constants/header-px';
 import { MyNote, MyNoteUi } from 'src/app/shared/models/my-note';
 import { MyNotesService } from 'src/app/shared/services/my-notes.service';
+import { NotesStatus } from 'src/app/shared/constants/notes-status';
+import { ConfigService } from 'src/app/shared/services/config.service';
+import { NotesListHeaderComponent } from './notes-list-header/notes-list-header.component';
 
 @Component({
   selector: 'app-notes-list',
@@ -15,37 +18,40 @@ import { MyNotesService } from 'src/app/shared/services/my-notes.service';
 })
 export class NotestListPage implements OnDestroy {
   @ViewChild(OptionsSelectorComponent) optionsSelectorComp: OptionsSelectorComponent;
-  get selected() {
-    return this.myNotes.filter(note => note.selected);
-  }
+  @ViewChild(NotesListHeaderComponent) headerComp: NotesListHeaderComponent;
   get elemsSelected() {
-    return this.selected.length > 0;
+    return this.activedSelected.length > 0;
+  }
+  get showedFilterToolbar() {
+    return this.headerComp.showFilterToolbar;
   }
   get oneSelected() {
-    return this.selected.length === 1;
+    return this.activedSelected.length === 1;
   }
-  get typeNotesSelected() {
-    if (this.selected.some(elem => elem.archived) && this.selected.some(elem => !elem.archived)) {
-      return 2;
-    } else if (this.selected.some(elem => elem.archived)) {
-      return 3;
-    } else {
-      return 1;
-    }
+  private get activedSelected() {
+    return this.myNotesActived.filter(note => note.selected);
   }
+  notesStatus: NotesStatus = NotesStatus.active;
   scrollPosition = 0;
   scrollingDown = false;
   showFabIcon = false;
-  myNotes: MyNoteUi[] = [];
   myNotesArchived: MyNoteUi[] = [];
   myNotesActived: MyNoteUi[] = [];
   width = 100;
   loading = false;
   showColorSelector = false;
-  colorFiltered = '';
+  selectedColor;
+  numberOfNotesSelected = 0;
   actionButtons = NoteActionButtons;
+  colors = [];
+  pageLoaded = false;
   private ngUnsubscribe = new Subject<void>();
-  constructor(private router: Router, private myNotesService: MyNotesService, private toastController: ToastController) {}
+  constructor(
+    private router: Router,
+    private myNotesService: MyNotesService,
+    private config: ConfigService,
+    private toastController: ToastController,
+    private alertCtrl: AlertController) {}
 
   ngOnDestroy() {
     this.ngUnsubscribe.next();
@@ -55,16 +61,18 @@ export class NotestListPage implements OnDestroy {
   ionViewWillEnter() {
     this.retrieveNotesFromService();
     this.unselectNotes();
-  }
-
-  ionViewWillLeave() {
-    this.showFabIcon = false;
+    this.colors = this.config.getColorsData();
   }
 
   ionViewDidEnter() {
     setTimeout(() => {
       this.showFabIcon = true;
+      this.pageLoaded = true;
     });
+  }
+
+  ionViewWillLeave() {
+    this.showFabIcon = false;
   }
 
   onFireHeaderButtonAction(id) {
@@ -73,10 +81,10 @@ export class NotestListPage implements OnDestroy {
         this.closeToolbar();
         break;
       case this.actionButtons.switchAscendent:
-        this.switch(this.selected[0], true);
+        this.switch(this.activedSelected[0], true);
         break;
       case this.actionButtons.switchDescendent:
-        this.switch(this.selected[0], false);
+        this.switch(this.activedSelected[0], false);
         break;
       case this.actionButtons.edit:
         this.editNote();
@@ -90,18 +98,22 @@ export class NotestListPage implements OnDestroy {
       case this.actionButtons.archive:
         this.archive();
         break;
-      case this.actionButtons.unarchive:
-        this.unarchive();
-        break;
       default:
         break;
     }
   }
 
   onFilter(color) {
-    this.colorFiltered = color;
+    this.selectedColor = (color && this.colors.find(c => c.id === color.id)) || '';
    this.retrieveNotesFromService();
     this.unselectNotes();
+  }
+
+  unselectColor() {
+    this.selectedColor = '';
+    this.retrieveNotesFromService();
+    this.unselectNotes();
+    this.headerComp.selectColor('');
   }
 
   onSwitchColorSelector() {
@@ -116,11 +128,13 @@ export class NotestListPage implements OnDestroy {
     this.showColorSelector = false;
   }
   onViewNote(id) {
-    this.router.navigate(['my-notes/view', id]);
+    if (!this.activedSelected.length) {
+      this.router.navigate(['my-notes/view', id]);
+    }
   }
 
   onAddNote() {
-    this.router.navigate(['my-notes/create', { color: this.colorFiltered }]);
+    this.router.navigate(['my-notes/create', { color: this.selectedColor?.id || ''}]);
   }
   onScroll(e): void {
     if (e.detail.scrollTop === 0) {
@@ -139,7 +153,7 @@ export class NotestListPage implements OnDestroy {
 
   onSelectColor(color) {
     this.loading = true;
-    const myNotes = this.selected.map(elem => ({
+    const myNotes = this.activedSelected.map(elem => ({
       ...elem,
       color
     }));
@@ -154,6 +168,7 @@ export class NotestListPage implements OnDestroy {
 
   onSelectNote(e: Event, data: MyNoteUi) {
     data.selected = !data.selected;
+    this.calculateLenght();
   }
   private closeToolbar() {
     if (this.showColorSelector) {
@@ -169,44 +184,89 @@ export class NotestListPage implements OnDestroy {
   private switch(data: MyNote, ascendant = true) {
     this.loading = true;
     this.myNotesService
-      .switch(data, ascendant, this.colorFiltered)
-      .then(() => this.retrieveNotesFromService())
+      .switch(data, ascendant, this.selectedColor?.id)
+      .then(resp => {
+        if (resp) {
+          const actived = this.myNotesService.getActived(this.selectedColor?.id);
+          this.myNotesActived = actived
+            .map(n => ({
+              ...n,
+              selected: n.id === data.id
+            }));
+        }
+      })
       .finally(() => (this.loading = false));
   }
 
   private editNote() {
-    this.router.navigate(['my-notes/edit', this.selected[0].id]);
+    this.router.navigate(['my-notes/edit', this.activedSelected[0].id]);
   }
 
-  private archive() {
+  private continueArchive() {
     this.loading = true;
     this.myNotesService
-      .archive(this.selected)
+      .archive(this.activedSelected)
       .then(() => this.retrieveNotesFromService())
-      .catch(_ => this.presentToast('Ha ocurrido un error eliminando'))
+      .catch(_ => this.presentToast('Ha ocurrido un error'))
       .finally(() => (this.loading = false));
   }
-  private unarchive() {
+  private continueDelete() {
     this.loading = true;
     this.myNotesService
-      .unarchive(this.selected)
+      .delete(this.activedSelected)
       .then(() => this.retrieveNotesFromService())
-      .catch(_ => this.presentToast('Ha ocurrido un error eliminando'))
-      .finally(() => (this.loading = false));
-  }
-  private delete() {
-    this.loading = true;
-    this.myNotesService
-      .delete(this.selected)
-      .then(() => this.retrieveNotesFromService())
-      .catch(_ => this.presentToast('Ha ocurrido un error eliminando'))
+      .catch(_ => this.presentToast('Ha ocurrido un error'))
       .finally(() => (this.loading = false));
   }
 
   private unselectNotes() {
-    this.myNotes.forEach(note => (note.selected = false));
+    this.myNotesActived.forEach(note => (note.selected = false));
+    this.myNotesArchived.forEach(note => (note.selected = false));
+    this.calculateLenght();
   }
 
+  private async archive() {
+    this.loading = true;
+    (await this.alertCtrl.create({
+      message: 'Las notas seleccionadas van a ser archivadas, ¿Desea continuar?',
+      buttons: [
+        {
+          text: 'Aceptar',
+          handler: () => {
+            this.continueArchive();
+          }
+        },
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          handler: () => {
+            this.loading = false;
+          }
+        }
+      ]
+    })).present();
+  }
+  private async delete() {
+    this.loading = true;
+    (await this.alertCtrl.create({
+      message: 'Las notas seleccionadas van a ser eliminadas, ¿Desea continuar?',
+      buttons: [
+        {
+          text: 'Aceptar',
+          handler: () => {
+            this.continueDelete();
+          }
+        },
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          handler: () => {
+            this.loading = false;
+          }
+        }
+      ]
+    })).present();
+  }
   private async presentToast(message) {
     const toast = await this.toastController.create({
       color: 'secondary',
@@ -219,8 +279,12 @@ export class NotestListPage implements OnDestroy {
   }
 
   private retrieveNotesFromService() {
-    this.myNotesActived = this.myNotesService.getActived(this.colorFiltered);
-    this.myNotesArchived = this.myNotesService.getArchived(this.colorFiltered);
-    this.myNotes = this.myNotesActived.concat(this.myNotesArchived);
+    this.myNotesActived = this.myNotesService.getActived(this.selectedColor?.id);
+    this.myNotesArchived = this.myNotesService.getArchived(this.selectedColor?.id);
+    this.calculateLenght();
+  }
+
+  private calculateLenght() {
+    this.numberOfNotesSelected = this.activedSelected.length;
   }
 }

@@ -4,14 +4,24 @@
 </ion-header>
 
 <ng-template #mainToolbar>
-<ion-toolbar [class.note-header__toolbar]="true" [class.note-header__toolbar--hide]="showToolbarImage">
+<ion-toolbar class="toolbar-custom note-header__toolbar" [class.note-header__toolbar--hide]="showToolbarImage">
   <ion-buttons slot="start">
     <ion-back-button defaultHref="/"></ion-back-button>
   </ion-buttons>
   <ion-buttons slot="end"> 
+    <ion-button  *ngIf="notesStatus === status.archived && action !== actions.create"  [disabled]="loading" (click)="emitAction(actionButtons.unarchive)">
+      <ion-icon slot="icon-only" name="push"></ion-icon>
+    </ion-button>
+    <ion-button *ngIf="notesStatus === status.active && action !== actions.create" [disabled]="loading" (click)="emitAction(actionButtons.archive)">
+      <ion-icon slot="icon-only" name="archive"></ion-icon>
+    </ion-button>
     <ion-button *ngIf="action !== actions.view && notesStatus === status.active" class="important-button" [disabled]="loading"
       (click)="emitAction(actionButtons.save)">
       <ion-icon slot="icon-only" name="save"></ion-icon>
+    </ion-button>
+    <ion-button  *ngIf="notesStatus === status.active && action === actions.view" class="important-button" [disabled]="loading"
+      (click)="emitAction(actionButtons.edit)">
+      <ion-icon slot="icon-only" name="pencil"></ion-icon>
     </ion-button>
     <ion-button  *ngIf="notesStatus === status.active" [disabled]="loading" (click)="emitAction(actionButtons.switchColorSelector)">
       <ion-icon slot="icon-only" name="color-palette"></ion-icon>
@@ -19,7 +29,7 @@
     <ion-button *ngIf="notesStatus === status.active" [disabled]="loading" (click)="emitAction(actionButtons.pickImage)">
       <ion-icon slot="icon-only" name="image"></ion-icon>
     </ion-button>
-    <ion-button *ngIf="action !== actions.create" (click)="emitAction(actionButtons.delete)">
+    <ion-button *ngIf="action !== actions.create" [disabled]="loading" (click)="emitAction(actionButtons.delete)">
       <ion-icon slot="icon-only" name="trash"></ion-icon>
     </ion-button>
   </ion-buttons>

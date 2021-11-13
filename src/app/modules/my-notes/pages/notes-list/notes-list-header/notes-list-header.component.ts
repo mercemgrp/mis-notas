@@ -1,33 +1,30 @@
 
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, TemplateRef, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { IonSegment, MenuController } from '@ionic/angular';
 import { NoteActionButtons } from 'src/app/shared/constants/note-action-buttons';
-import { COLORS } from 'src/app/shared/constants/colors';
+import { NotesStatus } from 'src/app/shared/constants/notes-status';
 
 @Component({
   selector: 'app-notes-list-header',
   templateUrl: './notes-list-header.component.html',
   styleUrls: ['./notes-list-header.component.scss'],
 })
-export class NotesListHeaderComponent implements OnInit {
+export class NotesListHeaderComponent {
   @ViewChild(IonSegment) segment: IonSegment;
-  @Input() title = 'Mis notas';
   @Input() hide: boolean;
   @Input() loading: boolean;
   @Input() selectedLenght: number;
-  @Input() typeNotesSelected: number;
+  @Input() notesStatus: NotesStatus;
+  @Input() colors = [];
+  @Input() selectedColor;
   @Output() filterByColorEvEv = new EventEmitter<string>();
   @Output() clickNoteToolEv = new EventEmitter<number>();
-  colors = [];
+  title = 'Mis notas';
+  status = NotesStatus;
+  colorSelected = '';
   showFilterToolbar = false;
   actionButtons = NoteActionButtons;
   constructor(private menu: MenuController) {}
-
-  ngOnInit() {
-    const entries = Object.entries(COLORS);
-    this.colors = entries.map(value =>value[1] );
-  }
-
 
   emitAction(id) {
     this.clickNoteToolEv.emit(id);
@@ -42,8 +39,17 @@ export class NotesListHeaderComponent implements OnInit {
     this.menu.open('mainMenu');
   }
 
-  filterByColor(color) {
-    this.filterByColorEvEv.emit(color.detail.value);
+  filterByColor(event) {
+    this.colorSelected = event.detail.value ===  'c_default' ? '' : this.colors[event.detail.value.split('c_')[1]];
+    this.filterByColorEvEv.emit(this.colorSelected);
+  }
+
+  selectColor(colorC) {
+    if (!colorC) {
+      this.segment.value = 'c_default';
+    } else {
+      this.segment.value = 'c_' + this.colors.findIndex(c => c.id === colorC.id);
+    }
   }
 
 }

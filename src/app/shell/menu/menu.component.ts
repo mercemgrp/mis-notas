@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
 import { ConfigService } from 'src/app/shared/services/config.service';
 @Component({
@@ -11,7 +12,8 @@ export class MenuComponent implements OnInit {
   error: boolean;
   constructor(
     private menu: MenuController,
-    private configService: ConfigService) { }
+    private configService: ConfigService,
+    private router: Router) { }
 
     ngOnInit() {
       this.isDarkMode = this.configService.isDarkMode;
@@ -23,6 +25,10 @@ export class MenuComponent implements OnInit {
 
   onToggleNightMode() {
     this.configService.toggleMode().catch(_ => this.isDarkMode = this.configService.isDarkMode);
+  }
+
+  onNavigateToColorsPage() {
+    this.router.navigate(['settings/colors']).finally(() => this.onCloseMainMenu());
   }
 
 }

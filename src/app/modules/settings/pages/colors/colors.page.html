@@ -1,0 +1,34 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Colores/Etiquetas</ion-title>
+    <ion-buttons slot="end">
+      <ion-button *ngIf="selected"
+        (click)="onSwitch(true)">
+        <ion-icon slot="icon-only" name="arrow-up"></ion-icon>
+      </ion-button>
+      <ion-button *ngIf="selected"
+        (click)="onSwitch(false)">
+        <ion-icon slot="icon-only" name="arrow-down"></ion-icon>
+      </ion-button>
+      <ion-button (click)="onSave()">
+        <ion-icon slot="icon-only" name="save"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content (click)="selected=null" class="colors-page">
+  <form *ngIf="form" [formGroup]="form">
+  <ion-list>
+    <ion-item *ngFor="let color of colorsData" [disabled]="selected && selected !== color.id">
+      <ion-input  type="text" placeholder="" formControlName="{{color.id}}" [value]="color.title"></ion-input>
+      <button (click)="onSelectColor($event, color.id)">
+        <div class="rectangle" [style]="'background:' + color.id"></div>
+      </button>
+    </ion-item>
+  </ion-list>
+  </form>
+</ion-content>

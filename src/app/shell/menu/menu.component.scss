@@ -1,0 +1,10 @@
+.main-menu {
+  font-size: 14px;
+  ion-button {
+    text-transform: none;
+    font-size: 14px;
+    &::part(native) {
+      padding-left: 0px;
+    }
+  }
+}

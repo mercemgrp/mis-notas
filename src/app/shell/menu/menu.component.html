@@ -1,4 +1,4 @@
-<ion-menu side="end" contentId="main" menuId="mainMenu">
+<ion-menu side="end" contentId="main" menuId="mainMenu" class="main-menu">
   <ion-header>
     <ion-toolbar >
       <ion-title color="primary">{{'Menú'}}</ion-title>
@@ -16,6 +16,11 @@
         <ion-icon [color]="isDarkMode ? 'dark' : 'primary'" name="sunny"></ion-icon> 
         <ion-toggle [checked]="isDarkMode" name="mode" color="primary"  (ionChange)="onToggleNightMode()"></ion-toggle>
         <ion-icon [color]="isDarkMode ? 'primary' : 'dark'" name="moon"></ion-icon>
+      </ion-item>
+      <ion-item>
+        <ion-button (click)="onNavigateToColorsPage()"  fill="clear" shape="round">
+          Colores/Etiquetas
+        </ion-button>
       </ion-item>
     </ion-list>
   </ion-content>

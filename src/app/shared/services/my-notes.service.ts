@@ -49,26 +49,21 @@ export class MyNotesService {
 
   deleteImage(id, image) {
     const note = this.get(id);
-    const index = note.images.findIndex(img => img === image);
+    if (!note.images) {
+      return new Promise((resolve, reject) => reject(null));
+    }
+    const index = note.images?.findIndex(img => img === image);
     note.images = note.images.filter((img, i) => i !== index);
     return this.save(note);
   }
 
   switch(data: MyNote, ascendant: boolean, color?): Promise<MyNote[]> {
+    const myNotesActived = this.getActived(color);
     let idNoteSwich = '';
-    if (color) {
-      const notesByColor = this.getActived(color);
-      const indexByColor = notesByColor.findIndex(elem => elem.id === data.id);
-      const switchNoteIndexByColor = ascendant ? indexByColor - 1 : indexByColor + 1;
-      if (switchNoteIndexByColor > -1 && switchNoteIndexByColor <= notesByColor.length) {
-        idNoteSwich = notesByColor[switchNoteIndexByColor].id;
-      }
-    } else {
-      const index = this.myNotes.findIndex(elem => elem.id === data.id);
-      const switchNoteIndex = ascendant ? index - 1 : index + 1;
-      if (switchNoteIndex > -1 && switchNoteIndex <= this.myNotes.length) {
-        idNoteSwich = this.myNotes[switchNoteIndex].id;
-      }
+    const indexNoteSelected = myNotesActived.findIndex(elem => elem.id === data.id);
+    const indexNoteToSwitch = ascendant ? indexNoteSelected - 1 : indexNoteSelected + 1;
+    if (indexNoteToSwitch > -1 && indexNoteToSwitch < myNotesActived.length) {
+      idNoteSwich = myNotesActived[indexNoteToSwitch].id;
     }
     if (!idNoteSwich) {
       return new Promise(resolve => resolve(null));
@@ -78,8 +73,8 @@ export class MyNotesService {
     const myNoteSwitch1 = this.myNotes[index1];
     const myNoteSwitch2 = this.myNotes[index2];
     const currentNotes = this.myNotes;
-    currentNotes[index1] = UtilsService.copyDeep(myNoteSwitch2);
-    currentNotes[index2] = UtilsService.copyDeep(myNoteSwitch1);
+    currentNotes[index1] = myNoteSwitch2;
+    currentNotes[index2] = myNoteSwitch1;
     return this.setInStorage(currentNotes);
   }
 

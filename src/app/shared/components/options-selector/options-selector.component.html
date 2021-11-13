@@ -4,7 +4,7 @@
     <ul class="colors-list">
       <li *ngFor="let color of colors">
         <button (click)="onSelectStyle(color)">
-          <ion-icon slot="icon-only" name="square" [style]="'color:' + color"></ion-icon>
+          <div [style]="'background:' + color"> </div>
         </button>
       </li>
     </ul>

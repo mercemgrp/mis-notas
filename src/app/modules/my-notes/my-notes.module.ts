@@ -8,6 +8,7 @@ import { MyNotesPageRoutingModule } from './my-notes-routing.module';
 import { MyNotesPage } from './my-notes.page';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ShellModule } from 'src/app/shell/shell.module';
+import { ExistsNoteGuard } from './guards/exists-note.guard';
 
 @NgModule({
   imports: [
@@ -18,6 +19,7 @@ import { ShellModule } from 'src/app/shell/shell.module';
     SharedModule,
     ShellModule
   ],
+  providers: [ExistsNoteGuard],
   declarations: [MyNotesPage]
 })
-export class MyNotesPageModule {}
+export class MyNotesModule {}

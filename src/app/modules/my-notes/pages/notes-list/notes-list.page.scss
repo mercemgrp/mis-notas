@@ -1,4 +1,27 @@
 .my-notes-page {
+  &__title {
+    position: relative;
+    margin: 12px;
+    min-height: 25px;
+    display: flex;
+    justify-content: space-between;
+    ion-icon {
+      align-self: center;
+      padding-left: 8px;
+    }
+    > ion-title {
+      padding: 5px 10px;
+    }
+    > button {
+      background: transparent;
+      ion-icon {
+        width:15px;
+        height:15px;
+        padding-left: 8px;
+        align-self: center;
+      }
+    }
+  }
   &__list {
     display: flex;
     flex-direction: row;

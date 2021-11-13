@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { createAnimation } from '@ionic/core';
 
 @Component({
@@ -13,8 +13,8 @@ export class FullScreenImageComponent implements OnInit, OnChanges {
 
   ngOnInit() {}
 
-  ngOnChanges() {
-    if (!this.srcImage) {
+  ngOnChanges(simpleChanges: SimpleChanges) {
+    if (!this.srcImage && this.currentImage) {
       createAnimation()
       .addElement(document.querySelector('.full-screen-img'))
       .duration(350)
