@@ -64,6 +64,11 @@ export class EditNotePage {
     this.loading = false;
   }
 
+  ionViewDidLeave() {
+    this.data = null;
+  }
+
+
   onFireHeaderButtonAction(id) {
     switch(id) {
       case this.actionButtons.save:
@@ -213,15 +218,9 @@ export class EditNotePage {
     this.imageSelected = '';
   }
   private pickImage() {
-    const currentImgLength = this.data.images?.length || 0;
-    if (currentImgLength === 3) {
-      alert('No puedes subir más de tres imágenes');
-      return;
-    }
     const options: ImagePickerOptions = {
     quality: 100,
-    outputType: 1,
-    maximumImagesCount: 3 - currentImgLength
+    outputType: 1
     };
     if (!this.data.images) {
       this.data.images = [];

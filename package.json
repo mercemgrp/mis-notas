@@ -11,7 +11,8 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "device-list": "ionic build && ionic capacitor run android --list",
-    "device": "ionic build && ionic capacitor run android --target 327d7d5e"
+    "device": "ionic build && ionic capacitor run android --target 327d7d5e",
+    "device-prod": "ionic build --prod && npx cap copy android && npx cap open android"
   },
   "private": true,
   "dependencies": {
@@ -21,7 +22,7 @@
     "@angular/platform-browser": "~12.1.1",
     "@angular/platform-browser-dynamic": "~12.1.1",
     "@angular/router": "~12.1.1",
-    "@capacitor/android": "3.3.0",
+    "@capacitor/android": "3.3.1",
     "@capacitor/app": "1.0.5",
     "@capacitor/core": "^3.3.0",
     "@capacitor/haptics": "1.1.2",

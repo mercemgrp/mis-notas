@@ -75,7 +75,7 @@ export class MyNotesService {
     const currentNotes = this.myNotes;
     currentNotes[index1] = myNoteSwitch2;
     currentNotes[index2] = myNoteSwitch1;
-    return new Promise(resolve => resolve(null));
+    return this.setInStorage(currentNotes);
   }
 
   archive(data: MyNote | MyNote[]): Promise<MyNote[]> {

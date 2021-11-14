@@ -1,6 +1,8 @@
 <ion-header [translucent]="true" class="notes-list-header" [class]="{
   'transition-margin-top-700': true,
-  'marginTop56': hide && selectedLenght === 0
+  'marginTop56': hide && selectedLenght === 0 && !showFilterToolbar,
+  'marginTop104': hide && selectedLenght === 0 && showFilterToolbar
+
 
 }">
   <ng-content *ngTemplateOutlet="mainToolbar"></ng-content>
@@ -49,10 +51,6 @@
       <ion-button *ngIf="notesStatus === status.active" [disabled]="loading || selectedLenght !== 1"
         (click)="emitAction(actionButtons.switchDescendent)">
         <ion-icon slot="icon-only" name="arrow-down"></ion-icon>
-      </ion-button>
-      <ion-button *ngIf="notesStatus === status.archived" [disabled]="loading"
-        (click)="emitAction(actionButtons.unarchive)">
-        <ion-icon slot="icon-only" name="push"></ion-icon>
       </ion-button>
       <ion-button *ngIf="notesStatus === status.active" [disabled]="loading"
         (click)="emitAction(actionButtons.archive)">

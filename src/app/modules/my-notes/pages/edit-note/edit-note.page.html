@@ -1,6 +1,6 @@
 <app-note-header
   [action]="data?.id ? actions.edit : actions.create"
-  [notesStatus]="data?.archived ? notesStatus.archived : notesStatus.active"
+  [isArchived]="!!data?.archived"
    [loading]="loading"
    [showToolbarImage]="!!imageSelected"
   (backButtonPressedEv)="onBack()" (clickNoteToolEv)="onFireHeaderButtonAction($event)">
@@ -13,6 +13,4 @@
   </app-options-selector>
 </ion-content>
 
-<app-full-screen-image [srcImage]="imageSelected"></app-full-screen-image>
-
-
+<app-full-screen-image *ngIf="data" [srcImage]="imageSelected"></app-full-screen-image>

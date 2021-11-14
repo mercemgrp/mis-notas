@@ -68,7 +68,7 @@ export class NotestListPage implements OnDestroy {
     setTimeout(() => {
       this.showFabIcon = true;
       this.pageLoaded = true;
-    });
+    }, 1000);
   }
 
   ionViewWillLeave() {

@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { createAnimation } from '@ionic/core';
 
 @Component({
@@ -13,7 +13,7 @@ export class FullScreenImageComponent implements OnInit, OnChanges {
 
   ngOnInit() {}
 
-  ngOnChanges(simpleChanges: SimpleChanges) {
+  ngOnChanges() {
     if (!this.srcImage && this.currentImage) {
       createAnimation()
       .addElement(document.querySelector('.full-screen-img'))
@@ -29,7 +29,7 @@ export class FullScreenImageComponent implements OnInit, OnChanges {
       .duration(350)
       .fromTo('opacity', '0', '1')
       .beforeStyles({opacity: '0', 'z-index': 5})
-      .afterStyles({ opacity: '1'})
+      .afterStyles({ opacity: '1', 'z-index': 5})
       .play();
     }
   }

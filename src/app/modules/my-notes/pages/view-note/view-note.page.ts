@@ -40,6 +40,10 @@ export class ViewNotePage {
     this.loading = false;
   }
 
+  ionViewDidLeave() {
+    this.data = null;
+  }
+
   onBack() {
     this.loading = true;
     this.navCtrl.back();
@@ -171,37 +175,47 @@ export class ViewNotePage {
   private deleteImage() {
     this.loading = true;
     const index = this.data.images.findIndex((img, i) => img === this.imageSelected);
-    this.data.images = this.data.images.filter((img, i) => i !== index);
+    const imagesCopy = this.data.images.filter((img, i) => i !== index);
     this.imageSelected = '';
+    this.service.save({
+      ...this.data,
+      images: imagesCopy
+    })
+      .then(() => {
+        this.data.images = imagesCopy;
+        this.presentToast('La imagen se ha eliminado correctamente');
+      })
+      .catch(_ => this.presentToast('Ha ocurrido un error eliminando la imagen'))
+      .finally(() => this.loading = false);
   }
 
   private pickImage() {
-    const currentImgLength = this.data.images?.length || 0;
-    if (currentImgLength === 3) {
-      this.alertCtrl.create({
-        message: 'No puede subir más de 3 imágenes',
-        buttons: []
-      }).then(alert => alert.present());
-      return;
-    }
     const options: ImagePickerOptions = {
     quality: 100,
-    outputType: 1,
-    maximumImagesCount: 3 - currentImgLength
+    outputType: 1
     };
     if (!this.data.images) {
       this.data.images = [];
     }
+    const newImages = [...this.data.images];
      this.imagePicker.getPictures(options).then((imageData) => {
        const imagesSelected = imageData && !Array.isArray(imageData) ? [imageData] : (imageData || []);
        imagesSelected.forEach(image => {
         const base64Image = 'data:image/jpeg;base64,' + image;
-        this.data.images.push(base64Image);
+        newImages.push(base64Image);
+       });
+       this.service.save({
+          ...this.data,
+          images: newImages
+        })
+          .then(() => this.data.images = newImages)
+          .catch(_ => this.presentToast('Ha ocurrido un error guardando la imagen'))
+          .finally(() => this.loading = false);
+
+      }, (err) => {
+        this.presentToast('Ha ocurrido un error');
       });
-    }, (err) => {
-      this.presentToast('Ha ocurrido un error');
-    });
-    }
+      }
 
   private  switchColorPalette() {
       this.showColorSelector = true;
