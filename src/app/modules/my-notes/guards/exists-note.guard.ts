@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { Observable } from 'rxjs';
-import { MyNotesService } from 'src/app/shared/services/my-notes.service';
+import { MyNotesService } from 'src/app/core/services/my-notes.service';
 
 @Injectable()
 

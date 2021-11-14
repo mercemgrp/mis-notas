@@ -5,9 +5,6 @@ import { FormsModule } from '@angular/forms';
 
 import { MyNotesPageRoutingModule } from './my-notes-routing.module';
 
-import { MyNotesPage } from './my-notes.page';
-import { SharedModule } from 'src/app/shared/shared.module';
-import { ShellModule } from 'src/app/shell/shell.module';
 import { ExistsNoteGuard } from './guards/exists-note.guard';
 
 @NgModule({
@@ -16,10 +13,8 @@ import { ExistsNoteGuard } from './guards/exists-note.guard';
     CommonModule,
     FormsModule,
     MyNotesPageRoutingModule,
-    SharedModule,
-    ShellModule
   ],
   providers: [ExistsNoteGuard],
-  declarations: [MyNotesPage]
+  declarations: []
 })
 export class MyNotesModule {}

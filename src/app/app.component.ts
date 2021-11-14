@@ -4,7 +4,7 @@ import { SplashScreen } from '@capacitor/splash-screen';
 import { StatusBar } from '@capacitor/status-bar';
 import { Platform } from '@ionic/angular';
 import { Subject } from 'rxjs';
-import { ConfigService } from './shared/services/config.service';
+import { ConfigService } from './core/services/config.service';
 import { map, takeUntil, tap } from 'rxjs/operators';
 @Component({
   selector: 'app-root',

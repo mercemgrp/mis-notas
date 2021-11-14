@@ -2,7 +2,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { createAnimation } from '@ionic/core';
 import { COLORS } from 'src/app/shared/constants/colors';
-import { HEADER_HEIGHT } from '../../constants/header-px';
+import { HEADER_HEIGHT } from '../../../../../shared/constants/header-px';
 
 @Component({
   selector: 'app-options-selector',

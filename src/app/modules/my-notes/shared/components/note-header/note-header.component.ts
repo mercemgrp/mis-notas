@@ -1,9 +1,10 @@
 
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { IonBackButtonDelegate, IonSegment } from '@ionic/angular';
-import { NoteActionButtons } from '../../constants/note-action-buttons';
-import { NoteAction } from '../../constants/note-action';
-import { NotesStatus } from '../../constants/notes-status';
+import { NoteAction } from 'src/app/shared/constants/note-action';
+import { NoteActionButtons } from 'src/app/shared/constants/note-action-buttons';
+import { NotesStatus } from 'src/app/shared/constants/notes-status';
+
 
 @Component({
   selector: 'app-note-header',

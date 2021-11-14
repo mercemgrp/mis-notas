@@ -1,7 +1,7 @@
-import { AfterViewInit, Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { IonTextarea } from '@ionic/angular';
-import { MyNote } from '../../models/my-note';
+import { MyNote } from 'src/app/shared/models/my-note';
 
 @Component({
   selector: 'app-my-note-edit',
@@ -27,8 +27,8 @@ export class MyNoteEditComponent implements OnInit {
 
     }, 800);
   }
-  
-  onSubmit(): Promise<Object> {
+
+  onSubmit(): Promise<any> {
     return new Promise((resolve, reject) => {
       if (this.editForm.valid) {
         resolve(this.editForm.getRawValue());

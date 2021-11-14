@@ -5,10 +5,9 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { IonicStorageModule } from '@ionic/storage-angular';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { fancyAnimation } from './shared/animations';
-import { ConfigService } from './shared/services/config.service';
-import { MyNotesService } from './shared/services/my-notes.service';
-import { ShellModule } from './shell/shell.module';
+import { fancyAnimation } from './core/animations';
+import { ConfigService } from './core/services/config.service';
+import { MyNotesService } from './core/services/my-notes.service';
 import { Keyboard } from '@ionic-native/keyboard/ngx';
 import { FileChooser } from '@ionic-native/file-chooser/ngx';
 import { Base64 } from '@ionic-native/base64/ngx';
@@ -16,6 +15,7 @@ import { FilePath } from '@ionic-native/file-path/ngx';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { Camera } from '@ionic-native/Camera/ngx';
 import { File } from '@ionic-native/file/ngx';
+import { CoreModule } from './core/core.module';
 
 
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
@@ -27,7 +27,7 @@ export function initConfig(conf: ConfigService, myNotes: MyNotesService) {
   declarations: [AppComponent],
   entryComponents: [],
   imports: [
-    BrowserModule, AppRoutingModule, ShellModule,
+    BrowserModule, AppRoutingModule, CoreModule,
     IonicStorageModule.forRoot(),
     IonicModule.forRoot({
       navAnimation: fancyAnimation,

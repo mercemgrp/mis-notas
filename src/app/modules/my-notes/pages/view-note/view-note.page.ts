@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ImagePicker, ImagePickerOptions } from '@ionic-native/image-picker/ngx';
-import { AlertController, NavController, ToastController } from '@ionic/angular';
+import { NavController } from '@ionic/angular';
 import { NoteActionButtons } from 'src/app/shared/constants/note-action-buttons';
 import { NoteAction } from 'src/app/shared/constants/note-action';
 import { MyNote } from 'src/app/shared/models/my-note';
-import { MyNotesService } from 'src/app/shared/services/my-notes.service';
+import { MyNotesService } from 'src/app/core/services/my-notes.service';
 import { NotesStatus } from 'src/app/shared/constants/notes-status';
+import { UtilsService } from 'src/app/core/services/shell.service';
 @Component({
   selector: 'app-view-note',
   templateUrl: 'view-note.page.html',
@@ -24,10 +24,8 @@ export class ViewNotePage {
     private navCtrl: NavController,
     private activatedRoute: ActivatedRoute,
     private service: MyNotesService,
-    private toastController: ToastController,
-    private alertCtrl: AlertController,
     private router: Router,
-    private imagePicker: ImagePicker
+    private utils: UtilsService
     ) {
   }
 
@@ -92,78 +90,56 @@ export class ViewNotePage {
     };
     this.service.save(editedNote)
       .then(() => this.data.color = color)
-      .catch(_ => this.presentToast('Ha ocurrido un error guardando el color'))
+      .catch(_ => this.utils.showToast('Ha ocurrido un error guardando el color'))
       .finally(() => this.loading = false);
   }
 
   private async archive() {
     this.loading = true;
-    (await this.alertCtrl.create({
-      message: 'La nota va a ser archivada, ¿Desea continuar?',
-      buttons: [
-        {
-          text: 'Aceptar',
-          handler: () => {
-            this.continueArchive();
-          }
-        },
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-          handler: () => {
-            this.loading = false;
-          }
-        }
-      ]
-    })).present();
+    await this.utils.showAlert('La nota va a ser archivada, ¿Desea continuar?').then(data => {
+      if (data.role === 'cancel') {
+        this.loading = false;
+      } else {
+        this.continueArchive();
+      }
+    });
   }
 
   private continueArchive() {
     this.service
     .archive(this.data)
     .then(() => {
-      this.presentToast('La nota ha sido archivada');
+      this.utils.showToast('La nota ha sido archivada');
       this.navCtrl.back();
     })
-    .catch(_ => this.presentToast('Ha ocurrido un error archivando la ntoa'))
+    .catch(_ => this.utils.showToast('Ha ocurrido un error archivando la ntoa'))
     .finally(() => (this.loading = false));
   }
   private edit() {
     this.loading = true;
     this.router.navigate(['/my-notes/edit', this.data.id])
-      .catch(() => this.presentToast('Ha ocurrido un error'));
+      .catch(() => this.utils.showToast('Ha ocurrido un error'));
   }
 
   private async unarchive() {
     this.loading = true;
-    (await this.alertCtrl.create({
-      message: 'La nota va a ser recuperada, ¿Desea continuar?',
-      buttons: [
-        {
-          text: 'Aceptar',
-          handler: () => {
-            this.continueUnarchive();
-          }
-        },
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-          handler: () => {
-            this.loading = false;
-          }
-        }
-      ]
-    })).present();
+    await this.utils.showAlert('La nota va a ser recuperada, ¿Desea continuar?').then(data => {
+      if (data.role === 'cancel') {
+        this.loading = false;
+      } else {
+        this.continueUnarchive();
+      }
+    });
   }
   private continueUnarchive() {
     this.loading = true;
     this.service
       .unarchive(this.data)
       .then(() => {
-        this.presentToast('La nota ha sido recuperada');
+        this.utils.showToast('La nota ha sido recuperada');
         this.navCtrl.back();
       })
-      .catch(_ => this.presentToast('Ha ocurrido un error'))
+      .catch(_ => this.utils.showToast('Ha ocurrido un error'))
       .finally(() => (this.loading = false));
   }
 
@@ -183,39 +159,27 @@ export class ViewNotePage {
     })
       .then(() => {
         this.data.images = imagesCopy;
-        this.presentToast('La imagen se ha eliminado correctamente');
+        this.utils.showToast('La imagen se ha eliminado correctamente');
       })
-      .catch(_ => this.presentToast('Ha ocurrido un error eliminando la imagen'))
+      .catch(_ => this.utils.showToast('Ha ocurrido un error eliminando la imagen'))
       .finally(() => this.loading = false);
   }
 
   private pickImage() {
-    const options: ImagePickerOptions = {
-    quality: 100,
-    outputType: 1
-    };
-    if (!this.data.images) {
-      this.data.images = [];
-    }
-    const newImages = [...this.data.images];
-     this.imagePicker.getPictures(options).then((imageData) => {
-       const imagesSelected = imageData && !Array.isArray(imageData) ? [imageData] : (imageData || []);
-       imagesSelected.forEach(image => {
-        const base64Image = 'data:image/jpeg;base64,' + image;
-        newImages.push(base64Image);
-       });
-       this.service.save({
-          ...this.data,
-          images: newImages
-        })
-          .then(() => this.data.images = newImages)
-          .catch(_ => this.presentToast('Ha ocurrido un error guardando la imagen'))
-          .finally(() => this.loading = false);
-
-      }, (err) => {
-        this.presentToast('Ha ocurrido un error');
-      });
-      }
+    this.data.images = this.data.images || [];
+    this.utils.pickImage()
+    .then(images => {
+      const newImages = this.data.images.concat(...images);
+      this.service.save({
+        ...this.data,
+        images: newImages
+      })
+        .then(() => this.data.images = newImages)
+        .catch(_ => this.utils.showToast('Ha ocurrido un error guardando la imagen'))
+        .finally(() => this.loading = false);
+    })
+    .catch(() => this.utils.showToast('Ha ocurrido un error'));
+  }
 
   private  switchColorPalette() {
       this.showColorSelector = true;
@@ -223,45 +187,23 @@ export class ViewNotePage {
 
     private async delete() {
       this.loading = true;
-      (await this.alertCtrl.create({
-        message: 'La nota va a ser eliminada, ¿Desea continuar?',
-        buttons: [
-          {
-            text: 'Aceptar',
-            handler: () => {
-              this.continueDelete();
-            }
-          },
-          {
-            text: 'Cancelar',
-            role: 'cancel',
-            handler: () => {
-              this.loading = false;
-            }
-          }
-        ]
-      })).present();
+      await this.utils.showAlert('La nota va a ser eliminada, ¿Desea continuar?').then(data => {
+        if (data.role === 'cancel') {
+          this.loading = false;
+        } else {
+          this.continueDelete();
+        }
+      });
     }
   private continueDelete() {
     this.loading = true;
     this.service.delete(this.data)
-    .catch(_ => this.presentToast('Ha ocurrido un error eliminando la nota'))
+    .catch(_ => this.utils.showToast('Ha ocurrido un error eliminando la nota'))
     .finally(() => {
       this.loading = false;
-      this.presentToast('La nota ha sido borrada');
+      this.utils.showToast('La nota ha sido borrada');
       this.navCtrl.back();
     });
-  }
-
-  private async presentToast(message) {
-    const toast = await this.toastController.create({
-      color: 'secondary',
-      animated: true,
-      cssClass: 'my-toast',
-      message: message || 'Ha ocurrido un error',
-      duration: 2000
-    });
-    toast.present();
   }
 
 }

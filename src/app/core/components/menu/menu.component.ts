@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
-import { ConfigService } from 'src/app/shared/services/config.service';
+import { ConfigService } from 'src/app/core/services/config.service';
 @Component({
   selector: 'app-menu',
   templateUrl: './menu.component.html',

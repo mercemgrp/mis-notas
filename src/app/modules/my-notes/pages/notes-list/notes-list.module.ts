@@ -6,8 +6,8 @@ import { NotestListPage } from './notes-list.page';
 
 import { NotesListPageRoutingModule } from './notes-list-routing.module';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { ShellModule } from 'src/app/shell/shell.module';
 import { NotesListHeaderComponent } from './notes-list-header/notes-list-header.component';
+import { MyNotesSharedModule } from '../../shared/my-notes-shared.module';
 
 @NgModule({
   imports: [
@@ -16,7 +16,7 @@ import { NotesListHeaderComponent } from './notes-list-header/notes-list-header.
     FormsModule,
     NotesListPageRoutingModule,
     SharedModule,
-    ShellModule
+    MyNotesSharedModule
   ],
   declarations: [NotestListPage, NotesListHeaderComponent]
 })

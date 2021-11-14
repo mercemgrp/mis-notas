@@ -2,8 +2,8 @@
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { MyNote } from '../models/my-note';
-import { UtilsService } from './utils.service';
+import { MyNote } from '../../shared/models/my-note';
+import { StaticUtilsService } from './static-utils.service';
 
 const CONFIG_KEY = 'my-notes';
 @Injectable({
@@ -11,7 +11,7 @@ const CONFIG_KEY = 'my-notes';
 })
 export class MyNotesService {
   get myNotes(): MyNote[] {
-    return UtilsService.copyDeep(this._myNotes) || [];
+    return StaticUtilsService.copyDeep(this._myNotes) || [];
   }
   myNotes$: Observable<MyNote[]>;
   private _myNotes: MyNote[];
@@ -115,7 +115,7 @@ export class MyNotesService {
     return this.storage
       .get(CONFIG_KEY)
       .then(resp => {
-        this._myNotes = UtilsService.copyDeep(resp) || [];
+        this._myNotes = StaticUtilsService.copyDeep(resp) || [];
         this.myNotesSubject.next(this.myNotes);
         return this.myNotes;
       })
@@ -144,7 +144,7 @@ export class MyNotesService {
       createdDate: this.get(externalData.id).createdDate,
       modifiedDate: new Date().toISOString()
     };
-    currentNotes[index] = UtilsService.copyDeep(myNote);
+    currentNotes[index] = StaticUtilsService.copyDeep(myNote);
   }
 
   private createNote(currentNotes: MyNote[], externalData: MyNote) {
@@ -164,7 +164,7 @@ export class MyNotesService {
     return this.storage
       .set(CONFIG_KEY, data)
       .then(resp => {
-        this._myNotes = UtilsService.copyDeep(resp);
+        this._myNotes = StaticUtilsService.copyDeep(resp);
         this.myNotesSubject.next(this.myNotes);
         return this.myNotes;
       })

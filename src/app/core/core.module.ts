@@ -1,9 +1,7 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
-import { FormsModule } from '@angular/forms';
-import { MenuComponent } from './menu/menu.component';
-
+import { MenuComponent } from './components/menu/menu.component';
 
 
 @NgModule({
@@ -13,10 +11,9 @@ import { MenuComponent } from './menu/menu.component';
   imports: [
     CommonModule,
     IonicModule,
-    FormsModule,
   ],
   exports: [
     MenuComponent
   ]
 })
-export class ShellModule { }
+export class CoreModule { }

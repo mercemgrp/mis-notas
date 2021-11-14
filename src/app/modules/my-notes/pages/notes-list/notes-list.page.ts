@@ -1,15 +1,15 @@
-import { AfterContentChecked, AfterContentInit, AfterViewChecked, Component, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnDestroy, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController, ToastController } from '@ionic/angular';
 import { Subject } from 'rxjs';
-import { OptionsSelectorComponent } from 'src/app/shared/components/options-selector/options-selector.component';
+import { OptionsSelectorComponent } from 'src/app/modules/my-notes/shared/components/options-selector/options-selector.component';
 import { NoteActionButtons } from 'src/app/shared/constants/note-action-buttons';
 import { HEADER_HEIGHT } from 'src/app/shared/constants/header-px';
 import { MyNote, MyNoteUi } from 'src/app/shared/models/my-note';
-import { MyNotesService } from 'src/app/shared/services/my-notes.service';
+import { MyNotesService } from 'src/app/core/services/my-notes.service';
 import { NotesStatus } from 'src/app/shared/constants/notes-status';
-import { ConfigService } from 'src/app/shared/services/config.service';
+import { ConfigService } from 'src/app/core/services/config.service';
 import { NotesListHeaderComponent } from './notes-list-header/notes-list-header.component';
+import { UtilsService } from 'src/app/core/services/shell.service';
 
 @Component({
   selector: 'app-notes-list',
@@ -50,8 +50,7 @@ export class NotestListPage implements OnDestroy {
     private router: Router,
     private myNotesService: MyNotesService,
     private config: ConfigService,
-    private toastController: ToastController,
-    private alertCtrl: AlertController) {}
+    private utilsServ: UtilsService) {}
 
   ngOnDestroy() {
     this.ngUnsubscribe.next();
@@ -207,7 +206,7 @@ export class NotestListPage implements OnDestroy {
     this.myNotesService
       .archive(this.activedSelected)
       .then(() => this.retrieveNotesFromService())
-      .catch(_ => this.presentToast('Ha ocurrido un error'))
+      .catch(_ => this.utilsServ.showToast('Ha ocurrido un error'))
       .finally(() => (this.loading = false));
   }
   private continueDelete() {
@@ -215,7 +214,7 @@ export class NotestListPage implements OnDestroy {
     this.myNotesService
       .delete(this.activedSelected)
       .then(() => this.retrieveNotesFromService())
-      .catch(_ => this.presentToast('Ha ocurrido un error'))
+      .catch(_ => this.utilsServ.showToast('Ha ocurrido un error'))
       .finally(() => (this.loading = false));
   }
 
@@ -227,55 +226,23 @@ export class NotestListPage implements OnDestroy {
 
   private async archive() {
     this.loading = true;
-    (await this.alertCtrl.create({
-      message: 'Las notas seleccionadas van a ser archivadas, ¿Desea continuar?',
-      buttons: [
-        {
-          text: 'Aceptar',
-          handler: () => {
-            this.continueArchive();
-          }
-        },
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-          handler: () => {
-            this.loading = false;
-          }
-        }
-      ]
-    })).present();
+    await this.utilsServ.showAlert('Las notas seleccionadas van a ser archivadas, ¿Desea continuar?').then(data => {
+      if (data.role === 'cancel') {
+        this.loading = false;
+      } else {
+        this.continueArchive();
+      }
+    });
   }
   private async delete() {
     this.loading = true;
-    (await this.alertCtrl.create({
-      message: 'Las notas seleccionadas van a ser eliminadas, ¿Desea continuar?',
-      buttons: [
-        {
-          text: 'Aceptar',
-          handler: () => {
-            this.continueDelete();
-          }
-        },
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-          handler: () => {
-            this.loading = false;
-          }
-        }
-      ]
-    })).present();
-  }
-  private async presentToast(message) {
-    const toast = await this.toastController.create({
-      color: 'secondary',
-      animated: true,
-      cssClass: 'my-toast',
-      message,
-      duration: 2000
+    await this.utilsServ.showAlert('Las notas seleccionadas van a ser eliminadas, ¿Desea continuar?').then(data => {
+      if (data.role === 'cancel') {
+        this.loading = false;
+      } else {
+        this.continueDelete();
+      }
     });
-    toast.present();
   }
 
   private retrieveNotesFromService() {

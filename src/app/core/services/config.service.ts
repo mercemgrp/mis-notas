@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Storage } from '@ionic/storage';
-import { Configuration } from '../models/configuration-ui';
-import { MODES } from '../constants/modes';
-import { COLORS } from '../constants/colors';
+import { Configuration } from '../../shared/models/configuration-ui';
+import { MODES } from '../../shared/constants/modes';
+import { COLORS } from '../../shared/constants/colors';
 
 const CONFIG_KEY = 'configuration';
 @Injectable({

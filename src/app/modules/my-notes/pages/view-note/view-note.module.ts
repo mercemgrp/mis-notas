@@ -5,7 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ViewNotePage } from './view-note.page';
 import { ViewNotePageRoutingModule } from './view-note-routing.module';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { ShellModule } from 'src/app/shell/shell.module';
+import { MyNotesSharedModule } from '../../shared/my-notes-shared.module';
 
 @NgModule({
   imports: [
@@ -15,7 +15,7 @@ import { ShellModule } from 'src/app/shell/shell.module';
     ReactiveFormsModule,
     ViewNotePageRoutingModule,
     SharedModule,
-    ShellModule
+    MyNotesSharedModule
   ],
   declarations: [ViewNotePage]
 })
