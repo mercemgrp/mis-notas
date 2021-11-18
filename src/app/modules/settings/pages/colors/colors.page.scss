@@ -1,5 +1,16 @@
 .colors-page {
-  button {
-    background-color: inherit;
+  &__btn {
+      background-color: inherit;
+    &--disabled {
+      opacity: 0.5;
+    }
+  }
+  &__input {
+    &--disabled {
+      opacity: 0.5;
+    }
+  }
+  ion-item {
+    border-bottom: #ebebeb 1px solid;
   }
 }

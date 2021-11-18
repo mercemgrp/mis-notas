@@ -11,6 +11,7 @@
     }
     > ion-title {
       padding: 5px 10px;
+      color: #000000;
     }
     > button {
       background: transparent;
@@ -23,6 +24,7 @@
     }
   }
   &__list {
+    margin-top: 8px;
     display: flex;
     flex-direction: row;
     width: 100%;
@@ -40,7 +42,7 @@
         .note-wrapper__content {
           ::ng-deep {
             ion-card {
-              text-decoration: line-through;
+              text-decoration: inherit;
             }
           }
         }
@@ -62,6 +64,42 @@
           ion-card {
             padding-right: 31px;
           }
+        }
+      }
+    }
+  }
+  &__archive-title {
+    border-top: 1px solid black;
+    margin-top: 10px;
+    padding-top: 8px;
+  }
+  &__new-inexistent {
+    display: flex;
+    flex-direction: column;
+    margin: 8px;
+    span {
+      padding: 10px;
+    }
+  }
+  &__inexistent {
+    display: flex;
+    flex-direction: column;
+    margin: 8px;
+    height: -webkit-fill-available;
+    span {
+      padding: 10px;
+    }
+    > div {
+      align-self: center;
+      display: flex;
+      justify-content: center;
+      height: -webkit-fill-available;
+      align-items: center;
+      ion-button {
+        height: 50px;
+        width: 50px;
+        &::part(native) {
+          border-radius: 25px;
         }
       }
     }

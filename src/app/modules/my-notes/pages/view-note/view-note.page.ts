@@ -3,17 +3,19 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { NoteActionButtons } from 'src/app/shared/constants/note-action-buttons';
 import { NoteAction } from 'src/app/shared/constants/note-action';
-import { MyNote } from 'src/app/shared/models/my-note';
+import { MyNote, MyNoteUi } from 'src/app/shared/models/my-note';
 import { MyNotesService } from 'src/app/core/services/my-notes.service';
 import { NotesStatus } from 'src/app/shared/constants/notes-status';
-import { UtilsService } from 'src/app/core/services/shell.service';
+import { UtilsService } from 'src/app/core/services/utils.service';
+import { COLORS } from 'src/app/shared/constants/colors';
+import { ConfigService } from 'src/app/core/services/config.service';
 @Component({
   selector: 'app-view-note',
   templateUrl: 'view-note.page.html',
   styleUrls: ['view-note.page.scss']
 })
 export class ViewNotePage {
-  data: MyNote;
+  data: MyNoteUi;
   showColorSelector = false;
   loading = false;
   imageSelected = '';
@@ -25,13 +27,21 @@ export class ViewNotePage {
     private activatedRoute: ActivatedRoute,
     private service: MyNotesService,
     private router: Router,
-    private utils: UtilsService
+    private utils: UtilsService,
+    private config: ConfigService
     ) {
   }
 
   ionViewWillEnter() {
     this.loading = true;
-    this.data = this.service.get(this.activatedRoute.snapshot.params.id);
+    const note = this.service.get(this.activatedRoute.snapshot.params.id);
+    const colorData = this.config.getColorData(note.color);
+    this.data = {
+      ...note,
+      c1: colorData?.c1 || COLORS.yellow.c1,
+      c2: colorData?.c2 || COLORS.yellow.c2
+    };
+
   }
 
   ionViewDidEnter() {
@@ -82,15 +92,22 @@ export class ViewNotePage {
     this.imageSelected = image;
   }
 
-  onSelectColor(color) {
+  onSelectColor(colorId) {
     this.loading = true;
     const editedNote = {
       ...this.data,
-      color
+      color: colorId
     };
     this.service.save(editedNote)
-      .then(() => this.data.color = color)
-      .catch(_ => this.utils.showToast('Ha ocurrido un error guardando el color'))
+      .then(() => {
+        const colorData = this.config.getColorData(colorId);
+        this.data = {
+          ...this.data,
+          c1: colorData?.c1 || COLORS.yellow.c1,
+          c2: colorData?.c2 || COLORS.yellow.c2
+        };
+      })
+      .catch(_ => this.utils.showToast('Ha ocurrido un error guardando el color', true))
       .finally(() => this.loading = false);
   }
 
@@ -112,13 +129,13 @@ export class ViewNotePage {
       this.utils.showToast('La nota ha sido archivada');
       this.navCtrl.back();
     })
-    .catch(_ => this.utils.showToast('Ha ocurrido un error archivando la ntoa'))
+    .catch(_ => this.utils.showToast('Ha ocurrido un error archivando la nota', true))
     .finally(() => (this.loading = false));
   }
   private edit() {
     this.loading = true;
     this.router.navigate(['/my-notes/edit', this.data.id])
-      .catch(() => this.utils.showToast('Ha ocurrido un error'));
+      .catch(() => this.utils.showToast('Ha ocurrido un error', true));
   }
 
   private async unarchive() {
@@ -139,7 +156,7 @@ export class ViewNotePage {
         this.utils.showToast('La nota ha sido recuperada');
         this.navCtrl.back();
       })
-      .catch(_ => this.utils.showToast('Ha ocurrido un error'))
+      .catch(_ => this.utils.showToast('Ha ocurrido un error', true))
       .finally(() => (this.loading = false));
   }
 
@@ -161,7 +178,7 @@ export class ViewNotePage {
         this.data.images = imagesCopy;
         this.utils.showToast('La imagen se ha eliminado correctamente');
       })
-      .catch(_ => this.utils.showToast('Ha ocurrido un error eliminando la imagen'))
+      .catch(_ => this.utils.showToast('Ha ocurrido un error eliminando la imagen', true))
       .finally(() => this.loading = false);
   }
 
@@ -175,10 +192,10 @@ export class ViewNotePage {
         images: newImages
       })
         .then(() => this.data.images = newImages)
-        .catch(_ => this.utils.showToast('Ha ocurrido un error guardando la imagen'))
+        .catch(_ => this.utils.showToast('Ha ocurrido un error guardando la imagen', true))
         .finally(() => this.loading = false);
     })
-    .catch(() => this.utils.showToast('Ha ocurrido un error'));
+    .catch(() => this.utils.showToast('Ha ocurrido un error', true));
   }
 
   private  switchColorPalette() {
@@ -198,7 +215,7 @@ export class ViewNotePage {
   private continueDelete() {
     this.loading = true;
     this.service.delete(this.data)
-    .catch(_ => this.utils.showToast('Ha ocurrido un error eliminando la nota'))
+    .catch(_ => this.utils.showToast('Ha ocurrido un error eliminando la nota', true))
     .finally(() => {
       this.loading = false;
       this.utils.showToast('La nota ha sido borrada');

@@ -1,5 +1,5 @@
 
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { createAnimation } from '@ionic/core';
 import { COLORS } from 'src/app/shared/constants/colors';
 import { HEADER_HEIGHT } from '../../../../../shared/constants/header-px';
@@ -47,7 +47,7 @@ export class OptionsSelectorComponent implements OnInit {
       });
   }
 
-  private hide(color?) {
+  private hide(colorId?) {
     createAnimation()
       .addElement(document.querySelector('.options-selector__content'))
       .duration(350)
@@ -62,8 +62,8 @@ export class OptionsSelectorComponent implements OnInit {
           .afterStyles({'z-index': -1})
           .play()
           .then(() => {
-            if (color) {
-              this.selectColorEv.emit(color);
+            if (colorId) {
+              this.selectColorEv.emit(colorId);
             }
             this.closeEv.emit();
           });

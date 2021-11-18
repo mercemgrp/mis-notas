@@ -9,8 +9,11 @@ export interface MyNote {
   modifiedDate?: string;
   archived?: boolean;
   color: string;
+  position: number;
 }
 
 export interface MyNoteUi extends MyNote {
   selected?: boolean;
+  c1: string;
+  c2: string;
 }

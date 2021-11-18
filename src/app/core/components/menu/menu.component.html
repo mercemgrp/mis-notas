@@ -1,7 +1,7 @@
 <ion-menu side="end" contentId="main" menuId="mainMenu" class="main-menu">
-  <ion-header>
+  <ion-header class="main-menu__header">
     <ion-toolbar >
-      <ion-title color="primary">{{'Menú'}}</ion-title>
+      <ion-title color="primary"><h1>Menú</h1></ion-title>
       <ion-buttons slot="end">
         <ion-button (click)="onCloseMainMenu()">
           <ion-icon slot="icon-only" name="close"></ion-icon>
@@ -9,18 +9,24 @@
       </ion-buttons>
     </ion-toolbar>
   </ion-header>
-  <ion-content >
+  <ion-content class="main-menu__content">
     <ion-list>
-      <ion-item>
+      <ion-item class="menu__mode-item" class="u-txt-{{currentFontSize}}" >
         <ion-label slot="start" >Modo</ion-label>
         <ion-icon [color]="isDarkMode ? 'dark' : 'primary'" name="sunny"></ion-icon> 
         <ion-toggle [checked]="isDarkMode" name="mode" color="primary"  (ionChange)="onToggleNightMode()"></ion-toggle>
         <ion-icon [color]="isDarkMode ? 'primary' : 'dark'" name="moon"></ion-icon>
       </ion-item>
-      <ion-item>
-        <ion-button (click)="onNavigateToColorsPage()"  fill="clear" shape="round">
-          Colores/Etiquetas
-        </ion-button>
+      <ion-item class="menu__font-change-item u-txt-{{currentFontSize}}">
+        <ion-label>Fuente</ion-label>
+        <ion-range color="primary" min="12" max="20" step="2"  snaps="true" ticks="true" [value]="currentFontSize" (ionChange)="onFontSizeRangeChanges($event)">
+          <ion-label slot="start">12px</ion-label>
+          <ion-label slot="end">20px</ion-label>
+        </ion-range>
+        <ion-badge color="secondary">{{currentFontSize}}px</ion-badge>
+      </ion-item>
+      <ion-item class="menu__colors-btn">
+        <button class="u-txt-{{currentFontSize}}" (click)="onNavigateToColorsPage()">Colores/Etiquetas </button>
       </ion-item>
     </ion-list>
   </ion-content>

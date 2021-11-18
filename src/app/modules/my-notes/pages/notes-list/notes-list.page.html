@@ -1,5 +1,5 @@
 <app-notes-list-header [hide]="scrollingDown"
-[selectedLenght]="numberOfNotesSelected"
+[selectedLenght]="activedSelected.length"
 [notesStatus]="notesStatus"
 [colors]="colors"
 [loading]="loading"
@@ -7,20 +7,31 @@
 (clickNoteToolEv)="onFireHeaderButtonAction($event)">
 </app-notes-list-header>
 <ion-content #content [fullscreen]="true" [scrollEvents]="true" (ionScroll)="onScroll($event)" class="my-notes-page">
-  <div *ngIf="selectedColor && !showedFilterToolbar" class="my-notes-page__title u-flex" [style.background]="selectedColor.id">
+  <div *ngIf="selectedColor && !showedFilterToolbar" class="my-notes-page__title u-flex" [style.background]="selectedColor.c1">
     <ion-icon slot="start" name="filter"></ion-icon>
-    <ion-title *ngIf="selectedColor.title" [style.background]="selectedColor.id">{{selectedColor.title}}</ion-title>
+    <ion-title *ngIf="selectedColor.title" [style.background]="selectedColor.c1">{{selectedColor.title}}</ion-title>
     <button (click)="unselectColor()">
       <ion-icon name="close"></ion-icon>
     </button>
   </div>
+  <div *ngIf="myNotesArchived?.length && !myNotesActived?.length" class="my-notes-page__new-inexistent">
+    <span>No hay notas. Pulse el botón para crear una. :)</span>
+  </div>
   <article class="my-notes-page__list">
     <ng-content *ngTemplateOutlet="notesTmpl; context:{ myNotes: myNotesActived, showOptions: true }" ></ng-content>
   </article>
-<ion-title *ngIf="pageLoaded && myNotesArchived?.length">Archivadas</ion-title>
+<ion-title class="my-notes-page__archive-title" *ngIf="pageLoaded && myNotesArchived?.length">Archivadas</ion-title>
   <article class="my-notes-page__list">
     <ng-content *ngTemplateOutlet="notesTmpl; context:{ myNotes: myNotesArchived, showOptions: false }" ></ng-content>
   </article>
+  <div *ngIf="!myNotesArchived?.length && !myNotesActived?.length" class="my-notes-page__inexistent">
+    <span>No hay notas. Pulse el botón para crear una. :)</span>
+    <div>
+      <ion-button (click)="onAddNote()">
+        <ion-icon slot="icon-only" name="add"></ion-icon>
+      </ion-button>
+    </div>
+  </div>
   <ion-fab vertical="bottom" horizontal="center" slot="fixed" class="my-notes-page__fab-icon"
     [class.my-notes-page__fab-icon--show]="showFabIcon">
     <ion-fab-button (click)="onAddNote()">
@@ -33,10 +44,10 @@
 </ion-content>
 
 <ng-template #notesTmpl let-myNotes="myNotes" let-showOptions="showOptions">
-  <div *ngFor="let data of myNotes || []" class="note-wrapper" style="width: {{width}}%"
-    [class.note-wrapper--unselected]="elemsSelected && !data.selected"
+  <div *ngFor="let data of myNotes || []; let i = index" class="note-wrapper" style="width: {{width}}%"
+    [class.note-wrapper--unselected]="activedSelected.length && !data.selected"
     [class.note-wrapper--archived]="data?.archived" >
-      <ion-button  *ngIf="showOptions" class="note-wrapper__btn" style="background-color: {{data.color}}" (click)="onSelectNote($event, data)">
+      <ion-button  *ngIf="showOptions" class="note-wrapper__btn" style="background-color: {{data.c2}}" (click)="onSelectNote($event, data, i)">
       </ion-button>
       <app-my-note [data]="data" class="note-wrapper__content"
       (click)="onViewNote(data.id)"></app-my-note>

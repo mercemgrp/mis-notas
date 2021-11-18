@@ -3,14 +3,12 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/"></ion-back-button>
     </ion-buttons>
-    <ion-title>Colores/Etiquetas</ion-title>
+    <ion-title><h1>Colores/Etiquetas</h1></ion-title>
     <ion-buttons slot="end">
-      <ion-button *ngIf="selected"
-        (click)="onSwitch(true)">
+      <ion-button *ngIf="idSelected" (click)="onSwitch(true)">
         <ion-icon slot="icon-only" name="arrow-up"></ion-icon>
       </ion-button>
-      <ion-button *ngIf="selected"
-        (click)="onSwitch(false)">
+      <ion-button *ngIf="idSelected" (click)="onSwitch(false)">
         <ion-icon slot="icon-only" name="arrow-down"></ion-icon>
       </ion-button>
       <ion-button (click)="onSave()">
@@ -20,15 +18,17 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content (click)="selected=null" class="colors-page">
+<ion-content (click)="onUnselect()" class="colors-page">
   <form *ngIf="form" [formGroup]="form">
-  <ion-list>
-    <ion-item *ngFor="let color of colorsData" [disabled]="selected && selected !== color.id">
-      <ion-input  type="text" placeholder="" formControlName="{{color.id}}" [value]="color.title"></ion-input>
-      <button (click)="onSelectColor($event, color.id)">
-        <div class="rectangle" [style]="'background:' + color.id"></div>
-      </button>
-    </ion-item>
-  </ion-list>
+    <ion-list>
+      <ion-item *ngFor="let color of colorsData;let i=index">
+        <ion-input type="text" placeholder="" formControlName="{{color.id}}" [value]="color.title"
+          [class.colors-page__input--disabled]="idSelected && idSelected !== color.id" class="u-txt-{{fontSize}}"></ion-input>
+        <button (click)="onSelectColor($event, color.id)" class="colors-page__btn"
+          [class.colors-page__btn--disabled]="idSelected && idSelected !== color.id">
+          <div class="rectangle" [style]="'background:' + color.c2"></div>
+        </button>
+      </ion-item>
+    </ion-list>
   </form>
 </ion-content>

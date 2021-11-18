@@ -2,14 +2,16 @@ import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { COLORS } from 'src/app/shared/constants/colors';
-import { MyNote } from 'src/app/shared/models/my-note';
+import { MyNote, MyNoteUi } from 'src/app/shared/models/my-note';
 import { MyNotesService } from 'src/app/core/services/my-notes.service';
 import { OptionsSelectorComponent } from 'src/app/modules/my-notes/shared/components/options-selector/options-selector.component';
 import { NoteActionButtons } from 'src/app/shared/constants/note-action-buttons';
 import { NoteAction } from 'src/app/shared/constants/note-action';
 import { NotesStatus } from 'src/app/shared/constants/notes-status';
 import { MyNoteEditComponent } from '../../shared/components/my-note-edit/my-note-edit.component';
-import { UtilsService } from 'src/app/core/services/shell.service';
+import { UtilsService } from 'src/app/core/services/utils.service';
+import { ConfigService } from 'src/app/core/services/config.service';
+import { LocalNotifications } from '@ionic-native/local-notifications/ngx';
 
 @Component({
   selector: 'app-edit-note',
@@ -19,7 +21,7 @@ import { UtilsService } from 'src/app/core/services/shell.service';
 export class EditNotePage {
   @ViewChild(MyNoteEditComponent) myNoteEdit: MyNoteEditComponent;
   @ViewChild(OptionsSelectorComponent) optionsSelectorComp: OptionsSelectorComponent;
-  data: MyNote;
+  data: MyNoteUi;
   showColorSelector = false;
   loading = false;
   imageSelected = '';
@@ -34,7 +36,8 @@ export class EditNotePage {
     private service: MyNotesService,
     private utilsServ: UtilsService,
     private navCtrl: NavController,
-    private router: Router
+    private config: ConfigService,
+    private localNotifications: LocalNotifications
 
   ) {
 
@@ -43,16 +46,27 @@ export class EditNotePage {
   ionViewWillEnter() {
     this.loading = true;
     if (this.activatedRoute.snapshot.params?.id) {
-      this.data = this.service.get(this.activatedRoute.snapshot.params.id);
+      const note = this.service.get(this.activatedRoute.snapshot.params.id);
+      const colorData = this.config.getColorData(note.color);
+      this.data = {
+        ...note,
+        c1: colorData?.c1 || COLORS.yellow.c1,
+        c2: colorData?.c2 || COLORS.yellow.c2
+      };
       if (!this.data) {
         this.navCtrl.back();
       }
     } else {
+      const param = this.activatedRoute.snapshot.params?.color;
+      const colorData = this.config.getColorData(param);
       this.data = {
         id: null,
         title: '',
         content: '',
-        color:  this.activatedRoute.snapshot.params?.color || COLORS.yellow
+        color:  param || COLORS.yellow.id,
+        c1: colorData?.c1 || COLORS.yellow.c1,
+        c2: colorData?.c2 || COLORS.yellow.c2,
+        position: null
       };
     }
 
@@ -93,13 +107,21 @@ export class EditNotePage {
       case this.actionButtons.unarchive:
         this.unarchive();
       break;
+      case this.actionButtons.timer:
+        this.showCalendar();
+      break;
       default:
       break;
     }
   }
 
   onSelectColor(color) {
-    this.data.color = color;
+    this.data = {
+      ...this.data,
+      color,
+      c1: COLORS[color]?.c1 || COLORS.yellow.c1,
+      c2: COLORS[color]?.c2 || COLORS.yellow.c2
+    };
   }
 
   onSelectImage(image) {
@@ -152,13 +174,8 @@ export class EditNotePage {
       this.utilsServ.showToast('La nota ha sido archivada');
       this.navCtrl.back();
     })
-    .catch(_ => this.utilsServ.showToast('Ha ocurrido un error archivando la ntoa'))
+    .catch(_ => this.utilsServ.showToast('Ha ocurrido un error archivando la nota', true))
     .finally(() => (this.loading = false));
-  }
-  private edit() {
-    this.loading = true;
-    this.router.navigate(['/my-notes/edit', this.data.id])
-      .catch(() => this.utilsServ.showToast('Ha ocurrido un error'));
   }
 
   private async unarchive() {
@@ -179,8 +196,18 @@ export class EditNotePage {
         this.utilsServ.showToast('La nota ha sido recuperada');
         this.navCtrl.back();
       })
-      .catch(_ => this.utilsServ.showToast('Ha ocurrido un error'))
+      .catch(_ => this.utilsServ.showToast('Ha ocurrido un error', true))
       .finally(() => (this.loading = false));
+  }
+
+  private showCalendar() {
+    this.localNotifications.schedule({
+      text:  this.data.content,
+      trigger: {at: new Date(new Date().getTime() + 3600)},
+      led: 'FF0000',
+      data: this.data,
+      sound: null
+   });
   }
 
   private deleteImage() {
@@ -197,7 +224,7 @@ export class EditNotePage {
     this.data.images = this.data.images || [];
     this.utilsServ.pickImage()
     .then(images => this.data.images.push(...images))
-    .catch(() => this.utilsServ.showToast('Ha ocurrido un error'));
+    .catch(() => this.utilsServ.showToast('Ha ocurrido un error', true));
   }
 
     private async delete() {
@@ -213,7 +240,7 @@ export class EditNotePage {
   private continueDelete() {
     this.loading = true;
     this.service.delete(this.data)
-    .catch(_ => this.utilsServ.showToast('Ha ocurrido un error eliminando la nota'))
+    .catch(_ => this.utilsServ.showToast('Ha ocurrido un error eliminando la nota', true))
     .finally(() => {
       this.loading = false;
       this.utilsServ.showToast('La nota ha sido borrada');
@@ -228,7 +255,7 @@ export class EditNotePage {
           ...this.data,
           ...data
         }).catch(_ => {
-          this.utilsServ.showToast('Ha ocurrido un error guardando la nota');
+          this.utilsServ.showToast('Ha ocurrido un error guardando la nota', true);
         });
       }).catch(err => {
         if (!isBack) {

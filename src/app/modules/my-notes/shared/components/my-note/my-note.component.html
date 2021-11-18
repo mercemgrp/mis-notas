@@ -1,8 +1,10 @@
-<ion-card *ngIf="data" style="background-color: {{data.color}}" class="my-card" [class.my-card--full-height]="isFullPage">
-  <ion-card-header>
-    <ion-card-title>{{data.title}}</ion-card-title>
+<ion-card *ngIf="data" [style.background-color]="data.c1"
+[ngStyle]="{'border-top': isFullPage ? '35px solid ' + border : ''}"
+  class="my-card">
+  <ion-card-header >
+    <ion-card-title class="u-txt-{{fontSize}}">{{data.title}}</ion-card-title>
     <ion-card-subtitle>{{data.createdDate | formatDate}}</ion-card-subtitle>
-  </ion-card-header>
-  <ion-card-content color="light" [innerText]="data.content">
+  </ion-card-header >
+  <ion-card-content color="light" class="u-txt-{{fontSize}}" [innerText]="data.content">
   </ion-card-content>
 </ion-card>

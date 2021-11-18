@@ -1,16 +1,23 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { MyNote } from 'src/app/shared/models/my-note';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { ConfigService } from 'src/app/core/services/config.service';
+import { MyNoteUi } from 'src/app/shared/models/my-note';
 
 @Component({
   selector: 'app-my-note',
   templateUrl: './my-note.component.html',
   styleUrls: ['./my-note.component.scss'],
 })
-export class MyNoteComponent implements OnInit {
-  @Input() data: MyNote;
+export class MyNoteComponent implements OnChanges {
+  get fontSize() {
+    return this.configServ.fontSize;
+  }
+  @Input() data: MyNoteUi;
   @Input() isFullPage;
-  constructor() { }
+  border;
+  constructor(private configServ: ConfigService) { }
 
-  ngOnInit() {}
+  ngOnChanges() {
+    this.border = this.isFullPage ? this.data.c2 : '';
+  }
 
 }

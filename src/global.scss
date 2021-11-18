@@ -25,10 +25,10 @@
 @import "~@ionic/angular/css/text-transformation.css";
 @import "~@ionic/angular/css/flex-utils.css";
 
-* {
-  font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+// Etiquetas genéricas
+h1 {
+  font-size: 20px;
 }
-
 // Utilidades
 .u-flex {
   display: flex;
@@ -42,12 +42,24 @@
 .u-width-50 {
   width: 50%;
 }
+
+$txt-size-list: 12, 14, 16, 18, 20;
+
+.u-txt {
+  @each $value in $txt-size-list {
+    &-#{$value} {
+      font-size: $value + px;
+    }
+  }
+}
+
 // Modificación estilos en componentes ionic
+
 .item-interactive.ion-valid {
   --highlight-background: none;
 }
 
-// Otros
+// Clases
 .square {
   width:25px;
   height:25px;
@@ -58,6 +70,5 @@
 }
 .important-button {
   background-color: var(--ion-color-primary);
-  --background: var(--ion-color-primary);
   border-radius: 25px;
 }

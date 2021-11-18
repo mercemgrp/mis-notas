@@ -1,15 +1,19 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Storage } from '@ionic/storage';
-import { Configuration } from '../../shared/models/configuration-ui';
+import { ColorUi, Configuration } from '../../shared/models/configuration-ui';
 import { MODES } from '../../shared/constants/modes';
 import { COLORS } from '../../shared/constants/colors';
+import { Color } from 'src/app/shared/models/color';
 
-const CONFIG_KEY = 'configuration';
+const CONFIG_KEY = 'my-notes-mmg-configuration';
 @Injectable({
   providedIn: 'root'
 })
 export class ConfigService {
+  get fontSize() {
+    return this.config.fontSize;
+  }
   get isDarkMode() {
     if (!this.config){
       return undefined;
@@ -39,15 +43,33 @@ export class ConfigService {
       );
     }
 
+    changeFontSize(fontSize) {
+      const config = {...this.config, fontSize};
+      return this.storage.set(CONFIG_KEY,config).then(_ => {
+        this.config = config;
+        return this.fontSize;
+      }
+      ).catch(_ => this.fontSize
+      );
+    }
+
   loadConfig() {
     return this.storage.create().then(() => this.getConfigData());
   }
 
-  getColorsData() {
-    return this.config.colors;
+  getColorData(id): ColorUi {
+    return this.getColorsData().find(c => c.id === id);
   }
 
-  switchColor(id, ascendant): Promise<any[]> {
+  getColorsData(): ColorUi[] {
+    return this.config.colors.map(c => ({
+      ...c,
+      c1: COLORS[c.id]?.c1,
+      c2: COLORS[c.id]?.c2
+    }));
+  }
+
+  switchColor(id, ascendant): Promise<ColorUi[]> {
     const i = this.config.colors.findIndex(c => c.id === id);
     const switchI = ascendant ? i - 1 : i + 1;
     if (i > -1 && switchI > -1 && switchI < this.config.colors.length) {
@@ -57,12 +79,12 @@ export class ConfigService {
       config.colors[i] = note2;
       config.colors[switchI]=note1;
       return this.storage.set(CONFIG_KEY,config)
-      .then(resp => {
-        this.config = resp;
-        return resp.colors;
-      });
+        .then(resp => {
+          this.config = resp;
+          return this.getColorsData();
+        });
     } else {
-      return new Promise(resolve => resolve(this.config.colors));
+      return new Promise(resolve => resolve(this.getColorsData()));
     }
   }
 
@@ -87,24 +109,25 @@ export class ConfigService {
 
   private getConfigData() {
     const defaultColorsData = [{
-      id: COLORS.blue,
-      title: 'Tipo 1'
+      id: COLORS.blue.id,
+      title: ''
     }, {
-      id: COLORS.red,
-      title: 'Tipo 2'
+      id: COLORS.red.id,
+      title: ''
     }, {
-      id: COLORS.pink,
-      title: 'Tipo 3'
+      id: COLORS.pink.id,
+      title: ''
     }, {
-      id: COLORS.yellow,
-      title: 'Tipo 4'
+      id: COLORS.yellow.id,
+      title: ''
     }];
     return this.storage.get(CONFIG_KEY).then(
       (resp: Configuration) => {
         this.config = {
           mode: resp?.mode || MODES.deviceDefault,
-          defaultColor: resp?.defaultColor || COLORS.yellow,
-          colors: resp?.colors || defaultColorsData
+          defaultColor: resp?.defaultColor || COLORS.yellow.id,
+          colors: resp?.colors || defaultColorsData,
+          fontSize: resp?.fontSize || 16
         };
         return this.config;
       }

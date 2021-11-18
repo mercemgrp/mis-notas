@@ -5,8 +5,8 @@
    [showToolbarImage]="!!imageSelected"
   (backButtonPressedEv)="onBack()" (clickNoteToolEv)="onFireHeaderButtonAction($event)">
 </app-note-header>
-<ion-content [fullscreen]="true">
-  <app-my-note *ngIf="data" [data]="data"></app-my-note>
+<ion-content [fullscreen]="true" class="view-note-page">
+  <app-my-note *ngIf="data" [data]="data" isFullPage="true"></app-my-note>
   <app-images-list [images]="data?.images" (openImageEv)="onSelectImage($event)"></app-images-list>
   <app-options-selector *ngIf="showColorSelector" (selectColorEv)="onSelectColor($event)"
     (closeEv)="showColorSelector=false">

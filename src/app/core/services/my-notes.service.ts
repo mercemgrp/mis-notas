@@ -5,28 +5,35 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { MyNote } from '../../shared/models/my-note';
 import { StaticUtilsService } from './static-utils.service';
 
-const CONFIG_KEY = 'my-notes';
+const CONFIG_KEY = 'my-notes-mmg-notes';
 @Injectable({
   providedIn: 'root'
 })
 export class MyNotesService {
   get myNotes(): MyNote[] {
-    return StaticUtilsService.copyDeep(this._myNotes) || [];
+    return StaticUtilsService.copyDeep(this._myNotes.sort((a, b) => b.position - a.position)) || [];
   }
   myNotes$: Observable<MyNote[]>;
+
   private _myNotes: MyNote[];
   private myNotesSubject = new BehaviorSubject<MyNote[]>([]);
-
+  private get lastPosition() {
+    return this.myNotes.reduce((response: number, note) => (response > note.position ? response : note.position), 0);
+  }
   constructor(private storage: Storage) {
     this.myNotes$ = this.myNotesSubject.asObservable();
   }
 
+
+
   getActived(color?) {
-    return this.myNotes.filter(note => !note.archived && (color ? note.color === color : true));
+    return this.myNotes.filter(note => !note.archived && (color ? note.color === color : true))
+          .sort((a, b) => b.position - a.position);
   }
 
   getArchived(color?) {
-    return this.myNotes.filter(note => note.archived && (color ? note.color === color : true));
+    return this.myNotes.filter(note => note.archived && (color ? note.color === color : true))
+                        .sort((a, b) => b.position - a.position);
   }
 
   get(id): MyNote {
@@ -57,24 +64,14 @@ export class MyNotesService {
     return this.save(note);
   }
 
-  switch(data: MyNote, ascendant: boolean, color?): Promise<MyNote[]> {
-    const myNotesActived = this.getActived(color);
-    let idNoteSwitch;
-    const currentIndexNoteSelected = myNotesActived.findIndex(elem => elem.id === data.id);
-    const indexNoteToSwitch = ascendant ? currentIndexNoteSelected - 1 : currentIndexNoteSelected + 1;
-    if (indexNoteToSwitch > -1 && indexNoteToSwitch < myNotesActived.length) {
-      idNoteSwitch = myNotesActived[indexNoteToSwitch].id;
-    }
-    if (!idNoteSwitch) {
-      return new Promise(resolve => resolve(null));
-    }
-    const index1 = this.myNotes.findIndex(elem => elem.id === data.id);
-    const index2 = this.myNotes.findIndex(elem => elem.id === idNoteSwitch);
-    const myNoteSwitch1 = this.myNotes[index1];
-    const myNoteSwitch2 = this.myNotes[index2];
+  switch(data1: MyNote, data2: MyNote): Promise<MyNote[]> {
+    const index1 = this.myNotes.findIndex(elem => elem.id === data1.id);
+    const index2 = this.myNotes.findIndex(elem => elem.id === data2.id);
+     const pos1 = this.myNotes[index1].position;
+    const pos2 = this.myNotes[index2].position;
     const currentNotes = this.myNotes;
-    currentNotes[index1] = myNoteSwitch2;
-    currentNotes[index2] = myNoteSwitch1;
+    currentNotes[index1].position = pos2;
+    currentNotes[index2].position = pos1;
     return this.setInStorage(currentNotes);
   }
 
@@ -128,7 +125,8 @@ export class MyNotesService {
       color: data.color,
       title: data.title,
       content: data.content,
-      images: data.images
+      images: data.images,
+      position: data.position
     };
     if (data.id) {
       this.modifyNote(currentNotes, externalData);
@@ -154,6 +152,7 @@ export class MyNotesService {
     const myNote: MyNote = {
       ...externalData,
       id: randomId,
+      position: this.lastPosition + 1,
       createdDate: new Date().toISOString(),
       modifiedDate: new Date().toISOString()
     };

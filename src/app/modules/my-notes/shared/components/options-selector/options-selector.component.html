@@ -3,8 +3,8 @@
     (click)="$event.stopPropagation()">
     <ul class="colors-list">
       <li *ngFor="let color of colors">
-        <button (click)="onSelectStyle(color)">
-          <div [style]="'background:' + color"> </div>
+        <button (click)="onSelectStyle(color.id)">
+          <div [style]="'background:' + color.c2"> </div>
         </button>
       </li>
     </ul>

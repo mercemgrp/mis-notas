@@ -1,7 +1,8 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { IonTextarea } from '@ionic/angular';
-import { MyNote } from 'src/app/shared/models/my-note';
+import { ConfigService } from 'src/app/core/services/config.service';
+import { MyNoteUi } from 'src/app/shared/models/my-note';
 
 @Component({
   selector: 'app-my-note-edit',
@@ -10,9 +11,12 @@ import { MyNote } from 'src/app/shared/models/my-note';
 })
 export class MyNoteEditComponent implements OnInit {
   @ViewChild(IonTextarea) textarea: IonTextarea;
-  @Input() data: MyNote;
+  @Input() data: MyNoteUi;
   editForm: FormGroup;
-  constructor(private fb: FormBuilder) { }
+  get fontSize() {
+    return this.config.fontSize;
+  }
+  constructor(private config: ConfigService, private fb: FormBuilder) { }
   ngOnInit() {
     this.editForm = this.fb.group({
       title: [this.data.title],

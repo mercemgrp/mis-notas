@@ -1,18 +1,7 @@
-
-
-.my-action-sheet .action-sheet-group.sc-ion-action-sheet-md:last-child {
-    display: flex;
-    flex-direction: row;
-  }
-
-  .my-action-sheet .action-sheet-icon.sc-ion-action-sheet-md {
-    color: #3880ff;
-  }
-
-.action-sheet-button.sc-ion-action-sheet-md {
-  display: flex;
-  flex-direction: row;
-  span {
-    width: auto;
+.view-note-page {
+  ::ng-deep {
+    .my-card {
+      min-height: 300px;
+    }
   }
 }

@@ -10,5 +10,6 @@ export enum NoteActionButtons {
   closeImage = 9,
   deleteImage = 10,
   archive = 11,
-  unarchive = 12
+  unarchive = 12,
+  timer = 13
 };

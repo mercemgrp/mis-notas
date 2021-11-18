@@ -77,8 +77,8 @@ export class NoteHeaderComponent implements OnInit, OnChanges{
         type: this.actionButtons.switchColorSelector,
         icon: 'color-palette'
       }, {
-        type: this.actionButtons.pickImage,
-        icon: 'image'
+        type: this.actionButtons.timer,
+        icon: 'time'
       }, {
         type: this.actionButtons.delete,
         icon: 'trash',

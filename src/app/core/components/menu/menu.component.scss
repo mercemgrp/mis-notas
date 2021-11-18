@@ -1,10 +1,30 @@
 .main-menu {
-  font-size: 14px;
-  ion-button {
-    text-transform: none;
-    font-size: 14px;
-    &::part(native) {
-      padding-left: 0px;
+  &__content {
+    .menu {
+      &__mode-item {
+        border-bottom: 1px solid var(--ion-color-dark);
+      }
+      &__font-change-item {
+        padding-left: 0px;
+        ion-range.range-has-pin {
+          padding-top: 0px;
+          padding-bottom: 0px;
+          z-index: 1;
+        }
+      }
+      &__colors-btn {
+        
+        button {
+          background: none;
+          padding-left: 0px;
+          --background: transparent;
+          color: var(--ion-color-dark);
+          text-transform: inherit;
+          margin-bottom: 5px;
+          padding: 20px 0px;
+        }
+        
+      }
     }
   }
 }

@@ -3,7 +3,6 @@
   'marginTop56': hide && selectedLenght === 0 && !showFilterToolbar,
   'marginTop104': hide && selectedLenght === 0 && showFilterToolbar
 
-
 }">
   <ng-content *ngTemplateOutlet="mainToolbar"></ng-content>
   <ng-content *ngTemplateOutlet="filterByColorsToolbar"></ng-content>
@@ -17,17 +16,17 @@
       <ion-label>Todas</ion-label>
     </ion-segment-button>
     <ion-segment-button [value]="'c_'+(i)" *ngFor="let color of colors;let i = index">
-      <ion-label *ngIf="color.title">{{color.title}}</ion-label>
-      <div *ngIf="!color.title" class="square" [style.background]="color.id"></div>
+      <ion-label *ngIf="color.title" [style.color]="color.c2">{{color.title}}</ion-label>
+      <div *ngIf="!color.title" class="square" [style.background]="color.c2"></div>
     </ion-segment-button>
   </ion-segment>
 </ng-template>
 <ng-template #mainToolbar>
-  <ion-toolbar [class.header__toolbar]="true" [class.ion-hide]="selectedLenght > 0">
-    <ion-title color="primary">{{title}}</ion-title>
+  <ion-toolbar [class.notes-list-header__toolbar]="true" [class.ion-hide]="selectedLenght > 0">
+    <ion-title color="primary"><h1>{{title}}</h1></ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="onSwitchFilter()">
-        <ion-icon slot="icon-only" name="filter"></ion-icon>
+        <ion-icon class="icon-filter" slot="icon-only" name="filter"></ion-icon>
       </ion-button>
       <ion-button (click)="onOpenMainMenu()">
         <ion-icon slot="icon-only" name="menu"></ion-icon>

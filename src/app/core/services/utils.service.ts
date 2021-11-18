@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ImagePicker, ImagePickerOptions } from '@ionic-native/image-picker/ngx';
 import { AlertController, ToastController } from '@ionic/angular';
+import { ConfigService } from './config.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,10 +10,12 @@ export class UtilsService {
   constructor(
     private alertCtrl: AlertController,
     private toastController: ToastController,
-    private imagePicker: ImagePicker) {}
+    private imagePicker: ImagePicker,
+    private configServ: ConfigService) {}
 
   async showAlert(message): Promise<any> {
     const alert = await this.alertCtrl.create({
+      cssClass:  `u-txt${this.configServ.fontSize}`,
       message,
       buttons: [
         {
@@ -31,11 +34,11 @@ export class UtilsService {
     return alert.onDidDismiss();
   }
 
-  async showToast(message) {
+  async showToast(message, isError = false) {
     const toast = await this.toastController.create({
-      color: 'secondary',
+      color: isError ? 'danger' : 'dark',
       animated: true,
-      cssClass: 'my-toast',
+      cssClass: ['my-toast', `u-txt${this.configServ.fontSize}` ],
       message,
       duration: 2000
     });

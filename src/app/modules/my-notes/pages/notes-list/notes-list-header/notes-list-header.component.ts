@@ -3,6 +3,7 @@ import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core
 import { IonSegment, MenuController } from '@ionic/angular';
 import { NoteActionButtons } from 'src/app/shared/constants/note-action-buttons';
 import { NotesStatus } from 'src/app/shared/constants/notes-status';
+import { ColorUi } from 'src/app/shared/models/configuration-ui';
 
 @Component({
   selector: 'app-notes-list-header',
@@ -17,11 +18,11 @@ export class NotesListHeaderComponent {
   @Input() notesStatus: NotesStatus;
   @Input() colors = [];
   @Input() selectedColor;
-  @Output() filterByColorEvEv = new EventEmitter<string>();
+  @Output() filterByColorEvEv = new EventEmitter<ColorUi>();
   @Output() clickNoteToolEv = new EventEmitter<number>();
   title = 'Mis notas';
   status = NotesStatus;
-  colorSelected = '';
+  colorSelected: ColorUi;
   showFilterToolbar = false;
   actionButtons = NoteActionButtons;
   constructor(private menu: MenuController) {}
@@ -40,7 +41,7 @@ export class NotesListHeaderComponent {
   }
 
   filterByColor(event) {
-    this.colorSelected = event.detail.value ===  'c_default' ? '' : this.colors[event.detail.value.split('c_')[1]];
+    this.colorSelected = event.detail.value ===  'c_default' ? null : this.colors[event.detail.value.split('c_')[1]];
     this.filterByColorEvEv.emit(this.colorSelected);
   }
 
