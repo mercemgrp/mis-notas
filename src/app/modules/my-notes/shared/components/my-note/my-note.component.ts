@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { ConfigService } from 'src/app/core/services/config.service';
 import { MyNoteUi } from 'src/app/shared/models/my-note';
 
@@ -13,6 +13,7 @@ export class MyNoteComponent implements OnChanges {
   }
   @Input() data: MyNoteUi;
   @Input() isFullPage;
+  @Input() showTitle: boolean;
   border;
   constructor(private configServ: ConfigService) { }
 

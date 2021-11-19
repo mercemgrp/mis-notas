@@ -15,9 +15,9 @@
     <ion-segment-button value="c_default">
       <ion-label>Todas</ion-label>
     </ion-segment-button>
-    <ion-segment-button [value]="'c_'+(i)" *ngFor="let color of colors;let i = index">
-      <ion-label *ngIf="color.title" [style.color]="color.c2">{{color.title}}</ion-label>
-      <div *ngIf="!color.title" class="square" [style.background]="color.c2"></div>
+    <ion-segment-button [value]="'c_'+(i)" *ngFor="let theme of themes;let i = index">
+      <ion-label *ngIf="theme.themeTitle" [style.color]="theme.c2">{{theme.themeTitle}}</ion-label>
+      <div *ngIf="!theme.themeTitle" class="square" [style.background]="theme.c2"></div>
     </ion-segment-button>
   </ion-segment>
 </ng-template>

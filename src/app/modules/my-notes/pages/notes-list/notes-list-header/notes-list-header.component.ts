@@ -3,7 +3,7 @@ import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core
 import { IonSegment, MenuController } from '@ionic/angular';
 import { NoteActionButtons } from 'src/app/shared/constants/note-action-buttons';
 import { NotesStatus } from 'src/app/shared/constants/notes-status';
-import { ColorUi } from 'src/app/shared/models/configuration-ui';
+import { ThemeUi } from 'src/app/shared/models/configuration-ui';
 
 @Component({
   selector: 'app-notes-list-header',
@@ -16,13 +16,13 @@ export class NotesListHeaderComponent {
   @Input() loading: boolean;
   @Input() selectedLenght: number;
   @Input() notesStatus: NotesStatus;
-  @Input() colors = [];
+  @Input() themes: ThemeUi[] = [];
   @Input() selectedColor;
-  @Output() filterByColorEvEv = new EventEmitter<ColorUi>();
+  @Output() filterByColorEvEv = new EventEmitter<ThemeUi>();
   @Output() clickNoteToolEv = new EventEmitter<number>();
   title = 'Mis notas';
   status = NotesStatus;
-  colorSelected: ColorUi;
+  colorSelected: ThemeUi;
   showFilterToolbar = false;
   actionButtons = NoteActionButtons;
   constructor(private menu: MenuController) {}
@@ -41,16 +41,12 @@ export class NotesListHeaderComponent {
   }
 
   filterByColor(event) {
-    this.colorSelected = event.detail.value ===  'c_default' ? null : this.colors[event.detail.value.split('c_')[1]];
+    this.colorSelected = event.detail.value ===  'c_default' ? null : this.themes[event.detail.value.split('c_')[1]];
     this.filterByColorEvEv.emit(this.colorSelected);
   }
 
-  selectColor(colorC) {
-    if (!colorC) {
-      this.segment.value = 'c_default';
-    } else {
-      this.segment.value = 'c_' + this.colors.findIndex(c => c.id === colorC.id);
-    }
+  clearTheme() {
+    this.segment.value = 'c_default';
   }
 
 }

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { StatusBar } from '@capacitor/status-bar';
@@ -11,7 +11,7 @@ import { map, takeUntil, tap } from 'rxjs/operators';
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
 
   private ngUnsubscribe = new Subject<void>();
   constructor(
@@ -70,11 +70,11 @@ export class AppComponent {
 
   private setMode() {
     if (this.configService.isDarkMode) {
-      if (!document.body.classList.contains("dark")) {
-        document.body.classList.add("dark")
+      if (!document.body.classList.contains('dark')) {
+        document.body.classList.add('dark');
       }
     } else {
-      document.body.classList.remove("dark");
+      document.body.classList.remove('dark');
     }
   }
 }

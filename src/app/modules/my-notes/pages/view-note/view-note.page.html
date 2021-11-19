@@ -6,11 +6,21 @@
   (backButtonPressedEv)="onBack()" (clickNoteToolEv)="onFireHeaderButtonAction($event)">
 </app-note-header>
 <ion-content [fullscreen]="true" class="view-note-page">
+  <ion-title *ngIf="data?.themeTitle">{{data.themeTitle | uppercase}}</ion-title>
   <app-my-note *ngIf="data" [data]="data" isFullPage="true"></app-my-note>
   <app-images-list [images]="data?.images" (openImageEv)="onSelectImage($event)"></app-images-list>
-  <app-options-selector *ngIf="showColorSelector" (selectColorEv)="onSelectColor($event)"
-    (closeEv)="showColorSelector=false">
-  </app-options-selector>
+  <app-modal #calendarModalCmp *ngIf="showCalendar" [template]="calendarTmpl" (closeEv)="showCalendar=false"></app-modal>
+  <app-modal #colorSelectorModalCmp *ngIf="showColorSelector" [template]="colorSelectorTmpl" (closeEv)="showColorSelector=false"></app-modal>
 </ion-content>
 
 <app-full-screen-image *ngIf="data" [srcImage]="imageSelected"></app-full-screen-image>
+<ng-template #calendarTmpl>
+  <ion-item>
+    <ion-label>Seleccione fecha</ion-label>
+  </ion-item>
+  <app-calendar (selectDateEv)="onSelectDate($event)"></app-calendar>
+</ng-template>
+<ng-template #colorSelectorTmpl>
+  <app-color-selector *ngIf="showColorSelector" (selectThemeEv)="onSelectColor($event)"(closeEv)="showColorSelector=false">
+</app-color-selector>
+</ng-template>

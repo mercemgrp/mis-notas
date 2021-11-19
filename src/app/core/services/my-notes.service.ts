@@ -26,13 +26,13 @@ export class MyNotesService {
 
 
 
-  getActived(color?) {
-    return this.myNotes.filter(note => !note.archived && (color ? note.color === color : true))
+  getActived(themeId?) {
+    return this.myNotes.filter(note => !note.archived && (themeId ? note.themeId === themeId : true))
           .sort((a, b) => b.position - a.position);
   }
 
-  getArchived(color?) {
-    return this.myNotes.filter(note => note.archived && (color ? note.color === color : true))
+  getArchived(themeId?) {
+    return this.myNotes.filter(note => note.archived && (themeId ? note.themeId === themeId : true))
                         .sort((a, b) => b.position - a.position);
   }
 
@@ -122,12 +122,13 @@ export class MyNotesService {
   private addOrModifyNote(currentNotes: MyNote[], data: MyNote) {
     const externalData = {
       id: data.id,
-      color: data.color,
+      themeId: data.themeId,
       title: data.title,
       content: data.content,
       images: data.images,
-      position: data.position
-    };
+      position: data.position,
+      archived: data.archived
+    } as MyNote;
     if (data.id) {
       this.modifyNote(currentNotes, externalData);
     } else {
@@ -146,9 +147,7 @@ export class MyNotesService {
   }
 
   private createNote(currentNotes: MyNote[], externalData: MyNote) {
-    const randomId = Math.random()
-      .toString()
-      .replace('.', '');
+    const randomId = StaticUtilsService.getRandomId();
     const myNote: MyNote = {
       ...externalData,
       id: randomId,

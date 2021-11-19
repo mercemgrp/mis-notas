@@ -52,6 +52,9 @@ export class NoteHeaderComponent implements OnInit, OnChanges{
   private createButtons() {
     if (this.isArchived) {
       this.buttons = [{
+        type: this.actionButtons.switchColorSelector,
+        icon: 'color-palette'
+      }, {
         type: this.actionButtons.unarchive,
         icon: 'push'
       }, {
@@ -76,10 +79,10 @@ export class NoteHeaderComponent implements OnInit, OnChanges{
       }, {
         type: this.actionButtons.switchColorSelector,
         icon: 'color-palette'
-      }, {
-        type: this.actionButtons.timer,
-        icon: 'time'
-      }, {
+      },/* {
+        type: this.actionButtons.toggleCalendar,
+        icon: 'notifications'
+      } */ {
         type: this.actionButtons.delete,
         icon: 'trash',
         hidden: this.action === this.actions.create

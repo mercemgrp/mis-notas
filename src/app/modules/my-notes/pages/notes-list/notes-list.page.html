@@ -1,17 +1,17 @@
 <app-notes-list-header [hide]="scrollingDown"
 [selectedLenght]="activedSelected.length"
 [notesStatus]="notesStatus"
-[colors]="colors"
+[themes]="themes"
 [loading]="loading"
 (filterByColorEvEv)="onFilter($event)"
 (clickNoteToolEv)="onFireHeaderButtonAction($event)">
 </app-notes-list-header>
 <ion-content #content [fullscreen]="true" [scrollEvents]="true" (ionScroll)="onScroll($event)" class="my-notes-page">
   <div *ngIf="selectedColor && !showedFilterToolbar" class="my-notes-page__title u-flex" [style.background]="selectedColor.c1">
-    <ion-icon slot="start" name="filter"></ion-icon>
-    <ion-title *ngIf="selectedColor.title" [style.background]="selectedColor.c1">{{selectedColor.title}}</ion-title>
-    <button (click)="unselectColor()">
-      <ion-icon name="close"></ion-icon>
+    <ion-icon slot="start" name="filter" color="dark"></ion-icon>
+    <ion-title *ngIf="selectedColor.themeTitle" [style.background]="selectedColor.c1">{{selectedColor.themeTitle}}</ion-title>
+    <button (click)="unselectTheme()">
+      <ion-icon name="close" color="dark"></ion-icon>
     </button>
   </div>
   <div *ngIf="myNotesArchived?.length && !myNotesActived?.length" class="my-notes-page__new-inexistent">
@@ -38,18 +38,20 @@
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
   </ion-fab>
-  <app-options-selector *ngIf="showColorSelector" (selectColorEv)="onSelectColor($event)"
-    (closeEv)="onCloseColorSelector()">
-  </app-options-selector>
+  <app-modal *ngIf="showColorSelector" [template]="optionsSelectorTmpl" (closeEv)="onCloseColorSelector()">
+  </app-modal>
 </ion-content>
 
+<ng-template #optionsSelectorTmpl>
+  <app-color-selector  (selectThemeEv)="onSelectColor($event)"></app-color-selector>
+</ng-template>
 <ng-template #notesTmpl let-myNotes="myNotes" let-showOptions="showOptions">
   <div *ngFor="let data of myNotes || []; let i = index" class="note-wrapper" style="width: {{width}}%"
     [class.note-wrapper--unselected]="activedSelected.length && !data.selected"
     [class.note-wrapper--archived]="data?.archived" >
       <ion-button  *ngIf="showOptions" class="note-wrapper__btn" style="background-color: {{data.c2}}" (click)="onSelectNote($event, data, i)">
       </ion-button>
-      <app-my-note [data]="data" class="note-wrapper__content"
+      <app-my-note [data]="data" class="note-wrapper__content" [showTitle]="!selectedColor"
       (click)="onViewNote(data.id)"></app-my-note>
     </div>
 </ng-template>

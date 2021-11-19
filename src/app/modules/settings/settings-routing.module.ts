@@ -8,7 +8,7 @@ const routes: Routes = [
   },
   {
     path: 'colors',
-    loadChildren: () => import('./pages/colors/colors.module').then( m => m.ColorsPageModule)
+    loadChildren: () => import('./pages/themes/themes.module').then( m => m.ThemesPageModule)
   }
 ];
 

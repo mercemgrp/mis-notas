@@ -3,21 +3,21 @@ import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { IonBackButtonDelegate, IonInput, NavController } from '@ionic/angular';
 import { ConfigService } from 'src/app/core/services/config.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
-import { ColorUi } from 'src/app/shared/models/configuration-ui';
+import { ThemeUi } from 'src/app/shared/models/configuration-ui';
 
 @Component({
-  selector: 'app-colors',
-  templateUrl: './colors.page.html',
-  styleUrls: ['./colors.page.scss'],
+  selector: 'app-themes',
+  templateUrl: './themes.page.html',
+  styleUrls: ['./themes.page.scss'],
 })
-export class ColorsPage implements OnInit {
+export class ThemesPage implements OnInit {
   @ViewChild(IonBackButtonDelegate) backButton: IonBackButtonDelegate;
   @ViewChildren(IonInput) inputs: QueryList<IonInput>;
 
   get fontSize() {
     return this.configService.fontSize;
   }
-  colorsData: ColorUi[] = [];
+  themesData: ThemeUi[] = [];
   form: FormGroup;
   loading = false;
   idSelected: string;
@@ -29,9 +29,9 @@ export class ColorsPage implements OnInit {
 
   ngOnInit() {
     this.form = this.formBuilder.group({});
-    this.colorsData = this.configService.getColorsData();
-    this.colorsData.forEach(c => {
-      this.form.addControl(c.id, new FormControl(c.title));
+    this.themesData = this.configService.getThemesData();
+    this.themesData.forEach(c => {
+      this.form.addControl(c.themeId, new FormControl(c.themeTitle));
     });
     setTimeout(() => {
       this.setUIBackButtonAction();
@@ -48,12 +48,12 @@ export class ColorsPage implements OnInit {
 
   onSwitch(ascendant) {
     this.loading = true;
-    this.configService.switchColor(this.idSelected, ascendant)
-      .then(colors => this.colorsData = colors)
+    this.configService.switchTheme(this.idSelected, ascendant)
+      .then(themes => this.themesData = themes)
       .catch(_ => this.utilsServ.showToast('Ha ocurrido un error', true))
       .finally(() => this.loading = false);
   }
-  onSelectColor(e: Event, id) {
+  onSelectTheme(e: Event, id) {
     if (this.idSelected) {
       return;
     }
@@ -64,7 +64,7 @@ export class ColorsPage implements OnInit {
   onSave() {
     this.loading = true;
     const val = this.form.value;
-    return this.configService.setColorsData(val)
+    return this.configService.setThemesData(val)
       .then(_ => this.utilsServ.showToast('Se han guardado los cambios'))
       .catch(_ => this.utilsServ.showToast('Ha ocurrido un error', true))
       .finally(() => {
@@ -76,7 +76,7 @@ export class ColorsPage implements OnInit {
   private focusContent() {
     setTimeout(() => {
       this.inputs.first.getInputElement().then(
-        inp =>  inp.setSelectionRange(this.colorsData[0].title.length, this.colorsData[0].title.length));
+        inp =>  inp.setSelectionRange(this.themesData[0].themeTitle.length, this.themesData[0].themeTitle.length));
       this.inputs.first.setFocus();
       this.form.markAsUntouched();
     });

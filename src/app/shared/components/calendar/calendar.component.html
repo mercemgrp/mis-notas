@@ -1,0 +1,28 @@
+<div class="calendar-picker u-flex u-flex-column">
+  <ion-title>{{monthName | uppercase}} <span> {{year}}</span></ion-title>
+  <div class="u-flex u-flex-row calendar-picker__content">
+      <ion-button fill="clear" size="small" class="arrow-button" (click)="onBack()" >
+        <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+      </ion-button>
+
+    <div class="calendar u-flex u-flex-column">
+      <div class="u-flex u-flex-row calendar__weeks-days">
+        <div *ngFor="let weekDay of weeksDays" class="u-flex calendar__cell calendar__week-day">
+          <span class="u-txt-{{fontSize}}">{{weekDay}}</span>
+        </div>
+      </div>
+      <div *ngFor="let calendarRow of calendar" class="u-flex u-flex-row calendar__rows">
+        <div *ngFor="let dayData of calendarRow" class="u-flex calendar__cell calendar__day"
+          [class.calendar__day--checked]="dayData?.day === checkedDay">
+          <ion-button fill="clear" size="small"  [disabled]="!dayData?.enabled" shape="round"
+          (click)="onSelectDay(dayData?.day)" >
+            <span class="u-txt-{{fontSize}}">{{dayData?.day}}</span>
+          </ion-button>
+        </div>
+      </div>
+    </div>
+    <ion-button fill="clear" size="small" class="arrow-button" (click)="onFordward()">
+      <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
+    </ion-button>
+  </div>
+</div>

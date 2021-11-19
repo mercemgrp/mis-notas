@@ -1,19 +1,19 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { ColorsPage } from './colors.page';
+import { ColorSelectorComponent } from './color-selector.component';
 
-describe('ColorsPage', () => {
-  let component: ColorsPage;
-  let fixture: ComponentFixture<ColorsPage>;
+describe('ColorSelectorComponent', () => {
+  let component: ColorSelectorComponent;
+  let fixture: ComponentFixture<ColorSelectorComponent>;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ ColorsPage ],
+      declarations: [ ColorSelectorComponent ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ColorsPage);
+    fixture = TestBed.createComponent(ColorSelectorComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));

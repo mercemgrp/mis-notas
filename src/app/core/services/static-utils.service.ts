@@ -12,4 +12,10 @@ export  class StaticUtilsService {
     return newCopy;
   }
 
+  public static getRandomId() {
+    return Math.random()
+      .toString()
+      .replace('.', '');
+  }
+
 }

@@ -1,7 +1,6 @@
 import { Component, OnDestroy, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
-import { OptionsSelectorComponent } from 'src/app/modules/my-notes/shared/components/options-selector/options-selector.component';
 import { NoteActionButtons } from 'src/app/shared/constants/note-action-buttons';
 import { HEADER_HEIGHT } from 'src/app/shared/constants/header-px';
 import { MyNoteUi } from 'src/app/shared/models/my-note';
@@ -9,9 +8,9 @@ import { MyNotesService } from 'src/app/core/services/my-notes.service';
 import { NotesStatus } from 'src/app/shared/constants/notes-status';
 import { NotesListHeaderComponent } from './notes-list-header/notes-list-header.component';
 import { UtilsService } from 'src/app/core/services/utils.service';
-import { COLORS } from 'src/app/shared/constants/colors';
-import { ColorUi } from 'src/app/shared/models/configuration-ui';
+import { ThemeUi } from 'src/app/shared/models/configuration-ui';
 import { ConfigService } from 'src/app/core/services/config.service';
+import { ModalComponent } from 'src/app/shared/components/modal/modal.component';
 
 @Component({
   selector: 'app-notes-list',
@@ -19,7 +18,7 @@ import { ConfigService } from 'src/app/core/services/config.service';
   styleUrls: ['notes-list.page.scss']
 })
 export class NotestListPage implements OnDestroy {
-  @ViewChild(OptionsSelectorComponent) optionsSelectorComp: OptionsSelectorComponent;
+  @ViewChild(ModalComponent) optionsSelectorModalCmp: ModalComponent;
   @ViewChild(NotesListHeaderComponent) headerComp: NotesListHeaderComponent;
   get showedFilterToolbar() {
     return this.headerComp.showFilterToolbar;
@@ -39,10 +38,10 @@ export class NotestListPage implements OnDestroy {
   width = 100;
   loading = false;
   showColorSelector = false;
-  selectedColor: ColorUi;
+  selectedColor: ThemeUi;
   numberOfNotesSelected = 0;
   actionButtons = NoteActionButtons;
-  colors: ColorUi[]= [];
+  themes: ThemeUi[]= [];
   pageLoaded = false;
   private ngUnsubscribe = new Subject<void>();
   constructor(
@@ -58,9 +57,9 @@ export class NotestListPage implements OnDestroy {
 
   ionViewWillEnter() {
     this.pageLoaded = false;
-    this.retrieveNotesFromService();
+    this.updateNotes();
     this.unselectNotes();
-    this.colors = this.config.getColorsData();
+    this.themes = this.config.getThemesData();
   }
 
   ionViewDidEnter() {
@@ -102,31 +101,31 @@ export class NotestListPage implements OnDestroy {
     }
   }
 
-  onFilter(colorSelected: ColorUi) {
+  onFilter(colorSelected: ThemeUi) {
     if (colorSelected) {
       this.selectedColor = {
-        ...this.colors.find(c => c.id === colorSelected.id),
+        ...this.themes.find(c => c.colorId === colorSelected.colorId),
         ...colorSelected
       };
     } else {
       this.selectedColor = null;
     }
-   this.retrieveNotesFromService();
+   this.updateNotes();
     this.unselectNotes();
   }
 
-  unselectColor() {
+  unselectTheme() {
     this.selectedColor = null;
-    this.retrieveNotesFromService();
+    this.updateNotes();
     this.unselectNotes();
-    this.headerComp.selectColor('');
+    this.headerComp.clearTheme();
   }
 
   onSwitchColorSelector() {
     if (!this.showColorSelector) {
       this.showColorSelector = true;
     } else {
-      this.optionsSelectorComp.onHide();
+      this.optionsSelectorModalCmp.onHide();
     }
   }
 
@@ -140,7 +139,7 @@ export class NotestListPage implements OnDestroy {
   }
 
   onAddNote() {
-    this.router.navigate(['my-notes/create', { color: this.selectedColor?.id || ''}]);
+    this.router.navigate(['my-notes/create', { color: this.selectedColor?.colorId || ''}]);
   }
   onScroll(e): void {
     if (e.detail.scrollTop === 0) {
@@ -157,17 +156,19 @@ export class NotestListPage implements OnDestroy {
     }
   }
 
-  onSelectColor(color) {
+  onSelectColor(colorId) {
+    const theme = this.config.getThemeData(colorId);
     this.loading = true;
     const myNotes = this.activedSelected.map(elem => ({
       ...elem,
-      color
+      ...theme
     }));
     this.myNotesService
       .save(myNotes)
-      .then(() => this.retrieveNotesFromService())
+      .then(() => this.updateNotes())
       .finally(() => {
         this.unselectNotes();
+        this.optionsSelectorModalCmp.onHide();
         this.loading = false;
       });
   }
@@ -208,14 +209,13 @@ export class NotestListPage implements OnDestroy {
       this.myNotesService.switch(data1, data2)
       .then(resp => {
         if (resp) {
-          const colorData = this.config.getColorData(this.selectedColor?.id);
-          const actived = this.myNotesService.getActived(this.selectedColor?.id);
+          const colorData = this.config.getThemeData(this.selectedColor?.colorId) || this.config.defaultThemeIdData;
+          const actived = this.myNotesService.getActived(this.selectedColor?.colorId);
           this.myNotesActived = actived
             .map(n => ({
               ...n,
               selected: n.id === data1.id,
-              c1: colorData.c1 || COLORS.yellow.c1,
-              c2: colorData?.c2 || COLORS.yellow.c2
+              ...colorData
             }));
         }
       })
@@ -231,7 +231,7 @@ export class NotestListPage implements OnDestroy {
     this.loading = true;
     this.myNotesService
       .archive(this.activedSelected)
-      .then(() => this.retrieveNotesFromService())
+      .then(() => this.updateNotes())
       .catch(_ => this.utilsServ.showToast('Ha ocurrido un error', true))
       .finally(() => (this.loading = false));
   }
@@ -239,7 +239,7 @@ export class NotestListPage implements OnDestroy {
     this.loading = true;
     this.myNotesService
       .delete(this.activedSelected)
-      .then(() => this.retrieveNotesFromService())
+      .then(() => this.updateNotes())
       .catch(_ => this.utilsServ.showToast('Ha ocurrido un error', true))
       .finally(() => (this.loading = false));
   }
@@ -270,17 +270,25 @@ export class NotestListPage implements OnDestroy {
   }
 
   private retrieveNotesFromService() {
-    const colorData = this.config.getColorData(this.selectedColor?.id);
-    this.myNotesActived = this.myNotesService.getActived(this.selectedColor?.id).map(note => ({
-      ...note,
-      c1: colorData?.c1 || COLORS.yellow.c1,
-      c2: colorData?.c2 || COLORS.yellow.c2,
-    }));
-    this.myNotesArchived = this.myNotesService.getArchived(this.selectedColor?.id).map(note => ({
-      ...note,
-      c1: colorData?.c1 || COLORS.yellow.c1,
-      c2: colorData?.c2 || COLORS.yellow.c2,
-    }));
+    const defaultThemeIdData = this.config.defaultThemeIdData;
+    this.myNotesActived = this.myNotesService.getActived(this.selectedColor?.colorId).map(note => {
+      const colorData = this.config.getThemeData(note?.themeId);
+      return {
+        ...note,
+        ...colorData || defaultThemeIdData
+      };
+    });
+    this.myNotesArchived = this.myNotesService.getArchived(this.selectedColor?.colorId).map(note => {
+      const colorData = this.config.getThemeData(note?.themeId);
+      return {
+        ...note,
+        ...colorData || defaultThemeIdData
+      };
+    });
+  }
+
+  private updateNotes() {
+    this.retrieveNotesFromService();
     this.getFabIconState();
   }
 

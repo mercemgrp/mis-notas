@@ -6,7 +6,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { MyNoteComponent } from './components/my-note/my-note.component';
 import { MyNoteEditComponent } from './components/my-note-edit/my-note-edit.component';
 import { NoteHeaderComponent } from './components/note-header/note-header.component';
-import { OptionsSelectorComponent } from './components/options-selector/options-selector.component';
+import { ColorSelectorComponent } from './components/color-selector/color-selector.component';
 
 @NgModule({
   imports: [
@@ -17,7 +17,7 @@ import { OptionsSelectorComponent } from './components/options-selector/options-
     SharedModule
   ],
   providers: [],
-  declarations: [MyNoteComponent, MyNoteEditComponent, NoteHeaderComponent, OptionsSelectorComponent],
-  exports: [MyNoteComponent, MyNoteEditComponent, NoteHeaderComponent, OptionsSelectorComponent]
+  declarations: [MyNoteComponent, MyNoteEditComponent, NoteHeaderComponent, ColorSelectorComponent],
+  exports: [MyNoteComponent, MyNoteEditComponent, NoteHeaderComponent, ColorSelectorComponent]
 })
 export class MyNotesSharedModule {}

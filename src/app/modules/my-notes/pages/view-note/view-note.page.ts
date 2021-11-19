@@ -1,22 +1,26 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { NoteActionButtons } from 'src/app/shared/constants/note-action-buttons';
 import { NoteAction } from 'src/app/shared/constants/note-action';
-import { MyNote, MyNoteUi } from 'src/app/shared/models/my-note';
+import { MyNoteUi } from 'src/app/shared/models/my-note';
 import { MyNotesService } from 'src/app/core/services/my-notes.service';
 import { NotesStatus } from 'src/app/shared/constants/notes-status';
 import { UtilsService } from 'src/app/core/services/utils.service';
-import { COLORS } from 'src/app/shared/constants/colors';
 import { ConfigService } from 'src/app/core/services/config.service';
+import { ModalComponent } from 'src/app/shared/components/modal/modal.component';
+import { LocalNotifications } from '@ionic-native/local-notifications/ngx';
 @Component({
   selector: 'app-view-note',
   templateUrl: 'view-note.page.html',
   styleUrls: ['view-note.page.scss']
 })
 export class ViewNotePage {
+  @ViewChild('colorSelectorModalCmp') colorSelectorModalComp: ModalComponent;
+  @ViewChild('calendarModalCmp') calendarModalCmp: ModalComponent;
   data: MyNoteUi;
   showColorSelector = false;
+  showCalendar = false;
   loading = false;
   imageSelected = '';
   actionButtons = NoteActionButtons;
@@ -28,18 +32,18 @@ export class ViewNotePage {
     private service: MyNotesService,
     private router: Router,
     private utils: UtilsService,
-    private config: ConfigService
+    private config: ConfigService,
+    private localNotifications: LocalNotifications
     ) {
   }
 
   ionViewWillEnter() {
     this.loading = true;
     const note = this.service.get(this.activatedRoute.snapshot.params.id);
-    const colorData = this.config.getColorData(note.color);
+    const colorData = this.config.getThemeData(note.themeId) || this.config.defaultThemeIdData;
     this.data = {
       ...note,
-      c1: colorData?.c1 || COLORS.yellow.c1,
-      c2: colorData?.c2 || COLORS.yellow.c2
+      ...colorData
     };
 
   }
@@ -52,9 +56,32 @@ export class ViewNotePage {
     this.data = null;
   }
 
+  onSelectDate(date: Date) {
+    this.calendarModalCmp.onHide();
+    this.localNotifications.schedule({
+      text:  this.data.content,
+      trigger: {at: new Date(date.getTime())},
+      led: 'FF0000',
+      data: this.data,
+      sound: null
+   });
+  }
+
   onBack() {
     this.loading = true;
-    this.navCtrl.back();
+    if (this.showColorSelector) {
+      this.switchColorPalette();
+      setTimeout(() => {
+        this.navCtrl.back();
+      }, 250);
+    } else if(this.showCalendar) {
+      this.showCalendarFn();
+      setTimeout(() => {
+        this.navCtrl.back();
+      }, 250);
+    }else {
+      this.navCtrl.back();
+    }
   }
 
   onFireHeaderButtonAction(id) {
@@ -83,6 +110,9 @@ export class ViewNotePage {
       case this.actionButtons.edit:
         this.edit();
       break;
+      case this.actionButtons.toggleCalendar:
+        this.showCalendarFn();
+      break;
       default:
       break;
     }
@@ -92,23 +122,34 @@ export class ViewNotePage {
     this.imageSelected = image;
   }
 
-  onSelectColor(colorId) {
+  onSelectColor(themeId) {
     this.loading = true;
     const editedNote = {
       ...this.data,
-      color: colorId
+      themeId
     };
+    this.colorSelectorModalComp.onHide();
     this.service.save(editedNote)
       .then(() => {
-        const colorData = this.config.getColorData(colorId);
+        const themeData = this.config.getThemeData(themeId) || this.config.defaultThemeIdData;
         this.data = {
           ...this.data,
-          c1: colorData?.c1 || COLORS.yellow.c1,
-          c2: colorData?.c2 || COLORS.yellow.c2
+          ...themeData
         };
       })
       .catch(_ => this.utils.showToast('Ha ocurrido un error guardando el color', true))
       .finally(() => this.loading = false);
+  }
+
+  private showCalendarFn() {
+    if (this.showColorSelector) {
+      return;
+    }
+    if (this.showCalendar) {
+      this.calendarModalCmp?.onHide();
+    } else {
+      this.showCalendar = true;
+    }
   }
 
   private async archive() {
@@ -199,8 +240,16 @@ export class ViewNotePage {
   }
 
   private  switchColorPalette() {
+    if (this.showCalendar) {
+      return;
+    }
+    if (this.showColorSelector) {
+      this.colorSelectorModalComp?.onHide();
+    } else {
+      this.calendarModalCmp?.onHide();
       this.showColorSelector = true;
     }
+  }
 
     private async delete() {
       this.loading = true;

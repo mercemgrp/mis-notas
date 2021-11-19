@@ -11,5 +11,5 @@ export enum NoteActionButtons {
   deleteImage = 10,
   archive = 11,
   unarchive = 12,
-  timer = 13
+  toggleCalendar = 13
 };

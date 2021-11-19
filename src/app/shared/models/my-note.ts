@@ -8,7 +8,7 @@ export interface MyNote {
   createdDate?: string;
   modifiedDate?: string;
   archived?: boolean;
-  color: string;
+  themeId: string;
   position: number;
 }
 
@@ -16,4 +16,5 @@ export interface MyNoteUi extends MyNote {
   selected?: boolean;
   c1: string;
   c2: string;
+  themeTitle: string;
 }

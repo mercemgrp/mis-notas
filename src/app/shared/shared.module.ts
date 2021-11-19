@@ -5,13 +5,17 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FormatDatePipe } from './pipes/format-date.pipe';
 import { FullScreenImageComponent } from './components/full-screen-image/full-screen-image.component';
 import { ImagesListComponent } from './components/images-list/images-list.component';
+import { CalendarComponent } from './components/calendar/calendar.component';
+import { ModalComponent } from './components/modal/modal.component';
 
 
 @NgModule({
   declarations: [
     FullScreenImageComponent,
     ImagesListComponent,
-    FormatDatePipe
+    CalendarComponent,
+    FormatDatePipe,
+    ModalComponent
   ],
   imports: [
     CommonModule,
@@ -21,8 +25,10 @@ import { ImagesListComponent } from './components/images-list/images-list.compon
   ],
   exports: [
     FullScreenImageComponent,
+    CalendarComponent,
     ImagesListComponent,
-    FormatDatePipe
+    FormatDatePipe,
+    ModalComponent
   ]
 })
 export class SharedModule { }

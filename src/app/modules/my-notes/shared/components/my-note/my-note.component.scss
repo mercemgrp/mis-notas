@@ -3,6 +3,8 @@
     padding: 10px 5px 0px 10px;
     ion-card-title {
       color: #000000;
+      display: flex;
+      justify-content: right;
     }
     ion-card-subtitle {
       font-size: 10px;

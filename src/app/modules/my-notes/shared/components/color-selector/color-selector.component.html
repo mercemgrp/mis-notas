@@ -1,0 +1,10 @@
+
+    <ul class="colors-list">
+      <li *ngFor="let color of colors">
+        <button (click)="onSelectStyle(color.colorId)">
+          <div [style]="'background:' + color.c2"> </div>
+        </button>
+      </li>
+    </ul>
+
+

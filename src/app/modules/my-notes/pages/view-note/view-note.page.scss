@@ -1,7 +1,10 @@
 .view-note-page {
+  >ion-title {
+    margin-top: 10px;
+  }
   ::ng-deep {
     .my-card {
-      min-height: 300px;
+      min-height: 330px;
     }
   }
 }

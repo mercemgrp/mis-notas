@@ -37,7 +37,7 @@ export class MenuComponent implements OnInit {
     this.configService.toggleMode().finally(() => this.isDarkMode = this.configService.isDarkMode);
   }
 
-  onNavigateToColorsPage() {
+  onNavigateToThemesPage() {
     this.router.navigate(['settings/colors']).finally(() => this.onCloseMainMenu());
   }
 

@@ -1,10 +1,8 @@
 import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
-import { COLORS } from 'src/app/shared/constants/colors';
-import { MyNote, MyNoteUi } from 'src/app/shared/models/my-note';
+import { MyNoteUi } from 'src/app/shared/models/my-note';
 import { MyNotesService } from 'src/app/core/services/my-notes.service';
-import { OptionsSelectorComponent } from 'src/app/modules/my-notes/shared/components/options-selector/options-selector.component';
 import { NoteActionButtons } from 'src/app/shared/constants/note-action-buttons';
 import { NoteAction } from 'src/app/shared/constants/note-action';
 import { NotesStatus } from 'src/app/shared/constants/notes-status';
@@ -12,6 +10,7 @@ import { MyNoteEditComponent } from '../../shared/components/my-note-edit/my-not
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { ConfigService } from 'src/app/core/services/config.service';
 import { LocalNotifications } from '@ionic-native/local-notifications/ngx';
+import { ModalComponent } from 'src/app/shared/components/modal/modal.component';
 
 @Component({
   selector: 'app-edit-note',
@@ -20,9 +19,11 @@ import { LocalNotifications } from '@ionic-native/local-notifications/ngx';
 })
 export class EditNotePage {
   @ViewChild(MyNoteEditComponent) myNoteEdit: MyNoteEditComponent;
-  @ViewChild(OptionsSelectorComponent) optionsSelectorComp: OptionsSelectorComponent;
+  @ViewChild('colorSelectorModalCmp') colorSelectorModalComp: ModalComponent;
+  @ViewChild('calendarModalCmp') calendarModalCmp: ModalComponent;
   data: MyNoteUi;
   showColorSelector = false;
+  showCalendar = false;
   loading = false;
   imageSelected = '';
   actionButtons = NoteActionButtons;
@@ -47,25 +48,22 @@ export class EditNotePage {
     this.loading = true;
     if (this.activatedRoute.snapshot.params?.id) {
       const note = this.service.get(this.activatedRoute.snapshot.params.id);
-      const colorData = this.config.getColorData(note.color);
+      const colorData = this.config.getThemeData(note.themeId) || this.config.defaultThemeIdData;
       this.data = {
         ...note,
-        c1: colorData?.c1 || COLORS.yellow.c1,
-        c2: colorData?.c2 || COLORS.yellow.c2
+        ...colorData
       };
       if (!this.data) {
         this.navCtrl.back();
       }
     } else {
       const param = this.activatedRoute.snapshot.params?.color;
-      const colorData = this.config.getColorData(param);
+      const colorData = this.config.getThemeData(param) || this.config.defaultThemeIdData;
       this.data = {
         id: null,
         title: '',
         content: '',
-        color:  param || COLORS.yellow.id,
-        c1: colorData?.c1 || COLORS.yellow.c1,
-        c2: colorData?.c2 || COLORS.yellow.c2,
+        ...colorData,
         position: null
       };
     }
@@ -87,7 +85,7 @@ export class EditNotePage {
         this.onSave();
       break;
       case this.actionButtons.switchColorSelector:
-        this.onSwitchColorPalette();
+        this.switchColorPalette();
       break;
       case this.actionButtons.pickImage:
       this.pickImage();
@@ -107,21 +105,32 @@ export class EditNotePage {
       case this.actionButtons.unarchive:
         this.unarchive();
       break;
-      case this.actionButtons.timer:
-        this.showCalendar();
+      case this.actionButtons.toggleCalendar:
+        this.showCalendarFn();
       break;
       default:
       break;
     }
   }
 
-  onSelectColor(color) {
+  onSelectDate(date: Date) {
+    this.calendarModalCmp.onHide();
+    this.localNotifications.schedule({
+      text:  this.data.content,
+      trigger: {at: new Date(date.getTime())},
+      led: 'FF0000',
+      data: this.data,
+      sound: null
+   });
+  }
+
+  onSelectColor(colorId) {
+    const colorData = this.config.getThemeData(colorId) || this.config.defaultThemeIdData;
     this.data = {
       ...this.data,
-      color,
-      c1: COLORS[color]?.c1 || COLORS.yellow.c1,
-      c2: COLORS[color]?.c2 || COLORS.yellow.c2
+      ...colorData
     };
+    this.colorSelectorModalComp.onHide();
   }
 
   onSelectImage(image) {
@@ -129,22 +138,19 @@ export class EditNotePage {
   }
 
 
-  onSwitchColorPalette() {
-    if (!this.showColorSelector) {
-      this.showColorSelector = true;
-    } else {
-      this.optionsSelectorComp.onHide();
-    }
-  }
-
   onBack() {
     this.loading = true;
     if (this.showColorSelector) {
-      this.onSwitchColorPalette();
+      this.switchColorPalette();
       setTimeout(() => {
         this.save(true).then(() => this.navCtrl.back());
       }, 250);
-    } else {
+    } else if(this.showCalendar) {
+      this.showCalendarFn();
+      setTimeout(() => {
+        this.save(true).then(() => this.navCtrl.back());
+      }, 250);
+    }else {
       this.save(true).then(() => this.navCtrl.back());
     }
   }
@@ -153,6 +159,18 @@ export class EditNotePage {
     if (!this.loading) {
       this.save()
         .then(() => this.navCtrl.back());
+    }
+  }
+
+  private  switchColorPalette() {
+    if (this.showCalendar) {
+      return;
+    }
+    if (this.showColorSelector) {
+      this.colorSelectorModalComp?.onHide();
+    } else {
+      this.calendarModalCmp?.onHide();
+      this.showColorSelector = true;
     }
   }
 
@@ -200,14 +218,15 @@ export class EditNotePage {
       .finally(() => (this.loading = false));
   }
 
-  private showCalendar() {
-    this.localNotifications.schedule({
-      text:  this.data.content,
-      trigger: {at: new Date(new Date().getTime() + 3600)},
-      led: 'FF0000',
-      data: this.data,
-      sound: null
-   });
+  private showCalendarFn() {
+    if (this.showColorSelector) {
+      return;
+    }
+    if (this.showCalendar) {
+      this.calendarModalCmp.onHide();
+    } else {
+      this.showCalendar = true;
+    }
   }
 
   private deleteImage() {
@@ -261,7 +280,12 @@ export class EditNotePage {
         if (!isBack) {
           this.utilsServ.showToast(err);
           throw new Error('');
-        }});
+        } else {
+          return true;
+        }
+
+      }
+      );
     }
 
 }

@@ -4,9 +4,9 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { ColorsPageRoutingModule } from './colors-routing.module';
+import { ThemesPageRoutingModule } from './themes-routing.module';
 
-import { ColorsPage } from './colors.page';
+import { ThemesPage } from './themes.page';
 
 @NgModule({
   imports: [
@@ -14,8 +14,8 @@ import { ColorsPage } from './colors.page';
     FormsModule,
     ReactiveFormsModule,
     IonicModule,
-    ColorsPageRoutingModule
+    ThemesPageRoutingModule
   ],
-  declarations: [ColorsPage]
+  declarations: [ThemesPage]
 })
-export class ColorsPageModule {}
+export class ThemesPageModule {}

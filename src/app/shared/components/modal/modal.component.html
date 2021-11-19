@@ -1,0 +1,7 @@
+<div [class]="'modal modal-'+id" (click)="onHide($event)">
+  <div class="modal__content"
+    (click)="$event.stopPropagation()">
+    <div *ngTemplateOutlet="template"></div>
+  </div>
+</div>
+
