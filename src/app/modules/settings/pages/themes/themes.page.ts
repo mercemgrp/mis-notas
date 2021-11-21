@@ -19,6 +19,7 @@ export class ThemesPage implements OnInit {
   }
   themesData: ThemeUi[] = [];
   form: FormGroup;
+  changes = false;
   loading = false;
   idSelected: string;
   constructor(
@@ -28,11 +29,8 @@ export class ThemesPage implements OnInit {
     private navCtrl: NavController) { }
 
   ngOnInit() {
-    this.form = this.formBuilder.group({});
     this.themesData = this.configService.getThemesData();
-    this.themesData.forEach(c => {
-      this.form.addControl(c.themeId, new FormControl(c.themeTitle));
-    });
+    this.createForm();
     setTimeout(() => {
       this.setUIBackButtonAction();
     });
@@ -43,7 +41,7 @@ export class ThemesPage implements OnInit {
   }
 
   onUnselect() {
-    this.idSelected=undefined;
+    this.idSelected='';
   }
 
   onSwitch(ascendant) {
@@ -54,9 +52,6 @@ export class ThemesPage implements OnInit {
       .finally(() => this.loading = false);
   }
   onSelectTheme(e: Event, id) {
-    if (this.idSelected) {
-      return;
-    }
     e?.stopPropagation();
     e?.preventDefault();
     this.idSelected = this.idSelected !== id ? id : undefined;
@@ -69,7 +64,8 @@ export class ThemesPage implements OnInit {
       .catch(_ => this.utilsServ.showToast('Ha ocurrido un error', true))
       .finally(() => {
         this.loading = false;
-        this.idSelected = '';
+        this.changes = false;
+        this.onUnselect();
       });
   }
 
@@ -84,8 +80,20 @@ export class ThemesPage implements OnInit {
 
   private setUIBackButtonAction() {
     this.backButton.onClick = () => {
-      this.onSave().then(() => this.navCtrl.back());
+      if (this.changes) {
+        this.onSave().then(() => this.navCtrl.back());
+      } else {
+        this.navCtrl.back();
+      }
     };
+  }
+
+  private createForm() {
+    this.form = this.formBuilder.group({});
+    this.themesData.forEach(c => {
+      this.form.addControl(c.themeId, new FormControl(c.themeTitle));
+    });
+    this.form.valueChanges.subscribe(() => this.changes = true);
   }
 
 }

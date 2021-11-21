@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { MyNoteUi } from 'src/app/shared/models/my-note';
@@ -6,11 +6,13 @@ import { MyNotesService } from 'src/app/core/services/my-notes.service';
 import { NoteActionButtons } from 'src/app/shared/constants/note-action-buttons';
 import { NoteAction } from 'src/app/shared/constants/note-action';
 import { NotesStatus } from 'src/app/shared/constants/notes-status';
-import { MyNoteEditComponent } from '../../shared/components/my-note-edit/my-note-edit.component';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { ConfigService } from 'src/app/core/services/config.service';
 import { LocalNotifications } from '@ionic-native/local-notifications/ngx';
 import { ModalComponent } from 'src/app/shared/components/modal/modal.component';
+import { ThemeUi } from 'src/app/shared/models/configuration-ui';
+import { EditTextAreaComponent } from './edit-text-area/edit-text-area.component';
+import { EditListComponent } from './edit-list/edit-list.component';
 
 @Component({
   selector: 'app-edit-note',
@@ -18,10 +20,11 @@ import { ModalComponent } from 'src/app/shared/components/modal/modal.component'
   styleUrls: ['edit-note.page.scss']
 })
 export class EditNotePage {
-  @ViewChild(MyNoteEditComponent) myNoteEdit: MyNoteEditComponent;
+  @ViewChild('myNoteEdit') myNoteEdit: EditTextAreaComponent | EditListComponent;
   @ViewChild('colorSelectorModalCmp') colorSelectorModalComp: ModalComponent;
   @ViewChild('calendarModalCmp') calendarModalCmp: ModalComponent;
   data: MyNoteUi;
+  isNote;
   showColorSelector = false;
   showCalendar = false;
   loading = false;
@@ -29,6 +32,7 @@ export class EditNotePage {
   actionButtons = NoteActionButtons;
   actions = NoteAction;
   notesStatus = NotesStatus;
+  themes: ThemeUi[];
   get enableImagePicker() {
     return !this.data?.images || this.data.images?.length < 3;
   }
@@ -46,27 +50,30 @@ export class EditNotePage {
 
   ionViewWillEnter() {
     this.loading = true;
+    this.themes = this.config.getThemesData();
     if (this.activatedRoute.snapshot.params?.id) {
       const note = this.service.get(this.activatedRoute.snapshot.params.id);
       const colorData = this.config.getThemeData(note.themeId) || this.config.defaultThemeIdData;
       this.data = {
         ...note,
-        ...colorData
+        ...colorData,
+        type: note.type || 1
       };
       if (!this.data) {
         this.navCtrl.back();
       }
     } else {
-      const param = this.activatedRoute.snapshot.params?.color;
-      const colorData = this.config.getThemeData(param) || this.config.defaultThemeIdData;
+      const themeId = this.activatedRoute.snapshot.params?.themeId;
+      const colorData = this.config.getThemeData(themeId) || this.config.defaultThemeIdData;
       this.data = {
         id: null,
-        title: '',
+        type: 1,
         content: '',
         ...colorData,
         position: null
       };
     }
+    this.isNote = this.data.type === 1;
 
   }
 
@@ -78,7 +85,11 @@ export class EditNotePage {
     this.data = null;
   }
 
-
+  onToggleNoteType(value) {
+    if (value.detail) {
+      this.isNote = value.detail.checked;
+    }
+  }
   onFireHeaderButtonAction(id) {
     switch(id) {
       case this.actionButtons.save:
@@ -272,7 +283,8 @@ export class EditNotePage {
         this.loading = true;
         return this.service.save({
           ...this.data,
-          ...data
+          ...data,
+          type: this.isNote ? 1 : 2
         }).catch(_ => {
           this.utilsServ.showToast('Ha ocurrido un error guardando la nota', true);
         });

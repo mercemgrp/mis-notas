@@ -11,7 +11,6 @@
     }
     > ion-title {
       padding: 5px 10px;
-      color: #000000;
     }
     > button {
       background: transparent;
@@ -34,6 +33,27 @@
       display: flex;
       flex-direction: column;
       width: 100%;
+      &__grid {
+        width: 50%;
+        .note-wrapper {
+          &__content {
+            height: 150px;
+            display: flex;
+            width: 100%;
+            flex-direction: column;
+            ::ng-deep {
+              ion-card {
+                height: 100%;
+                ion-card-content {
+                  height: 125px;
+                  text-overflow: ellipsis;
+                  overflow-y: hidden;
+                }
+              }
+            }
+          }
+        }
+      }
       &--unselected{
         opacity: 0.4;
       }
@@ -52,7 +72,7 @@
         z-index: 1;
         float: right;
         right: 8px;
-        top: 8px;
+        top: 7px;
         height: calc(100% - 22px);
       &::part(native) {
         background: rgb(0 0 0 / 10%);

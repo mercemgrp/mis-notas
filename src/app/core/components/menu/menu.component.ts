@@ -10,8 +10,10 @@ import { UtilsService } from '../../services/utils.service';
 })
 export class MenuComponent implements OnInit {
   isDarkMode: boolean;
+  isListView: boolean;
+  hideArchived: boolean;
   error: boolean;
-  currentFontSize;
+  currentFontSize: number;
   constructor(
     private menu: MenuController,
     private configService: ConfigService,
@@ -21,6 +23,8 @@ export class MenuComponent implements OnInit {
     ngOnInit() {
       this.isDarkMode = this.configService.isDarkMode;
       this.currentFontSize = this.configService.fontSize;
+      this.isListView = this.configService.viewIsListMode;
+      this.hideArchived = this.configService.hideArchived;
     }
 
   onCloseMainMenu() {
@@ -37,8 +41,16 @@ export class MenuComponent implements OnInit {
     this.configService.toggleMode().finally(() => this.isDarkMode = this.configService.isDarkMode);
   }
 
+  onToggleViewMode() {
+    this.configService.toggleViewMode().finally(() => this.isListView = this.configService.viewIsListMode);
+  }
+
   onNavigateToThemesPage() {
     this.router.navigate(['settings/colors']).finally(() => this.onCloseMainMenu());
+  }
+
+  onToggleHideArchived() {
+    this.configService.toggleHideArchived().finally(() => this.hideArchived = this.configService.hideArchived);
   }
 
 }

@@ -1,19 +1,19 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { MyNoteComponent } from './my-note-edit.component';
+import { EditListComponent } from './edit-list.component';
 
-describe('MyNoteComponent', () => {
-  let component: MyNoteComponent;
-  let fixture: ComponentFixture<MyNoteComponent>;
+describe('EditListComponent', () => {
+  let component: EditListComponent;
+  let fixture: ComponentFixture<EditListComponent>;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ MyNoteComponent ],
+      declarations: [ EditListComponent ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(MyNoteComponent);
+    fixture = TestBed.createComponent(EditListComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));

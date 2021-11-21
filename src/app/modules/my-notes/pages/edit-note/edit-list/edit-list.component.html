@@ -1,0 +1,26 @@
+<div class="edit-list">
+  <form *ngIf="editForm" [formGroup]="editForm">
+    <div>
+      <ion-item>
+        <ion-input formControlName="title" type="text" class="u-txt-{{fontSize}}" 
+        placeholder="Escriba un título" [style]="'background-color: '+ data.c1"></ion-input>
+      </ion-item>
+      <ion-item *ngFor="let item of listItems; let i=index">
+        <ion-input (keyup.enter)="onKeyup($event)" [formControlName]="'item'+i"  type="text" class="u-txt-{{fontSize}}"[style]="'background-color: '+ data.c1"
+       ></ion-input>
+        
+        <ion-button fill="none" (click)="onCheck(i)">
+          <ion-icon slot="icon-only" [name]="item.checked ?'arrow-undo-circle' : 'checkmark'"></ion-icon>
+        </ion-button>
+        <ion-button fill="none" (click)="onDelete(i)">
+          <ion-icon slot="icon-only" name="trash"></ion-icon>
+        </ion-button>
+      </ion-item>
+      <ion-item>
+        <ion-button fill="none" (click)="addListItem()">
+          <ion-icon slot="icon-only" name="add"></ion-icon>
+        </ion-button>
+      </ion-item>
+    </div>
+  </form>
+</div>

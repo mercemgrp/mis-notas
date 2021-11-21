@@ -1,11 +1,16 @@
-import { MODES } from '../constants/modes';
+import { Modes } from '../constants/modes';
+import { ViewModes } from '../constants/views';
 
 
 export interface Configuration {
-  mode: MODES;
+  mode: Modes;
   defaultThemeId: string;
   themes: Theme[];
   fontSize: number;
+  menuId: string;
+  viewMode: ViewModes;
+  showThemesToolbar: boolean;
+  hideArchived: boolean;
 }
 
 export interface ColorConfig {

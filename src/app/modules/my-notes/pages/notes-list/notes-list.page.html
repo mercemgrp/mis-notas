@@ -3,15 +3,18 @@
 [notesStatus]="notesStatus"
 [themes]="themes"
 [loading]="loading"
-(filterByColorEvEv)="onFilter($event)"
+[selectedTheme]="themeSelected"
+[showThemesToolbar]="showedThemeToolbar"
+(showFiterToolbarEv)="onChangesShowThemeToolbar($event)"
+(filterByThemeEv)="onFilterByThemeId($event)"
 (clickNoteToolEv)="onFireHeaderButtonAction($event)">
 </app-notes-list-header>
 <ion-content #content [fullscreen]="true" [scrollEvents]="true" (ionScroll)="onScroll($event)" class="my-notes-page">
-  <div *ngIf="selectedColor && !showedFilterToolbar" class="my-notes-page__title u-flex" [style.background]="selectedColor.c1">
-    <ion-icon slot="start" name="filter" color="dark"></ion-icon>
-    <ion-title *ngIf="selectedColor.themeTitle" [style.background]="selectedColor.c1">{{selectedColor.themeTitle}}</ion-title>
+  <div *ngIf="themeSelected && !showedThemeToolbar" class="my-notes-page__title u-flex" [style.background]="themeSelected.c1">
+    <ion-icon slot="start" name="filter" class="u-c-black"></ion-icon>
+    <ion-title *ngIf="themeSelected.themeTitle" class="u-c-black" [style.background]="themeSelected.c1">{{themeSelected.themeTitle |uppercase}}</ion-title>
     <button (click)="unselectTheme()">
-      <ion-icon name="close" color="dark"></ion-icon>
+      <ion-icon name="close" class="u-c-black"></ion-icon>
     </button>
   </div>
   <div *ngIf="myNotesArchived?.length && !myNotesActived?.length" class="my-notes-page__new-inexistent">
@@ -20,8 +23,8 @@
   <article class="my-notes-page__list">
     <ng-content *ngTemplateOutlet="notesTmpl; context:{ myNotes: myNotesActived, showOptions: true }" ></ng-content>
   </article>
-<ion-title class="my-notes-page__archive-title" *ngIf="pageLoaded && myNotesArchived?.length">Archivadas</ion-title>
-  <article class="my-notes-page__list">
+<ion-title class="my-notes-page__archive-title" *ngIf="pageLoaded && !hideArchived && myNotesArchived?.length">Archivadas</ion-title>
+  <article class="my-notes-page__list" *ngIf="!hideArchived">
     <ng-content *ngTemplateOutlet="notesTmpl; context:{ myNotes: myNotesArchived, showOptions: false }" ></ng-content>
   </article>
   <div *ngIf="!myNotesArchived?.length && !myNotesActived?.length" class="my-notes-page__inexistent">
@@ -43,15 +46,16 @@
 </ion-content>
 
 <ng-template #optionsSelectorTmpl>
-  <app-color-selector  (selectThemeEv)="onSelectColor($event)"></app-color-selector>
+  <app-color-selector [themes]="themes" (selectThemeEv)="onSelectColor($event)"></app-color-selector>
 </ng-template>
 <ng-template #notesTmpl let-myNotes="myNotes" let-showOptions="showOptions">
-  <div *ngFor="let data of myNotes || []; let i = index" class="note-wrapper" style="width: {{width}}%"
+  <div *ngFor="let data of myNotes || []; let i = index" class="note-wrapper"
+    [class.note-wrapper__grid]="!viewIsListMode"
     [class.note-wrapper--unselected]="activedSelected.length && !data.selected"
     [class.note-wrapper--archived]="data?.archived" >
-      <ion-button  *ngIf="showOptions" class="note-wrapper__btn" style="background-color: {{data.c2}}" (click)="onSelectNote($event, data, i)">
+      <ion-button  *ngIf="showOptions" class="note-wrapper__btn" style="background-color: {{data.c2}}" (click)="onSelectNote(data)">
       </ion-button>
-      <app-my-note [data]="data" class="note-wrapper__content" [showTitle]="!selectedColor"
-      (click)="onViewNote(data.id)"></app-my-note>
+      <app-my-note [data]="data" class="note-wrapper__content" [showTitle]="!themeSelected"
+      (click)="onViewNote(data)"></app-my-note>
     </div>
 </ng-template>

@@ -2,8 +2,10 @@
 
 export interface MyNote {
   id: string;
-  title: string;
-  content: string;
+  type: 1 | 2;
+  title?: string;
+  listItems?: {checked: boolean; item: string}[];
+  content?: string;
   images?: string[];
   createdDate?: string;
   modifiedDate?: string;

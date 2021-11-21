@@ -1,10 +1,15 @@
 .main-menu {
   &__content {
+    --background: var(--ion-color-light);
+    ion-item::part(native) {
+      --border-style: transparent;
+    }
     .menu {
-      &__mode-item {
+      &__toggle-item {
         border-bottom: 1px solid var(--ion-color-dark);
       }
       &__font-change-item {
+        border-bottom: 1px solid var(--ion-color-dark);
         padding-left: 0px;
         ion-range.range-has-pin {
           padding-top: 0px;
@@ -12,18 +17,29 @@
           z-index: 1;
         }
       }
-      &__colors-btn {
-        
+      &__colors-btn {  
+        display: flex;
+        align-items: flex-end;
         button {
-          background: none;
-          padding-left: 0px;
-          --background: transparent;
+          width: 100%;
+          background: var(--ion-color-primary);
+          padding: 8px 5px;
           color: var(--ion-color-dark);
           text-transform: inherit;
           margin-bottom: 5px;
-          padding: 20px 0px;
+        }
+        &--dark {
+          button {
+       //     background:#484848;
+          }
         }
         
+      }
+      &__hide-archived {
+        border-bottom: 1px solid var(--ion-color-dark);
+        ion-checkbox {
+          margin-right: 5px;
+        }
       }
     }
   }

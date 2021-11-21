@@ -1,7 +1,10 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/"></ion-back-button>
+      <ion-back-button *ngIf="!idSelected" defaultHref="/"></ion-back-button>
+      <ion-button *ngIf="idSelected" (click)="onUnselect()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
     </ion-buttons>
     <ion-title><h1>Colores/Etiquetas</h1></ion-title>
     <ion-buttons slot="end">
@@ -11,7 +14,7 @@
       <ion-button *ngIf="idSelected" (click)="onSwitch(false)">
         <ion-icon slot="icon-only" name="arrow-down"></ion-icon>
       </ion-button>
-      <ion-button (click)="onSave()">
+      <ion-button *ngIf="!idSelected" (click)="onSave()" [disabled]="!changes">
         <ion-icon slot="icon-only" name="save"></ion-icon>
       </ion-button>
     </ion-buttons>

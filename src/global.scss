@@ -48,7 +48,24 @@ h1 {
 .u-width-50 {
   width: 50%;
 }
-
+.u-c-black {
+  color: #000000;
+}
+.u-c-grey {
+  color: #808080;
+}
+.u-c-blue {
+  color: #6da2ff;
+}
+.u-c-red {
+  color: #ef4b4b;
+}
+.u-c-pink {
+  color: #f5e7ea;
+}
+.u-c-yellow {
+  color: #f5f561;
+}
 $txt-size-list: 12, 14, 16, 18, 20;
 
 .u-txt {
@@ -77,4 +94,11 @@ $txt-size-list: 12, 14, 16, 18, 20;
 .important-button {
   background-color: var(--ion-color-primary);
   border-radius: 25px;
+}
+.link {
+  font-weight: 600;
+  border-bottom: 1px solid #000000;
+}
+.line-through {
+  text-decoration: line-through;
 }

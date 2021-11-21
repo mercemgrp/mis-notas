@@ -10,6 +10,7 @@ import { UtilsService } from 'src/app/core/services/utils.service';
 import { ConfigService } from 'src/app/core/services/config.service';
 import { ModalComponent } from 'src/app/shared/components/modal/modal.component';
 import { LocalNotifications } from '@ionic-native/local-notifications/ngx';
+import { ThemeUi } from 'src/app/shared/models/configuration-ui';
 @Component({
   selector: 'app-view-note',
   templateUrl: 'view-note.page.html',
@@ -26,6 +27,7 @@ export class ViewNotePage {
   actionButtons = NoteActionButtons;
   actions = NoteAction;
   notesStatus = NotesStatus;
+  themes: ThemeUi[];
   constructor(
     private navCtrl: NavController,
     private activatedRoute: ActivatedRoute,
@@ -39,6 +41,7 @@ export class ViewNotePage {
 
   ionViewWillEnter() {
     this.loading = true;
+    this.themes = this.config.getThemesData();
     const note = this.service.get(this.activatedRoute.snapshot.params.id);
     const colorData = this.config.getThemeData(note.themeId) || this.config.defaultThemeIdData;
     this.data = {
@@ -118,6 +121,9 @@ export class ViewNotePage {
     }
   }
 
+  onEdit() {
+    this.edit();
+  }
   onSelectImage(image) {
     this.imageSelected = image;
   }

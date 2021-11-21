@@ -6,8 +6,15 @@
   (backButtonPressedEv)="onBack()" (clickNoteToolEv)="onFireHeaderButtonAction($event)">
 </app-note-header>
 <ion-content [fullscreen]="true" class="edit-note-page">
-  <ion-title *ngIf="data?.themeTitle">{{data.themeTitle | uppercase}}</ion-title>
-  <app-my-note-edit #myNoteEdit *ngIf="data" [data]="data"></app-my-note-edit>
+  <ion-item>
+    <ion-title *ngIf="data">{{data.themeTitle | uppercase}}</ion-title>
+    <ion-icon [color]="isNote ? 'dark' : 'primary'" name="list"></ion-icon>
+    <ion-toggle [checked]="isNote" name="isNoteType" color="primary" (ionChange)="onToggleNoteType($event)"></ion-toggle>
+    <ion-icon [color]="isNote ? 'primary' : 'dark'" name="grid"></ion-icon>
+  </ion-item>
+
+  <app-edit-text-area #myNoteEdit *ngIf="data && isNote" [data]="data"></app-edit-text-area>
+  <app-edit-list #myNoteEdit *ngIf="data && !isNote" [data]="data"></app-edit-list>
   <app-images-list [images]="data?.images" (openImageEv)="onSelectImage($event)"></app-images-list>
   <app-modal #calendarModalCmp *ngIf="showCalendar" [template]="calendarTmpl" (closeEv)="showCalendar=false"></app-modal>
   <app-modal #colorSelectorModalCmp *ngIf="showColorSelector" [template]="colorSelectorTmpl" (closeEv)="showColorSelector=false"></app-modal>
@@ -18,6 +25,6 @@
   <app-calendar (selectDateEv)="onSelectDate($event)"></app-calendar>
 </ng-template>
 <ng-template #colorSelectorTmpl>
-  <app-color-selector *ngIf="showColorSelector" (selectThemeEv)="onSelectColor($event)"(closeEv)="showColorSelector=false">
+  <app-color-selector *ngIf="showColorSelector" [themes]="themes" (selectThemeEv)="onSelectColor($event)"(closeEv)="showColorSelector=false">
 </app-color-selector>
 </ng-template>

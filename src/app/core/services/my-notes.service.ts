@@ -120,15 +120,29 @@ export class MyNotesService {
   }
 
   private addOrModifyNote(currentNotes: MyNote[], data: MyNote) {
-    const externalData = {
+    let externalData = {
       id: data.id,
       themeId: data.themeId,
-      title: data.title,
-      content: data.content,
+      type: data.type || 1,
       images: data.images,
       position: data.position,
       archived: data.archived
     } as MyNote;
+    if (externalData.type === 1) {
+      externalData = {
+        ...externalData,
+        content: data.content,
+        title: '',
+        listItems: []
+      };
+    } else if (externalData.type === 2) {
+      externalData = {
+        ...externalData,
+        title: data.title,
+        listItems: data.listItems,
+        content: ''
+      };
+    }
     if (data.id) {
       this.modifyNote(currentNotes, externalData);
     } else {

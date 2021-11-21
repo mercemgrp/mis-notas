@@ -5,17 +5,17 @@
 
 }">
   <ng-content *ngTemplateOutlet="mainToolbar"></ng-content>
-  <ng-content *ngTemplateOutlet="filterByColorsToolbar"></ng-content>
+  <ng-content *ngTemplateOutlet="filterByThemeToolbar"></ng-content>
   <ng-content *ngTemplateOutlet="notesToolsToolbar"></ng-content>
 </ion-header>
 
-<ng-template #filterByColorsToolbar>
+<ng-template #filterByThemeToolbar>
   <ion-segment [class.ion-hide]="!this.showFilterToolbar || selectedLenght > 0 || hide" scrollable mode="md"
-    class="notes-list-header__segments" [value]="'c_default'" (ionChange)="filterByColor($event)">
-    <ion-segment-button value="c_default">
-      <ion-label>Todas</ion-label>
+    class="notes-list-header__segments" [value]="'theme_default'" (ionChange)="filterByTheme($event)">
+    <ion-segment-button value="theme_default">
+      <ion-label color="medium">Todas</ion-label>
     </ion-segment-button>
-    <ion-segment-button [value]="'c_'+(i)" *ngFor="let theme of themes;let i = index">
+    <ion-segment-button [value]="'theme_'+(theme.themeId)" *ngFor="let theme of themes;let i = index">
       <ion-label *ngIf="theme.themeTitle" [style.color]="theme.c2">{{theme.themeTitle}}</ion-label>
       <div *ngIf="!theme.themeTitle" class="square" [style.background]="theme.c2"></div>
     </ion-segment-button>
@@ -26,7 +26,7 @@
     <ion-title color="primary"><h1>{{title}}</h1></ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="onSwitchFilter()">
-        <ion-icon class="icon-filter" slot="icon-only" name="filter"></ion-icon>
+        <ion-icon [class.icon-filter--checked]="showFilterToolbar" slot="icon-only" name="filter"></ion-icon>
       </ion-button>
       <ion-button (click)="onOpenMainMenu()">
         <ion-icon slot="icon-only" name="menu"></ion-icon>

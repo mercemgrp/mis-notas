@@ -15,6 +15,7 @@ import { FilePath } from '@ionic-native/file-path/ngx';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { Camera } from '@ionic-native/Camera/ngx';
 import { LocalNotifications } from '@ionic-native/local-notifications/ngx';
+import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { File } from '@ionic-native/file/ngx';
 import { CoreModule } from './core/core.module';
 
@@ -58,6 +59,7 @@ export function initConfig(conf: ConfigService, myNotes: MyNotesService) {
     Camera,
     File,
     LocalNotifications,
+    InAppBrowser,
     {
       provide: HAMMER_GESTURE_CONFIG,
       useClass: HammerGestureConfig

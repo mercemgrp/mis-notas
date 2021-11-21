@@ -1,5 +1,8 @@
-.my-note-edit {
+.edit-list {
   color: #000000;
+  ion-input {
+    color: #000000;
+  }
   ion-item {
     --highlight-height: 0px;
   }
@@ -8,12 +11,6 @@
   ion-item:not(.item-label) .sc-ion-input-md-h {
     padding: 0px 5px;
     --padding-start: 5px;
-  }
-
-  .sc-ion-textarea-md-h {
-    min-height: 300px;
-    padding: 0px 5px;
-    color: #000000;
   }
   
 }

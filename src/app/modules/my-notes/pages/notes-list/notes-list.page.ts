@@ -1,4 +1,4 @@
-import { Component, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { NoteActionButtons } from 'src/app/shared/constants/note-action-buttons';
@@ -11,23 +11,24 @@ import { UtilsService } from 'src/app/core/services/utils.service';
 import { ThemeUi } from 'src/app/shared/models/configuration-ui';
 import { ConfigService } from 'src/app/core/services/config.service';
 import { ModalComponent } from 'src/app/shared/components/modal/modal.component';
+import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-notes-list',
   templateUrl: 'notes-list.page.html',
   styleUrls: ['notes-list.page.scss']
 })
-export class NotestListPage implements OnDestroy {
+export class NotestListPage implements OnInit, OnDestroy {
   @ViewChild(ModalComponent) optionsSelectorModalCmp: ModalComponent;
   @ViewChild(NotesListHeaderComponent) headerComp: NotesListHeaderComponent;
-  get showedFilterToolbar() {
-    return this.headerComp.showFilterToolbar;
-  }
   get oneSelected() {
     return this.activedSelected.length === 1;
   }
   get activedSelected() {
     return this.myNotesActived.filter(note => note.selected);
+  }
+  get hideArchived() {
+    return this.config.hideArchived;
   }
   notesStatus: NotesStatus = NotesStatus.active;
   scrollPosition = 0;
@@ -35,14 +36,15 @@ export class NotestListPage implements OnDestroy {
   showFabIcon = false;
   myNotesArchived: MyNoteUi[] = [];
   myNotesActived: MyNoteUi[] = [];
-  width = 100;
   loading = false;
   showColorSelector = false;
-  selectedColor: ThemeUi;
+  themeSelected: ThemeUi;
+  showedThemeToolbar: boolean;
   numberOfNotesSelected = 0;
   actionButtons = NoteActionButtons;
   themes: ThemeUi[]= [];
   pageLoaded = false;
+  viewIsListMode: boolean;
   private ngUnsubscribe = new Subject<void>();
   constructor(
     private router: Router,
@@ -50,6 +52,13 @@ export class NotestListPage implements OnDestroy {
     private utilsServ: UtilsService,
     private config: ConfigService) {}
 
+  ngOnInit() {
+    this.viewIsListMode = this.config.viewIsListMode;
+    this.showedThemeToolbar = this.config.showThemesToolbar;
+    this.config.viewModeChanges$
+    .pipe(tap(() => this.viewIsListMode = this.config.viewIsListMode))
+    .subscribe();
+  }
   ngOnDestroy() {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
@@ -59,7 +68,7 @@ export class NotestListPage implements OnDestroy {
     this.pageLoaded = false;
     this.updateNotes();
     this.unselectNotes();
-    this.themes = this.config.getThemesData();
+    this.themeSelected = this.config.selectedTheme;
   }
 
   ionViewDidEnter() {
@@ -101,21 +110,24 @@ export class NotestListPage implements OnDestroy {
     }
   }
 
-  onFilter(colorSelected: ThemeUi) {
-    if (colorSelected) {
-      this.selectedColor = {
-        ...this.themes.find(c => c.colorId === colorSelected.colorId),
-        ...colorSelected
-      };
+  onFilterByThemeId(themeId: string) {
+    if (themeId) {
+      this.themeSelected = this.config.getThemeData(themeId);
     } else {
-      this.selectedColor = null;
+      this.themeSelected = null;
     }
-   this.updateNotes();
+    this.config.setThemeSelected(themeId);
+    this.updateNotes();
     this.unselectNotes();
   }
 
+  onChangesShowThemeToolbar(value) {
+    this.showedThemeToolbar = value;
+    this.config.setShowThemeToolbar(value);
+  }
+
   unselectTheme() {
-    this.selectedColor = null;
+    this.themeSelected = null;
     this.updateNotes();
     this.unselectNotes();
     this.headerComp.clearTheme();
@@ -132,14 +144,16 @@ export class NotestListPage implements OnDestroy {
   onCloseColorSelector() {
     this.showColorSelector = false;
   }
-  onViewNote(id) {
-    if (!this.activedSelected.length) {
-      this.router.navigate(['my-notes/view', id]);
+  onViewNote(data: MyNoteUi) {
+    if (this.activedSelected.length) {
+      this.onSelectNote(data);
+    } else {
+      this.router.navigate(['my-notes/view', data.id]);
     }
   }
 
   onAddNote() {
-    this.router.navigate(['my-notes/create', { color: this.selectedColor?.colorId || ''}]);
+    this.router.navigate(['my-notes/create', { themeId: this.themeSelected?.themeId || ''}]);
   }
   onScroll(e): void {
     if (e.detail.scrollTop === 0) {
@@ -173,7 +187,7 @@ export class NotestListPage implements OnDestroy {
       });
   }
 
-  onSelectNote(e: Event, data: MyNoteUi, index) {
+  onSelectNote( data: MyNoteUi) {
     data.selected = !data.selected;
   }
   private closeToolbar() {
@@ -209,14 +223,16 @@ export class NotestListPage implements OnDestroy {
       this.myNotesService.switch(data1, data2)
       .then(resp => {
         if (resp) {
-          const colorData = this.config.getThemeData(this.selectedColor?.colorId) || this.config.defaultThemeIdData;
-          const actived = this.myNotesService.getActived(this.selectedColor?.colorId);
+          const actived = this.myNotesService.getActived(this.themeSelected?.colorId);
           this.myNotesActived = actived
-            .map(n => ({
-              ...n,
-              selected: n.id === data1.id,
-              ...colorData
-            }));
+            .map(note => {
+            const colorData = this.config.getThemeData(note?.themeId);
+            return {
+              ...note,
+              ...colorData,
+              selected: note.id === data1.id
+            };
+          });
         }
       })
       .finally(() => (this.loading = false));
@@ -271,14 +287,14 @@ export class NotestListPage implements OnDestroy {
 
   private retrieveNotesFromService() {
     const defaultThemeIdData = this.config.defaultThemeIdData;
-    this.myNotesActived = this.myNotesService.getActived(this.selectedColor?.colorId).map(note => {
+    this.myNotesActived = this.myNotesService.getActived(this.themeSelected?.colorId).map(note => {
       const colorData = this.config.getThemeData(note?.themeId);
       return {
         ...note,
         ...colorData || defaultThemeIdData
       };
     });
-    this.myNotesArchived = this.myNotesService.getArchived(this.selectedColor?.colorId).map(note => {
+    this.myNotesArchived = this.myNotesService.getArchived(this.themeSelected?.colorId).map(note => {
       const colorData = this.config.getThemeData(note?.themeId);
       return {
         ...note,
@@ -290,6 +306,10 @@ export class NotestListPage implements OnDestroy {
   private updateNotes() {
     this.retrieveNotesFromService();
     this.getFabIconState();
+    this.themes = this.config.getThemesData().filter(theme =>
+      this.myNotesService.getActived().some(note => note.themeId === theme.themeId) ||
+      this.myNotesService.getArchived().some(note => note.themeId === theme.themeId)
+  );
   }
 
 }
