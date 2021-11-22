@@ -20,7 +20,7 @@ export class ViewNotePage {
   @ViewChild('colorSelectorModalCmp') colorSelectorModalComp: ModalComponent;
   @ViewChild('calendarModalCmp') calendarModalCmp: ModalComponent;
   data: MyNoteUi;
-  showColorSelector = false;
+  showThemeSelector = false;
   showCalendar = false;
   loading = false;
   imageSelected = '';
@@ -72,7 +72,7 @@ export class ViewNotePage {
 
   onBack() {
     this.loading = true;
-    if (this.showColorSelector) {
+    if (this.showThemeSelector) {
       this.switchColorPalette();
       setTimeout(() => {
         this.navCtrl.back();
@@ -148,7 +148,7 @@ export class ViewNotePage {
   }
 
   private showCalendarFn() {
-    if (this.showColorSelector) {
+    if (this.showThemeSelector) {
       return;
     }
     if (this.showCalendar) {
@@ -249,11 +249,11 @@ export class ViewNotePage {
     if (this.showCalendar) {
       return;
     }
-    if (this.showColorSelector) {
+    if (this.showThemeSelector) {
       this.colorSelectorModalComp?.onHide();
     } else {
       this.calendarModalCmp?.onHide();
-      this.showColorSelector = true;
+      this.showThemeSelector = true;
     }
   }
 

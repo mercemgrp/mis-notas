@@ -1,6 +1,6 @@
 
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
-import { IonSegment, MenuController } from '@ionic/angular';
+import { Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, QueryList, SimpleChanges, ViewChild } from '@angular/core';
+import { IonSegment, IonSegmentButton, MenuController } from '@ionic/angular';
 import { NoteActionButtons } from 'src/app/shared/constants/note-action-buttons';
 import { NotesStatus } from 'src/app/shared/constants/notes-status';
 import { ThemeUi } from 'src/app/shared/models/configuration-ui';
@@ -22,20 +22,26 @@ export class NotesListHeaderComponent implements OnInit, OnChanges {
   @Output() filterByThemeEv = new EventEmitter<string>();
   @Output() clickNoteToolEv = new EventEmitter<number>();
   @Output() showFiterToolbarEv = new EventEmitter<boolean>();
+  get segmentElement() {
+    return this.segment && this.segment['el'];
+  }
   title = 'Mis notas';
   status = NotesStatus;
-  themeSelected: ThemeUi;
-  showFilterToolbar = false;
   actionButtons = NoteActionButtons;
+  showedThemeToolbar = false;
   constructor(private menu: MenuController) {}
 
   ngOnInit() {
-    this.showFilterToolbar = this.showThemesToolbar;
+    this.showedThemeToolbar = false;
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes?.selectedTheme?.currentValue) {
-      this.segment.value = this.selectedTheme ? 'theme_' + this.selectedTheme.themeId : 'theme_default';
+    console.log(changes);
+    if (changes?.showThemesToolbar || changes?.selectedLenght || changes?.hide) {
+      this.showedThemeToolbar = this.showThemesToolbar &&  !this.selectedLenght && !this.hide;
+    }
+    if (changes?.selectedTheme || changes?.themes) {
+      this.focusOnSegment();
     }
   }
 
@@ -44,8 +50,8 @@ export class NotesListHeaderComponent implements OnInit, OnChanges {
   }
 
   onSwitchFilter() {
-    this.showFilterToolbar = !this.showFilterToolbar;
-    this.showFiterToolbarEv.emit(this.showFilterToolbar);
+    this.showedThemeToolbar = !this.showedThemeToolbar;
+    this.showFiterToolbarEv.emit(this.showedThemeToolbar);
   }
 
   onOpenMainMenu() {
@@ -60,6 +66,17 @@ export class NotesListHeaderComponent implements OnInit, OnChanges {
 
   clearTheme() {
     this.segment.value = 'theme_default';
+  }
+
+  private focusOnSegment() {
+    setTimeout(() => {
+      this.segment.value = this.selectedTheme ? 'theme_' + this.selectedTheme.themeId : 'theme_default';
+        const checkedElem: any = this.segmentElement &&
+          this.segmentElement.getElementsByClassName('segment-button-checked')[0] as HTMLElement;
+        if (checkedElem) {
+          checkedElem.scrollIntoView({behavior: 'smooth', inline: 'center', block: 'center'});
+        }
+    }, 250);
   }
 
 }

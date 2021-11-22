@@ -1,8 +1,10 @@
 import {  Component, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { IonBackButtonDelegate, IonInput, NavController } from '@ionic/angular';
 import { ConfigService } from 'src/app/core/services/config.service';
+import { StaticUtilsService } from 'src/app/core/services/static-utils.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
+import { COLORS } from 'src/app/shared/constants/colors';
 import { ThemeUi } from 'src/app/shared/models/configuration-ui';
 
 @Component({
@@ -21,6 +23,7 @@ export class ThemesPage implements OnInit {
   form: FormGroup;
   changes = false;
   loading = false;
+  showColorSelector = false;
   idSelected: string;
   constructor(
     private formBuilder: FormBuilder,
@@ -39,14 +42,41 @@ export class ThemesPage implements OnInit {
   ionViewDidEnter() {
     this.focusContent();
   }
+  onCloseColorSelector() {
+    this.showColorSelector = false;
+  }
+  onSelectColor(colorId) {
+    this.themesData.push({
+      themeId: StaticUtilsService.getRandomId(),
+      themeTitle: '',
+      colorId,
+      c1: COLORS[colorId].c1,
+      c2: COLORS[colorId].c2,
+      themePosition: this.themesData.reduce((result, theme) =>
+        (theme.themePosition > result ? theme.themePosition : result) , 0) + 1
+    });
+    this.form.addControl(this.themesData[this.themesData.length-1].themeId, new FormControl('',  [Validators.required]));
+    this.themesData = [...this.themesData];
+    this.onCloseColorSelector();
+  }
 
+
+  onAddTheme() {
+    if (!this.form.valid) {
+      return;
+    }
+    this.showColorSelector = true;
+    this.updateDataFromForm();
+  }
   onUnselect() {
     this.idSelected='';
   }
 
   onSwitch(ascendant) {
     this.loading = true;
-    this.configService.switchTheme(this.idSelected, ascendant)
+    const indexTheme1 = this.themesData.findIndex(th => th.themeId === this.idSelected);
+    const indexTheme2 = ascendant ? indexTheme1 - 1 : indexTheme1 + 1;
+    this.configService.switchTheme(this.themesData[indexTheme1], this.themesData[indexTheme2])
       .then(themes => this.themesData = themes)
       .catch(_ => this.utilsServ.showToast('Ha ocurrido un error', true))
       .finally(() => this.loading = false);
@@ -54,12 +84,21 @@ export class ThemesPage implements OnInit {
   onSelectTheme(e: Event, id) {
     e?.stopPropagation();
     e?.preventDefault();
-    this.idSelected = this.idSelected !== id ? id : undefined;
+    if (!this.themesData.find(th => th.themeId === id).colorId) {
+      this.idSelected = id;
+      this.showColorSelector = true;
+    } else {
+      this.idSelected = this.idSelected !== id ? id : undefined;
+    }
   }
   onSave() {
+    if (!this.form.valid) {
+      this.utilsServ.showToast('No puede añadir más temáticas, tienes que poner título a todas las temáticas añadidas por ti ');
+      return;
+    }
     this.loading = true;
-    const val = this.form.value;
-    return this.configService.setThemesData(val)
+    this.updateDataFromForm();
+    return this.configService.setThemesData(this.themesData)
       .then(_ => this.utilsServ.showToast('Se han guardado los cambios'))
       .catch(_ => this.utilsServ.showToast('Ha ocurrido un error', true))
       .finally(() => {
@@ -90,10 +129,22 @@ export class ThemesPage implements OnInit {
 
   private createForm() {
     this.form = this.formBuilder.group({});
-    this.themesData.forEach(c => {
-      this.form.addControl(c.themeId, new FormControl(c.themeTitle));
+    this.themesData.forEach((c, index) => {
+      this.form.addControl(c.themeId, new FormControl(c.themeTitle,
+        Object.keys(COLORS).includes(c.themeId) ? [] : [Validators.required]));
     });
     this.form.valueChanges.subscribe(() => this.changes = true);
+  }
+
+  private updateDataFromForm() {
+    const values = this.form.value;
+    const entries = Object.entries(values);
+    entries.forEach(entry => {
+      const currentTheme = this.themesData.find(theme => theme.themeId === entry[0]);
+      if (currentTheme) {
+        currentTheme.themeTitle = (entry[1] as string).trim();
+      }
+    });
   }
 
 }

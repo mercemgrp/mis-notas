@@ -101,31 +101,29 @@ export class ConfigService {
   }
 
   getThemesData(): ThemeUi[] {
-    return this.config.themes.map(theme => ({
+    return this.config.themesData.map(theme => ({
       ...theme,
       themeTitle: theme.themeTitle || '',
       c1: COLORS[theme.colorId]?.c1,
       c2: COLORS[theme.colorId]?.c2
-    }));
+    })).sort((a, b) => (a.themePosition || 0) - (b.themePosition || 0));
   }
 
-  switchTheme(themeId, ascendant): Promise<ThemeUi[]> {
-    const i = this.config.themes.findIndex(th => th.themeId === themeId);
-    const switchI = ascendant ? i - 1 : i + 1;
-    if (i > -1 && switchI > -1 && switchI < this.config.themes.length) {
-      const note1 = {...this.config.themes[i]};
-      const note2 = {...this.config.themes[switchI]};
-      const config = {...this.config};
-      config.themes[i] = note2;
-      config.themes[switchI]=note1;
-      return this.storage.set(CONFIG_KEY,config)
-        .then(resp => {
-          this.config = resp;
-          return this.getThemesData();
-        });
-    } else {
-      return new Promise(resolve => resolve(this.getThemesData()));
-    }
+  switchTheme(theme1Data: ThemeUi, theme2Data: ThemeUi): Promise<ThemeUi[]> {
+    if (theme1Data && theme2Data) {
+      const theme1Position = this.config.themesData.find(th => th.themeId === theme1Data.themeId).themePosition;
+      const theme2Position = this.config.themesData.find(th => th.themeId === theme2Data.themeId).themePosition;
+        const config = {...this.config};
+        config.themesData.find(th => th.themeId === theme1Data.themeId).themePosition = theme2Position || 0;
+        config.themesData.find(th => th.themeId === theme2Data.themeId).themePosition = theme1Position || 0;
+        return this.storage.set(CONFIG_KEY,config)
+          .then(resp => {
+            this.config = resp;
+            return this.getThemesData();
+          });
+      } else {
+        return new Promise(resolve => resolve(this.getThemesData()));
+      }
   }
 
   setThemeSelected(themeId) {
@@ -138,23 +136,23 @@ export class ConfigService {
       .then(resp => this.config = resp);
   }
 
-  setThemesData(data) {
-    const themes = [...this.config.themes];
-    const entries = Object.entries(data);
-    entries.forEach(entry => {
-      const currentTheme = themes.find(theme => theme.themeId === entry[0]);
+  setThemesData(data: ThemeUi[]) {
+    const themesData = [...this.config.themesData];
+    data.forEach(theme => {
+      const currentTheme = themesData.find(th => th.themeId === theme.themeId);
       if (currentTheme) {
-        currentTheme.themeTitle = (entry[1] as string).trim();
+        currentTheme.themeTitle = theme.themeTitle.trim();
       } else {
-        themes.push({
+        themesData.push({
           themeId: StaticUtilsService.getRandomId(),
-          colorId: entry[0],
-          themeTitle: entry[1] as string
+          colorId: theme.colorId,
+          themeTitle:theme.themeTitle,
+          themePosition: themesData.reduce((result, th) => (th.themePosition > result ? th.themePosition : result) , 0) + 1
         });
       }
 
     });
-    return this.storage.set(CONFIG_KEY,{...this.config, themes})
+    return this.storage.set(CONFIG_KEY,{...this.config, themesData})
       .then(resp => this.config = resp);
   }
 
@@ -162,26 +160,30 @@ export class ConfigService {
     const defaultThemesData: Theme[] = [{
       themeId: COLORS.blue.colorId,
       colorId: COLORS.blue.colorId,
-      themeTitle: ''
+      themeTitle: '',
+      themePosition: 1,
     }, {
       themeId: COLORS.red.colorId,
       colorId: COLORS.red.colorId,
-      themeTitle: ''
+      themeTitle: '',
+      themePosition: 2
     }, {
       themeId: COLORS.pink.colorId,
       colorId: COLORS.pink.colorId,
-      themeTitle: ''
+      themeTitle: '',
+      themePosition: 3
     }, {
       themeId: COLORS.yellow.colorId,
       colorId: COLORS.yellow.colorId,
-      themeTitle: ''
+      themeTitle: '',
+      themePosition: 4
     }];
     return this.storage.get(CONFIG_KEY).then(
       (resp: Configuration) => {
         this.config = {
           mode: resp?.mode || Modes.deviceDefault,
           defaultThemeId: resp?.defaultThemeId || COLORS.yellow.colorId,
-          themes: resp?.themes || defaultThemesData,
+          themesData: resp?.themesData || defaultThemesData,
           fontSize: resp?.fontSize || 16,
           menuId: resp?.menuId || '',
           viewMode: resp?.viewMode || ViewModes.list,

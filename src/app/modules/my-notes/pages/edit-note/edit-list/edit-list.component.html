@@ -5,21 +5,33 @@
         <ion-input formControlName="title" type="text" class="u-txt-{{fontSize}}" 
         placeholder="Escriba un título" [style]="'background-color: '+ data.c1"></ion-input>
       </ion-item>
-      <ion-item *ngFor="let item of listItems; let i=index">
-        <ion-input (keyup.enter)="onKeyup($event)" [formControlName]="'item'+i"  type="text" class="u-txt-{{fontSize}}"[style]="'background-color: '+ data.c1"
+      <ion-item *ngFor="let item of listItems; let i=index" >
+        <ion-input (keyup.enter)="onKeyup($event)" [formControlName]="'item'+i" 
+        type="text" class="u-txt-{{fontSize}}"[style]="'background-color: '+ data.c1"
        ></ion-input>
         
-        <ion-button fill="none" (click)="onCheck(i)">
+        <ion-button class="edit-list__action-btn" fill="none" (click)="onCheck(i)">
           <ion-icon slot="icon-only" [name]="item.checked ?'arrow-undo-circle' : 'checkmark'"></ion-icon>
         </ion-button>
-        <ion-button fill="none" (click)="onDelete(i)">
+        <ion-button fill="none" class="edit-list__action-btn" (click)="onDelete(i)">
           <ion-icon slot="icon-only" name="trash"></ion-icon>
         </ion-button>
       </ion-item>
-      <ion-item>
-        <ion-button fill="none" (click)="addListItem()">
-          <ion-icon slot="icon-only" name="add"></ion-icon>
+      <ion-item class="edit-list__add-button">
+        <div class="add-button-content">
+          <ion-buttons slot="start">
+            <ion-button  expand="full" color="primary" fill="solid" (click)="addListItem()">
+              <ion-icon slot="icon-only" name="add" clas="u-c-black"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </div>
+        <ion-button fill="none">
+          <ion-icon slot="icon-only" name=""></ion-icon>
         </ion-button>
+        <ion-button fill="none">
+          <ion-icon slot="icon-only" name=""></ion-icon>
+        </ion-button>
+       
       </ion-item>
     </div>
   </form>

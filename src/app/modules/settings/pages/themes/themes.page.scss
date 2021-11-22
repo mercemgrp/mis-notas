@@ -1,4 +1,7 @@
 .themes-page {
+  ion-list ion-item {
+    border-bottom: #ebebeb 1px solid;
+  }
   &__btn {
       background-color: inherit;
     &--disabled {
@@ -10,7 +13,14 @@
       opacity: 0.5;
     }
   }
-  ion-item {
-    border-bottom: #ebebeb 1px solid;
+  &__add-button {
+    border-bottom: #ebebeb 0px solid;
+    ion-buttons {
+      width: 100%;
+      ion-button {
+        width: 100%;
+      }
+    }
   }
+
 }

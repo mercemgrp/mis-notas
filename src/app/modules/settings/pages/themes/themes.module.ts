@@ -7,6 +7,8 @@ import { IonicModule } from '@ionic/angular';
 import { ThemesPageRoutingModule } from './themes-routing.module';
 
 import { ThemesPage } from './themes.page';
+import { ColorSelectorComponent } from './color-selector/color-selector.component';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
   imports: [
@@ -14,8 +16,9 @@ import { ThemesPage } from './themes.page';
     FormsModule,
     ReactiveFormsModule,
     IonicModule,
-    ThemesPageRoutingModule
+    ThemesPageRoutingModule,
+    SharedModule
   ],
-  declarations: [ThemesPage]
+  declarations: [ThemesPage, ColorSelectorComponent]
 })
 export class ThemesPageModule {}

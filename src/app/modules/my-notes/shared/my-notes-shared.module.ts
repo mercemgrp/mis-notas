@@ -5,7 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { MyNoteComponent } from './components/my-note/my-note.component';
 import { NoteHeaderComponent } from './components/note-header/note-header.component';
-import { ColorSelectorComponent } from './components/color-selector/color-selector.component';
+import { ThemeSelectorComponent } from './components/theme-selector/theme-selector.component';
 
 @NgModule({
   imports: [
@@ -16,7 +16,7 @@ import { ColorSelectorComponent } from './components/color-selector/color-select
     SharedModule
   ],
   providers: [],
-  declarations: [MyNoteComponent, NoteHeaderComponent, ColorSelectorComponent],
-  exports: [MyNoteComponent, NoteHeaderComponent, ColorSelectorComponent]
+  declarations: [MyNoteComponent, NoteHeaderComponent, ThemeSelectorComponent],
+  exports: [MyNoteComponent, NoteHeaderComponent, ThemeSelectorComponent]
 })
 export class MyNotesSharedModule {}

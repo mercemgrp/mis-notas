@@ -44,7 +44,10 @@ h1 {
 }
 .u-padding-10 {
   padding: 10px;
+}.u-width-100 {
+  width: 100%;
 }
+
 .u-width-50 {
   width: 50%;
 }
@@ -77,6 +80,7 @@ $txt-size-list: 12, 14, 16, 18, 20;
 }
 
 // Modificación estilos en componentes ionic
+
 
 .item-interactive.ion-valid {
   --highlight-background: none;

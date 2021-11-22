@@ -50,13 +50,24 @@
   &.marginTop56 {
     margin-top: -56px;
   }
+  .marginTop-48{
+    margin-top: -48px
+  }
+  .marginTop-100{
+    margin-top: -100px
+  }
+  .marginTop0{
+    margin-top: 0px
+  }
   &.marginTop104 {
     margin-top: -104px;
   }
   &.transition-margin-top-700 {
     transition: margin-top 700ms;
   }
-
+  &.transition-margin-bottom-700 {
+    transition: margin-bottom 700ms;
+  }
   .top0 {
     top: 0px;
   }

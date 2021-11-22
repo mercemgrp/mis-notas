@@ -64,14 +64,13 @@ export class MyNotesService {
     return this.save(note);
   }
 
-  switch(data1: MyNote, data2: MyNote): Promise<MyNote[]> {
-    const index1 = this.myNotes.findIndex(elem => elem.id === data1.id);
-    const index2 = this.myNotes.findIndex(elem => elem.id === data2.id);
-     const pos1 = this.myNotes[index1].position;
-    const pos2 = this.myNotes[index2].position;
+  switch(position1: number, position2: number): Promise<MyNote[]> {
+    console.log('switch', position1, position2);
+    const index1 = this.myNotes.findIndex(elem => elem.position === position1);
+    const index2 = this.myNotes.findIndex(elem => elem.position === position2);
     const currentNotes = this.myNotes;
-    currentNotes[index1].position = pos2;
-    currentNotes[index2].position = pos1;
+    currentNotes[index1].position = position2;
+    currentNotes[index2].position = position1;
     return this.setInStorage(currentNotes);
   }
 
@@ -169,7 +168,8 @@ export class MyNotesService {
       createdDate: new Date().toISOString(),
       modifiedDate: new Date().toISOString()
     };
-    currentNotes.unshift(myNote);
+    console.log('new position', this.lastPosition + 1);
+    currentNotes.push(myNote);
   }
 
   private setInStorage(data: MyNote[]): Promise<MyNote[]> {

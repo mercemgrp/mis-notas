@@ -1,7 +1,7 @@
 <ion-header [translucent]="true" class="notes-list-header" [class]="{
-  'transition-margin-top-700': true,
-  'marginTop56': hide && selectedLenght === 0 && !showFilterToolbar,
-  'marginTop104': hide && selectedLenght === 0 && showFilterToolbar
+  'transition-margin-top-700': !loading,
+  'marginTop56': !loading && hide && selectedLenght === 0 && !showThemesToolbar,
+  'marginTop104': !loading && hide && selectedLenght === 0 && showThemesToolbar
 
 }">
   <ng-content *ngTemplateOutlet="mainToolbar"></ng-content>
@@ -10,8 +10,10 @@
 </ion-header>
 
 <ng-template #filterByThemeToolbar>
-  <ion-segment [class.ion-hide]="!this.showFilterToolbar || selectedLenght > 0 || hide" scrollable mode="md"
-    class="notes-list-header__segments" [value]="'theme_default'" (ionChange)="filterByTheme($event)">
+  <ion-segment #segment scrollable mode="md"
+    class="notes-list-header__segments transition-margin-top-700"
+    [class.marginTop-48]="!showedThemeToolbar "
+    [class.marginTop0]="showedThemeToolbar" [value]="'theme_default'" (ionChange)="filterByTheme($event)">
     <ion-segment-button value="theme_default">
       <ion-label color="medium">Todas</ion-label>
     </ion-segment-button>
@@ -26,7 +28,7 @@
     <ion-title color="primary"><h1>{{title}}</h1></ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="onSwitchFilter()">
-        <ion-icon [class.icon-filter--checked]="showFilterToolbar" slot="icon-only" name="filter"></ion-icon>
+        <ion-icon [class.icon-filter--checked]="showedThemeToolbar" slot="icon-only" name="filter"></ion-icon>
       </ion-button>
       <ion-button (click)="onOpenMainMenu()">
         <ion-icon slot="icon-only" name="menu"></ion-icon>

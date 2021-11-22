@@ -5,7 +5,7 @@ import { ViewModes } from '../constants/views';
 export interface Configuration {
   mode: Modes;
   defaultThemeId: string;
-  themes: Theme[];
+  themesData: Theme[];
   fontSize: number;
   menuId: string;
   viewMode: ViewModes;
@@ -23,6 +23,7 @@ export interface Theme {
   themeId: string;
   colorId: string;
   themeTitle: string;
+  themePosition: number;
 }
 
 export interface ThemeUi extends Theme{

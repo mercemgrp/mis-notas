@@ -1,7 +1,7 @@
 
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ConfigService } from 'src/app/core/services/config.service';
-import { ThemeUi } from 'src/app/shared/models/configuration-ui';
+import { COLORS } from 'src/app/shared/constants/colors';
 
 @Component({
   selector: 'app-color-selector',
@@ -9,18 +9,19 @@ import { ThemeUi } from 'src/app/shared/models/configuration-ui';
   styleUrls: ['./color-selector.component.scss']
 })
 export class ColorSelectorComponent implements OnInit{
-  @Input() themes: ThemeUi[] = [];
-  @Output() selectThemeEv = new EventEmitter<string>();
+  @Output() selectColorEv = new EventEmitter<string>();
   fontSize;
+  colors = [];
   constructor(private config: ConfigService) {}
 
   ngOnInit() {
     this.fontSize = this.config.fontSize;
+    this.colors = Object.values(COLORS);
   }
 
 
   onSelectStyle(colorId) {
-    this.selectThemeEv.emit(colorId);
+    this.selectColorEv.emit(colorId);
   }
 
 

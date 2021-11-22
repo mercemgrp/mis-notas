@@ -6,7 +6,9 @@
         <ion-icon slot="icon-only" name="close"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title><h1>Colores/Etiquetas</h1></ion-title>
+    <ion-title>
+      <h1>Colores/Etiquetas</h1>
+    </ion-title>
     <ion-buttons slot="end">
       <ion-button *ngIf="idSelected" (click)="onSwitch(true)">
         <ion-icon slot="icon-only" name="arrow-up"></ion-icon>
@@ -26,12 +28,31 @@
     <ion-list>
       <ion-item *ngFor="let theme of themesData;let i=index">
         <ion-input type="text" placeholder="" formControlName="{{theme.themeId}}" [value]="theme.themeTitle"
-          [class.themes-page__input--disabled]="idSelected && idSelected !== theme.themeId" class="u-txt-{{fontSize}}"></ion-input>
+          [class.themes-page__input--disabled]="idSelected && idSelected !== theme.themeId"
+          class="u-txt-{{fontSize}}"
+          placeholder="Añada un título">
+        </ion-input>
         <button (click)="onSelectTheme($event, theme.themeId)" class="themes-page__btn"
           [class.themes-page__btn--disabled]="idSelected && idSelected !== theme.themeId">
-          <div class="rectangle" [style]="'background:' + theme.c2"></div>
+          <div *ngIf="theme.c2" class="rectangle" [style]="'background:' + theme.c2"></div>
+          <span *ngIf="!theme.c2">Seleccione un color</span>
         </button>
       </ion-item>
     </ion-list>
+    <ion-item class="themes-page__add-button">
+        <ion-buttons slot="start">
+          <ion-button  expand="full" color="primary" fill="solid" (click)="onAddTheme()">
+            <ion-icon slot="icon-only" name="add" clas="u-c-black"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+     
+    </ion-item>
   </form>
+  <app-modal *ngIf="showColorSelector" [template]="colorSelectorTmpl"
+  (closeEv)="onCloseColorSelector()">
+  </app-modal>
 </ion-content>
+
+<ng-template #colorSelectorTmpl>
+  <app-color-selector (selectColorEv)="onSelectColor($event)"></app-color-selector>
+</ng-template>

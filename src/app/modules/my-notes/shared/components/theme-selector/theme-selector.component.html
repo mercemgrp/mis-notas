@@ -1,0 +1,18 @@
+
+    <ul class="theme-selector">
+      <li *ngFor="let theme of themes" (click)="onSelectStyle(theme.themeId)">
+        <ion-item class="u-width-100">
+          <button>
+            <div [style]="'background:' + theme.c2"> </div>
+          </button>
+          <span *ngIf="theme.themeTitle" class="u-txt-{{fontSize}}">{{theme.themeTitle}}</span>
+          <span *ngIf="!theme.themeTitle" class="u-c-grey u-txt-{{fontSize}}">Sin título</span>
+          <ion-button slot="end" fill="clear">
+            <ion-icon slot="icon-only" name="checkmark"></ion-icon>
+          </ion-button>
+        </ion-item>
+       
+      </li>
+    </ul>
+
+

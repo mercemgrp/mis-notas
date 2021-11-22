@@ -5,12 +5,37 @@
   }
   ion-item {
     --highlight-height: 0px;
+    --border-color: transparent;
   }
 
   ion-item.sc-ion-input-md-h:not(.item-label),
   ion-item:not(.item-label) .sc-ion-input-md-h {
     padding: 0px 5px;
     --padding-start: 5px;
+  }
+  &__action-btn {
+   ion-button::part(native) {
+      background-color: transparent;
+    }
+  }
+  &__add-button {
+    display: flex;
+    justify-content: center;
+    ion-buttons {
+      width: 100%;
+      ion-button {
+        width: 100%;
+        button {
+          --color: black;
+        }
+      }
+    }
+
+    .add-button-content {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
   }
   
 }

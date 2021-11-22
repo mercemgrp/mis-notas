@@ -25,7 +25,7 @@ export class EditNotePage {
   @ViewChild('calendarModalCmp') calendarModalCmp: ModalComponent;
   data: MyNoteUi;
   isNote;
-  showColorSelector = false;
+  showThemeSelector = false;
   showCalendar = false;
   loading = false;
   imageSelected = '';
@@ -151,7 +151,7 @@ export class EditNotePage {
 
   onBack() {
     this.loading = true;
-    if (this.showColorSelector) {
+    if (this.showThemeSelector) {
       this.switchColorPalette();
       setTimeout(() => {
         this.save(true).then(() => this.navCtrl.back());
@@ -177,11 +177,11 @@ export class EditNotePage {
     if (this.showCalendar) {
       return;
     }
-    if (this.showColorSelector) {
+    if (this.showThemeSelector) {
       this.colorSelectorModalComp?.onHide();
     } else {
       this.calendarModalCmp?.onHide();
-      this.showColorSelector = true;
+      this.showThemeSelector = true;
     }
   }
 
@@ -230,7 +230,7 @@ export class EditNotePage {
   }
 
   private showCalendarFn() {
-    if (this.showColorSelector) {
+    if (this.showThemeSelector) {
       return;
     }
     if (this.showCalendar) {

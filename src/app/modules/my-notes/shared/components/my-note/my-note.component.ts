@@ -80,7 +80,10 @@ export class MyNoteComponent implements OnChanges {
     const indexOfSpace = text.indexOf(' ', index) > -1 ? text.indexOf(' ', index) : undefined;
     const indexOfOtherLine = text.indexOf('\n', index) > -1 ? text.indexOf('\n', index) : undefined;
     let indexEnd = 0;
-    if (indexOfSpace !== undefined && indexOfOtherLine !== undefined) {
+    if (indexOfSpace === undefined && indexOfOtherLine === undefined) {
+      indexEnd = text.length;
+    }
+    else if (indexOfSpace !== undefined && indexOfOtherLine !== undefined) {
       indexEnd = indexOfSpace > indexOfOtherLine ? indexOfOtherLine : indexOfSpace;
     } else if( indexOfSpace !== undefined) {
       indexEnd = indexOfSpace;

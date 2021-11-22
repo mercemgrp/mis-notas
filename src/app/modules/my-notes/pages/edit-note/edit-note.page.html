@@ -17,14 +17,14 @@
   <app-edit-list #myNoteEdit *ngIf="data && !isNote" [data]="data"></app-edit-list>
   <app-images-list [images]="data?.images" (openImageEv)="onSelectImage($event)"></app-images-list>
   <app-modal #calendarModalCmp *ngIf="showCalendar" [template]="calendarTmpl" (closeEv)="showCalendar=false"></app-modal>
-  <app-modal #colorSelectorModalCmp *ngIf="showColorSelector" [template]="colorSelectorTmpl" (closeEv)="showColorSelector=false"></app-modal>
+  <app-modal #colorSelectorModalCmp *ngIf="showThemeSelector" [template]="themeSelectorTmpl" (closeEv)="showThemeSelector=false"></app-modal>
 </ion-content>
 
 <app-full-screen-image *ngIf="data" [srcImage]="imageSelected"></app-full-screen-image>
 <ng-template #calendarTmpl>
   <app-calendar (selectDateEv)="onSelectDate($event)"></app-calendar>
 </ng-template>
-<ng-template #colorSelectorTmpl>
-  <app-color-selector *ngIf="showColorSelector" [themes]="themes" (selectThemeEv)="onSelectColor($event)"(closeEv)="showColorSelector=false">
-</app-color-selector>
+<ng-template #themeSelectorTmpl>
+  <app-theme-selector *ngIf="showThemeSelector" [themes]="themes" (selectThemeEv)="onSelectColor($event)"(closeEv)="showThemeSelector=false">
+</app-theme-selector>
 </ng-template>
