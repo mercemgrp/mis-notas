@@ -29,4 +29,5 @@ export interface Theme {
 export interface ThemeUi extends Theme{
   c1: string;
   c2: string;
+  basicTheme?: boolean;
 }

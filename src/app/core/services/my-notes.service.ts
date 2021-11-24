@@ -65,7 +65,6 @@ export class MyNotesService {
   }
 
   switch(position1: number, position2: number): Promise<MyNote[]> {
-    console.log('switch', position1, position2);
     const index1 = this.myNotes.findIndex(elem => elem.position === position1);
     const index2 = this.myNotes.findIndex(elem => elem.position === position2);
     const currentNotes = this.myNotes;
@@ -113,6 +112,10 @@ export class MyNotesService {
       .then(resp => {
         this._myNotes = StaticUtilsService.copyDeep(resp) || [];
         this.myNotesSubject.next(this.myNotes);
+        if (this.myNotes.some(note => note.position === undefined)) {
+          const notes = this.myNotes.map((note, i) =>({...note, position: i}));
+          this.save(notes);
+        }
         return this.myNotes;
       })
       .catch(_ => null);
@@ -168,7 +171,6 @@ export class MyNotesService {
       createdDate: new Date().toISOString(),
       modifiedDate: new Date().toISOString()
     };
-    console.log('new position', this.lastPosition + 1);
     currentNotes.push(myNote);
   }
 

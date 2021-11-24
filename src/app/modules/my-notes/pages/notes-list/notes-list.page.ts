@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { AfterContentChecked, AfterViewChecked, AfterViewInit, Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { NoteActionButtons } from 'src/app/shared/constants/note-action-buttons';
@@ -34,25 +34,31 @@ export class NotestListPage implements OnInit, OnDestroy {
     return this.config.hideArchived;
   }
   private get contentElement() {
+    // eslint-disable-next-line @typescript-eslint/dot-notation
     return this.content && this.content['el'];
   }
-  notesStatus: NotesStatus = NotesStatus.active;
-  scrollPosition = 0;
-  scrollingDown = false;
-  showFabIcon = false;
+  notesSelectedStatus: NotesStatus = NotesStatus.active;
   myNotesArchived: MyNoteUi[] = [];
   myNotesActived: MyNoteUi[] = [];
+  themes: ThemeUi[]= [];
+
+  viewIsListMode: boolean;
+
+  // scroll
+  currentScrollPosition = 0;
+  scrollPosition = 0;
+  scrollingDown = false;
   loading = false;
-  showThemeSelector = false;
+  firstTimePageLoaded = false;
+
   themeSelected: ThemeUi;
   showedThemeToolbar: boolean;
-  numberOfNotesSelected = 0;
-  actionButtons = NoteActionButtons;
-  themes: ThemeUi[]= [];
-  pageLoaded = false;
-  viewIsListMode: boolean;
-  firstItemInView: string;
+  showFabIcon = false;
+  showModalThemeSelector = false;
+  private noteSelectedId: string;
+  private actionButtons = NoteActionButtons;
   private ngUnsubscribe = new Subject<void>();
+
   constructor(
     private router: Router,
     private myNotesService: MyNotesService,
@@ -71,8 +77,9 @@ export class NotestListPage implements OnInit, OnDestroy {
   }
 
   ionViewWillEnter() {
-    this.content.scrollEvents = false;
-    this.pageLoaded = false;
+    this.currentScrollPosition = 0;
+    this.scrollPosition = 0;
+    this.firstTimePageLoaded = false;
     this.loading = true;
     this.scrollingDown = false;
     this.themeSelected = this.config.selectedTheme;
@@ -82,45 +89,63 @@ export class NotestListPage implements OnInit, OnDestroy {
 
   ionViewDidEnter() {
     setTimeout(() => {
-      const needScroll = this.scrollIntoNote();
-      setTimeout(() => {
-        this.pageLoaded = true;
-        this.content.scrollEvents = true;
-        this.loading =  false;
-        this.getFabIconState();
-        this.showedThemeToolbar = this.config.showThemesToolbar;
-      }, needScroll ? 1000 : 0);
+      this.firstTimePageLoaded = true;
+      this.scrollIntoNote(this.noteSelectedId).then(() => {
+          this.loading =  false;
+          this.getFabIconState();
+          this.showedThemeToolbar = this.config.showThemesToolbar;
+        });
+
     });
   }
 
   ionViewWillLeave() {
     this.showFabIcon = false;
-    this.content.scrollEvents = false;
   }
 
-  scrollIntoNote() {
-    if(this.firstItemInView === undefined) {
-      return false;
+  scrollIntoNote(noteSelectedId): Promise<boolean> {
+    if(noteSelectedId === undefined) {
+      return new Promise((resolve, reject) => resolve(false));
     } else {
-      const noteSelected = this.notesComp.find(
-        note => note.nativeElement.classList.contains('note-' + this.firstItemInView))?.nativeElement;
+      const noteSelected = this.contentElement.getElementsByClassName('note-' + noteSelectedId)[0];
       if (!noteSelected) {
-        return false;
+        return new Promise((resolve, reject) => resolve(false));
+      } else {
+        return this.scrollIntoNoteSelected(noteSelected).then(resp => resp);
       }
-      const notePosition = noteSelected.offsetTop;
-      const notePositionEnd = notePosition + noteSelected.offsetHeight;
-      const contentPosition = this.contentElement.offsetTop;
-      const contentPositionEnd  = this.contentElement.offsetTop + this.contentElement.offsetHeight;
-      const isInView = notePosition >= contentPosition && notePositionEnd <= contentPositionEnd;
-      if (!isInView) {
-        this.content.scrollByPoint(0, 0, 0).then(() => {
-          this.content.scrollByPoint(0, notePosition - HEADER_HEIGHT - THEMES_MENU_HEIGHT, 500);
-        });
-        return true;
-      }
-      return false;
+
     }
   }
+
+  scrollIntoNoteSelected(noteSelected): Promise<boolean> {
+    const headerHeight = this.scrollingDown ? 0 : HEADER_HEIGHT;
+    const notePositionInitial = noteSelected.offsetTop - headerHeight;
+    const notePositionEnd = notePositionInitial + noteSelected.offsetHeight;
+    const contentPositionInitial = this.currentScrollPosition;
+    const contentPositionEnd  = contentPositionInitial + this.contentElement.offsetHeight;
+    console.log('contentPosition', contentPositionInitial, contentPositionEnd);
+    console.log('notePosition', notePositionInitial, notePositionEnd);
+    const isInView = notePositionInitial >= contentPositionInitial && notePositionEnd <= contentPositionEnd;
+    if (!isInView) {
+      let scrollTo = notePositionInitial;
+      if (notePositionInitial < contentPositionInitial) {
+      }
+      if (notePositionEnd < contentPositionInitial) {
+        scrollTo = this.currentScrollPosition - this.contentElement.offsetHeight;
+      } else if(notePositionInitial < contentPositionInitial) {
+        scrollTo = this.currentScrollPosition - this.contentElement.offsetHeight + noteSelected.offsetHeight;
+      }
+      return this.content.scrollToPoint(0, scrollTo, 500)
+        .then(() => {
+          console.log('end scrollTo', scrollTo);
+          this.scrollPosition = this.currentScrollPosition;
+          return true;
+        });
+    } else {
+      return new Promise((resolve, reject) => resolve(false));
+    }
+  }
+
 
   onFireHeaderButtonAction(id) {
     switch (id) {
@@ -151,11 +176,7 @@ export class NotestListPage implements OnInit, OnDestroy {
   }
 
   onFilterByThemeId(themeId: string) {
-    if (themeId) {
-      this.themeSelected = this.config.getThemeData(themeId);
-    } else {
-      this.themeSelected = null;
-    }
+    this.themeSelected = themeId ? this.config.getThemeData(themeId) : null;
     this.config.setThemeSelected(themeId);
     this.updateData(false);
     this.unselectNotes();
@@ -174,35 +195,37 @@ export class NotestListPage implements OnInit, OnDestroy {
   }
 
   onSwitchColorSelector() {
-    if (!this.showThemeSelector) {
-      this.showThemeSelector = true;
+    if (!this.showModalThemeSelector) {
+      this.showModalThemeSelector = true;
     } else {
       this.optionsSelectorModalCmp.onHide();
     }
   }
 
-  onCloseColorSelector() {
-    this.showThemeSelector = false;
+  onCloseModalThemeSelector() {
+    this.showModalThemeSelector = false;
   }
   onViewNote(data: MyNoteUi) {
     if (this.activedSelected.length) {
       this.onSelectNote(data);
     } else {
-      this.firstItemInView = data.id;
+      this.noteSelectedId = data.id;
       this.router.navigate(['my-notes/view', data.id]);
     }
   }
 
   onAddNote() {
-    this.firstItemInView = undefined;
+    this.noteSelectedId = undefined;
     this.router.navigate(['my-notes/create', { themeId: this.themeSelected?.themeId || ''}]);
   }
   onScroll(e): void {
-    if (!this.pageLoaded) {
+    this.currentScrollPosition = e.detail.scrollTop;
+    console.log('this.currentScrollPosition', this.currentScrollPosition);
+    if (this.loading) {
       return;
     }
-    console.log(e.detail.scrollTop);
     if (e.detail.scrollTop === 0) {
+      console.log('onScroll', e.detail.scrollTop);
       this.scrollingDown = false;
       this.scrollPosition = e.detail.scrollTop;
       this.showFabIcon = true;
@@ -210,6 +233,7 @@ export class NotestListPage implements OnInit, OnDestroy {
       this.scrollPosition < e.detail.scrollTop - HEADER_HEIGHT - (this.showedThemeToolbar ? THEMES_MENU_HEIGHT : 0) ||
       this.scrollPosition > e.detail.scrollTop + HEADER_HEIGHT + (this.showedThemeToolbar ? THEMES_MENU_HEIGHT : 0)
     ) {
+      console.log('onScroll', e.detail.scrollTop);
       this.scrollingDown = this.scrollPosition < e.detail.scrollTop;
       this.scrollPosition = e.detail.scrollTop;
       this.showFabIcon = !this.scrollingDown;
@@ -237,7 +261,7 @@ export class NotestListPage implements OnInit, OnDestroy {
     data.selected = !data.selected;
   }
   private closeToolbar() {
-    if (this.showThemeSelector) {
+    if (this.showModalThemeSelector) {
       this.onSwitchColorSelector();
       setTimeout(() => {
         this.unselectNotes();
@@ -248,7 +272,7 @@ export class NotestListPage implements OnInit, OnDestroy {
   }
 
   private getFabIconState() {
-    if (this.pageLoaded) {
+    if (this.firstTimePageLoaded) {
       const numberOfNotes = this.myNotesActived.length + this.myNotesArchived.length;
       if (numberOfNotes && !this.showFabIcon) {
         this.showFabIcon = true;
@@ -261,10 +285,11 @@ export class NotestListPage implements OnInit, OnDestroy {
 
   private switch(ascendant = true) {
     const index1 = this.myNotesActived.findIndex(note => note.selected);
-    const elem = this.myNotesActived[index1];
+    const noteSelected = this.myNotesActived[index1];
     const index2 = ascendant ? index1 -1 : index1 + 1;
-    const position1 = elem?.position;
-    const position2 = this.myNotesActived[index2] && this.myNotesActived[index2].position;
+    const noteToSwitch = this.myNotesActived[index2];
+    const position1 = noteSelected?.position;
+    const position2 = noteToSwitch?.position;
     if (position1 !== undefined && position2 !== undefined) {
       this.loading = true;
       this.myNotesService.switch(position1, position2)
@@ -277,18 +302,28 @@ export class NotestListPage implements OnInit, OnDestroy {
             return {
               ...note,
               ...colorData,
-              selected: note.id === elem.id
+              selected: note.id === noteSelected.id
             };
           });
-          this.setFocus(elem.id);
+          setTimeout(() => {
+            this.scrollIntoNote(noteSelected.id).then(() => {
+              this.loading = false;
+            });
+          });
+        } else {
+          this.loading = false;
         }
       })
-      .finally(() => (this.loading = false));
+      .catch(() => {
+        this.loading = false;
+      })
+      .finally(() => {
+      });
     }
   }
 
   private editNote() {
-    this.firstItemInView = this.activedSelected[0].id;
+    this.noteSelectedId = this.activedSelected[0].id;
     this.router.navigate(['my-notes/edit', this.activedSelected[0].id]);
   }
 
@@ -370,20 +405,4 @@ export class NotestListPage implements OnInit, OnDestroy {
     }
   }
 
-  private setFocus(id) {
-    setTimeout(() => {
-      this.pageLoaded = false;
-      const noteSelected = this.notesComp.find(
-        note => note.nativeElement.classList.contains('note-'+id));
-        if (noteSelected) {
-          const height = noteSelected.nativeElement.offsetHeight;
-          this.scrollPosition = noteSelected.nativeElement.offsetTop;
-          const notePositionInitial = noteSelected.nativeElement.offsetTop;;
-          const notePositionEnd = this.scrollPosition + height;
-          const contentPositionInitial = this.contentElement.offsetTop;
-          const contentPositionEnd = this.contentElement.offsetTop + this.contentElement.offsetHeight;
-          noteSelected.nativeElement.scrollIntoView({behavior: 'smooth'});
-        }
-    });
-  }
 }

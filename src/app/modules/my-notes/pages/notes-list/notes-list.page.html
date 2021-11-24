@@ -1,6 +1,6 @@
 <app-notes-list-header [hide]="scrollingDown"
 [selectedLenght]="activedSelected.length"
-[notesStatus]="notesStatus"
+[notesStatus]="notesSelectedStatus"
 [themes]="themes"
 [loading]="loading"
 [selectedTheme]="themeSelected"
@@ -9,7 +9,7 @@
 (filterByThemeEv)="onFilterByThemeId($event)"
 (clickNoteToolEv)="onFireHeaderButtonAction($event)">
 </app-notes-list-header>
-<ion-content #content [fullscreen]="true" [scrollEvents]="false" (ionScroll)="onScroll($event)" class="my-notes-page">
+<ion-content #content [fullscreen]="true" [scrollEvents]="true" (ionScroll)="onScroll($event)" class="my-notes-page">
   <div *ngIf="themeSelected && !showedThemeToolbar" class="my-notes-page__title u-flex" [style.background]="themeSelected.c1">
     <ion-icon slot="start" name="filter" class="u-c-black"></ion-icon>
     <ion-title *ngIf="themeSelected.themeTitle" class="u-c-black" [style.background]="themeSelected.c1">{{themeSelected.themeTitle |uppercase}}</ion-title>
@@ -23,7 +23,7 @@
   <article class="my-notes-page__list">
     <ng-content *ngTemplateOutlet="notesTmpl; context:{ myNotes: myNotesActived, showOptions: true }" ></ng-content>
   </article>
-<ion-title class="my-notes-page__archive-title" *ngIf="pageLoaded && !hideArchived && myNotesArchived?.length">Archivadas</ion-title>
+<ion-title class="my-notes-page__archive-title" *ngIf="firstTimePageLoaded && !hideArchived && myNotesArchived?.length">Archivadas</ion-title>
   <article class="my-notes-page__list" *ngIf="!hideArchived">
     <ng-content *ngTemplateOutlet="notesTmpl; context:{ myNotes: myNotesArchived, showOptions: false }" ></ng-content>
   </article>
@@ -41,7 +41,7 @@
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
   </ion-fab>
-  <app-modal *ngIf="showThemeSelector" [template]="themeSelectorTmpl" (closeEv)="onCloseColorSelector()">
+  <app-modal *ngIf="showModalThemeSelector" [template]="themeSelectorTmpl" (closeEv)="onCloseModalThemeSelector()">
   </app-modal>
 </ion-content>
 

@@ -13,6 +13,21 @@ export class UtilsService {
     private imagePicker: ImagePicker,
     private configServ: ConfigService) {}
 
+    async showBasicAlert(message): Promise<any> {
+      const alert = await this.alertCtrl.create({
+        cssClass:  `u-txt${this.configServ.fontSize}`,
+        message,
+        buttons: [
+          {
+            text: 'Aceptar',
+            role: 'ok',
+            handler: () => true
+          }
+        ]
+      });
+      await alert.present();
+      return alert.onDidDismiss();
+    }
   async showAlert(message): Promise<any> {
     const alert = await this.alertCtrl.create({
       cssClass:  `u-txt${this.configServ.fontSize}`,

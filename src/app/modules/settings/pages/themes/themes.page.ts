@@ -2,6 +2,7 @@ import {  Component, OnInit, QueryList, ViewChild, ViewChildren } from '@angular
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { IonBackButtonDelegate, IonInput, NavController } from '@ionic/angular';
 import { ConfigService } from 'src/app/core/services/config.service';
+import { MyNotesService } from 'src/app/core/services/my-notes.service';
 import { StaticUtilsService } from 'src/app/core/services/static-utils.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { COLORS } from 'src/app/shared/constants/colors';
@@ -29,7 +30,8 @@ export class ThemesPage implements OnInit {
     private formBuilder: FormBuilder,
     private configService: ConfigService,
     private utilsServ: UtilsService,
-    private navCtrl: NavController) { }
+    private navCtrl: NavController,
+    private myNotesServ: MyNotesService)  { }
 
   ngOnInit() {
     this.themesData = this.configService.getThemesData();
@@ -44,6 +46,22 @@ export class ThemesPage implements OnInit {
   }
   onCloseColorSelector() {
     this.showColorSelector = false;
+  }
+  async onDelete(themeId) {
+    if(this.myNotesServ.getActived(themeId).length > 0) {
+      await this.utilsServ.showBasicAlert('No puede borrar la temática porque hay notas que la tienen asignada');
+    } else if(this.myNotesServ.getArchived(themeId).length > 0) {
+      await this.utilsServ.showBasicAlert('No puede borrar la temática porque hay notas archivadas que la tienen asignada');
+    } else {
+      this.loading = true;
+      this.utilsServ.showAlert('Va a eliminar la temática, desea continuar?').then(data => {
+        if (data.role === 'cancel') {
+          this.loading = false;
+        } else {
+          this.continueDelete(themeId);
+        }
+      });
+    }
   }
   onSelectColor(colorId) {
     this.themesData.push({
@@ -104,6 +122,19 @@ export class ThemesPage implements OnInit {
       .finally(() => {
         this.loading = false;
         this.changes = false;
+        this.onUnselect();
+      });
+  }
+
+  private continueDelete(themeId) {
+    this.loading = true;
+    this.configService.deleteTheme(themeId)
+    .then(_ => this.utilsServ.showToast('Se ha eliminado la temática'))
+    .catch(_ => this.utilsServ.showToast('Ha ocurrido un error', true))
+      .finally(() => {
+        this.loading = false;
+        this.changes = false;
+        this.themesData = this.themesData.filter(theme => theme.themeId !==  themeId);
         this.onUnselect();
       });
   }

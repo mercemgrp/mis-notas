@@ -105,7 +105,8 @@ export class ConfigService {
       ...theme,
       themeTitle: theme.themeTitle || '',
       c1: COLORS[theme.colorId]?.c1,
-      c2: COLORS[theme.colorId]?.c2
+      c2: COLORS[theme.colorId]?.c2,
+      basicTheme: Object.keys(COLORS).includes(theme.themeId),
     })).sort((a, b) => (a.themePosition || 0) - (b.themePosition || 0));
   }
 
@@ -128,6 +129,12 @@ export class ConfigService {
 
   setThemeSelected(themeId) {
     return this.storage.set(CONFIG_KEY,{...this.config, menuId: themeId} as Configuration)
+      .then(resp => this.config = resp);
+  }
+
+  deleteTheme(themeId) {
+    return this.storage.set(CONFIG_KEY,{...this.config,
+        themesData: this.config.themesData.filter(theme => theme.themeId !== themeId)} as Configuration)
       .then(resp => this.config = resp);
   }
 

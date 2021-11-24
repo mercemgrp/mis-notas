@@ -23,6 +23,7 @@ export class NotesListHeaderComponent implements OnInit, OnChanges {
   @Output() clickNoteToolEv = new EventEmitter<number>();
   @Output() showFiterToolbarEv = new EventEmitter<boolean>();
   get segmentElement() {
+    // eslint-disable-next-line @typescript-eslint/dot-notation
     return this.segment && this.segment['el'];
   }
   title = 'Mis notas';
@@ -36,7 +37,6 @@ export class NotesListHeaderComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    console.log(changes);
     if (changes?.showThemesToolbar || changes?.selectedLenght || changes?.hide) {
       this.showedThemeToolbar = this.showThemesToolbar &&  !this.selectedLenght && !this.hide;
     }
