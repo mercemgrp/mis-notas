@@ -2,23 +2,13 @@
 .theme-selector {
   display: flex;
   flex-direction: column;
-  list-style: none;
-  padding-left: 10px;
-  justify-content: center;
-  li {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    button {
-      background: transparent;
-      div {
-        width:25px;
-        height:25px;
-      }
+  &__item {
+    &--selected {
+      --background: rgb(223 214 214 / 50%);
     }
+  }
     span {
       align-self: center;
       margin-right: auto;
     }
-  }
 }

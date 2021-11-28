@@ -5,7 +5,9 @@ import { StatusBar } from '@capacitor/status-bar';
 import { Platform } from '@ionic/angular';
 import { Subject } from 'rxjs';
 import { ConfigService } from './core/services/config.service';
-import { map, takeUntil, tap } from 'rxjs/operators';
+import { map, takeUntil } from 'rxjs/operators';
+import { ActionPerformed, LocalNotifications } from '@capacitor/local-notifications';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
@@ -16,7 +18,8 @@ export class AppComponent implements OnInit, OnDestroy {
   private ngUnsubscribe = new Subject<void>();
   constructor(
     private platform: Platform,
-    private configService: ConfigService
+    private configService: ConfigService,
+    private router: Router
   ) {
     this.initializeApp();
   }
@@ -36,6 +39,9 @@ export class AppComponent implements OnInit, OnDestroy {
         SplashScreen.hide();
         StatusBar.hide();
         StatusBar.setOverlaysWebView({overlay: false});
+        LocalNotifications.addListener('localNotificationActionPerformed', (payload: ActionPerformed) => {
+          this.router.navigate(['my-notes/view/' + payload.notification.extra.id]);
+        });
       }
     });
   }

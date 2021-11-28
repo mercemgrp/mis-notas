@@ -1,20 +1,24 @@
 <app-note-header
   [action]="data?.id ? actions.edit : actions.create"
   [isArchived]="!!data?.archived"
+  [showedModal]="showThemeSelector || showCalendar"
    [loading]="loading"
    [showToolbarImage]="!!imageSelected"
   (backButtonPressedEv)="onBack()" (clickNoteToolEv)="onFireHeaderButtonAction($event)">
 </app-note-header>
 <ion-content [fullscreen]="true" class="edit-note-page">
-  <ion-item>
+  <ion-item >
     <ion-title *ngIf="data">{{data.themeTitle | uppercase}}</ion-title>
-    <ion-icon [color]="isNote ? 'dark' : 'primary'" name="list"></ion-icon>
-    <ion-toggle [checked]="isNote" name="isNoteType" color="primary" (ionChange)="onToggleNoteType($event)"></ion-toggle>
-    <ion-icon [color]="isNote ? 'primary' : 'dark'" name="grid"></ion-icon>
+    <ion-icon *ngIf="!data?.id" [color]="isNote ? 'dark' : 'primary'" name="list"></ion-icon>
+    <ion-toggle *ngIf="!data?.id" [checked]="isNote" name="isNoteType" color="primary" (ionChange)="onToggleNoteType($event)"></ion-toggle>
+    <ion-icon *ngIf="!data?.id" [color]="isNote ? 'primary' : 'dark'" name="grid"></ion-icon>
   </ion-item>
 
   <app-edit-text-area #myNoteEdit *ngIf="data && isNote" [data]="data"></app-edit-text-area>
   <app-edit-list #myNoteEdit *ngIf="data && !isNote" [data]="data"></app-edit-list>
+  <ion-item *ngFor="let notif of notifications">
+    <ion-label><ion-icon slot="start" name="notifications"></ion-icon> {{notif }}</ion-label>
+  </ion-item>
   <app-images-list [images]="data?.images" (openImageEv)="onSelectImage($event)"></app-images-list>
   <app-modal #calendarModalCmp *ngIf="showCalendar" [template]="calendarTmpl" (closeEv)="showCalendar=false"></app-modal>
   <app-modal #colorSelectorModalCmp *ngIf="showThemeSelector" [template]="themeSelectorTmpl" (closeEv)="showThemeSelector=false"></app-modal>
@@ -22,9 +26,9 @@
 
 <app-full-screen-image *ngIf="data" [srcImage]="imageSelected"></app-full-screen-image>
 <ng-template #calendarTmpl>
-  <app-calendar (selectDateEv)="onSelectDate($event)"></app-calendar>
+  <app-date-picker (acceptEv)="onSelectDateTime($event)" (cancelEv)="onCancelCreateAlert()"></app-date-picker>
 </ng-template>
 <ng-template #themeSelectorTmpl>
-  <app-theme-selector *ngIf="showThemeSelector" [themes]="themes" (selectThemeEv)="onSelectColor($event)"(closeEv)="showThemeSelector=false">
+  <app-theme-selector *ngIf="showThemeSelector" (selectThemeEv)="onSelectColor($event)"(closeEv)="showThemeSelector=false">
 </app-theme-selector>
 </ng-template>

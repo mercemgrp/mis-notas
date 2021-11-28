@@ -13,7 +13,9 @@
       </div>
       <div *ngFor="let calendarRow of calendar" class="u-flex u-flex-row calendar__rows">
         <div *ngFor="let dayData of calendarRow" class="u-flex calendar__cell calendar__day"
-          [class.calendar__day--checked]="dayData?.day === checkedDay">
+          [class.calendar__day--today]="dayData?.day === today"
+          [class.calendar__day--checked]="dayData?.day === checkedDay"
+          [class.calendar__day--disabled]="!dayData?.enabled">
           <ion-button fill="clear" size="small"  [disabled]="!dayData?.enabled" shape="round"
           (click)="onSelectDay(dayData?.day)" >
             <span class="u-txt-{{fontSize}}">{{dayData?.day}}</span>

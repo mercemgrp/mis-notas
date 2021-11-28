@@ -1,0 +1,30 @@
+<div class="theme-editor">
+  <div class="theme-editor__content">
+    <ul class="color-selector">
+      
+        
+      
+      <li *ngFor="let color of colors" [class.color-selector__color--selected]="color.colorId === colorSelected">
+        <button (click)="onSelectStyle(color.colorId)">
+          <div [style]="'background:' + color.c2"> </div>
+        </button>
+      </li>
+    </ul>
+    <ion-input type="text" [(ngModel)]="title" placeholder="Añada un título"></ion-input>
+   
+  </div>
+ <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="onCancel()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="onAccept()">
+        <ion-icon slot="icon-only" name="checkmark"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</div>
+

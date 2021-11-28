@@ -1,4 +1,4 @@
-import { AfterContentChecked, AfterViewChecked, AfterViewInit, Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { NoteActionButtons } from 'src/app/shared/constants/note-action-buttons';
@@ -70,6 +70,9 @@ export class NotestListPage implements OnInit, OnDestroy {
     this.config.viewModeChanges$
     .pipe(tap(() => this.viewIsListMode = this.config.viewIsListMode))
     .subscribe();
+    this.config.hideArchivedChanges$
+    .pipe(tap(() => this.updateData(true)))
+    .subscribe();
   }
   ngOnDestroy() {
     this.ngUnsubscribe.next();
@@ -92,6 +95,7 @@ export class NotestListPage implements OnInit, OnDestroy {
       this.firstTimePageLoaded = true;
       this.scrollIntoNote(this.noteSelectedId).then(() => {
           this.loading =  false;
+          this.noteSelectedId = null;
           this.getFabIconState();
           this.showedThemeToolbar = this.config.showThemesToolbar;
         });
@@ -105,11 +109,11 @@ export class NotestListPage implements OnInit, OnDestroy {
 
   scrollIntoNote(noteSelectedId): Promise<boolean> {
     if(noteSelectedId === undefined) {
-      return new Promise((resolve, reject) => resolve(false));
+      return new Promise((resolve) => resolve(false));
     } else {
       const noteSelected = this.contentElement.getElementsByClassName('note-' + noteSelectedId)[0];
       if (!noteSelected) {
-        return new Promise((resolve, reject) => resolve(false));
+        return new Promise((resolve) => resolve(false));
       } else {
         return this.scrollIntoNoteSelected(noteSelected).then(resp => resp);
       }
@@ -123,26 +127,25 @@ export class NotestListPage implements OnInit, OnDestroy {
     const notePositionEnd = notePositionInitial + noteSelected.offsetHeight;
     const contentPositionInitial = this.currentScrollPosition;
     const contentPositionEnd  = contentPositionInitial + this.contentElement.offsetHeight;
-    console.log('contentPosition', contentPositionInitial, contentPositionEnd);
-    console.log('notePosition', notePositionInitial, notePositionEnd);
-    const isInView = notePositionInitial >= contentPositionInitial && notePositionEnd <= contentPositionEnd;
-    if (!isInView) {
-      let scrollTo = notePositionInitial;
-      if (notePositionInitial < contentPositionInitial) {
-      }
-      if (notePositionEnd < contentPositionInitial) {
+    const isLater = notePositionEnd >= contentPositionEnd;
+    const isBeforeBetween = notePositionInitial <= contentPositionInitial && notePositionEnd >= contentPositionInitial;
+    const isBefore = notePositionInitial <= contentPositionInitial;
+    let scrollTo;
+    if (isLater || isBefore || isBeforeBetween) {
+      if (isLater) {
+        scrollTo = notePositionInitial - headerHeight;
+      } else if (isBeforeBetween) {
+        scrollTo = this.currentScrollPosition - this.contentElement.offsetHeight  + noteSelected.offsetHeight;
+      } else if(isBefore) {
         scrollTo = this.currentScrollPosition - this.contentElement.offsetHeight;
-      } else if(notePositionInitial < contentPositionInitial) {
-        scrollTo = this.currentScrollPosition - this.contentElement.offsetHeight + noteSelected.offsetHeight;
       }
       return this.content.scrollToPoint(0, scrollTo, 500)
         .then(() => {
-          console.log('end scrollTo', scrollTo);
           this.scrollPosition = this.currentScrollPosition;
           return true;
         });
     } else {
-      return new Promise((resolve, reject) => resolve(false));
+      return new Promise((resolve) => resolve(false));
     }
   }
 
@@ -398,7 +401,7 @@ export class NotestListPage implements OnInit, OnDestroy {
   private updateThemes() {
     this.themes = this.config.getThemesData().filter(theme =>
       this.myNotesService.getActived().some(note => note.themeId === theme.themeId) ||
-      this.myNotesService.getArchived().some(note => note.themeId === theme.themeId)
+      (this.config.hideArchived ? false : this.myNotesService.getArchived().some(note => note.themeId === theme.themeId))
     );
     if (this.themeSelected && !this.themes.some(th => this.themeSelected.themeId === th.themeId)) {
       this.onFilterByThemeId('');

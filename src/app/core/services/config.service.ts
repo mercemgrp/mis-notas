@@ -43,13 +43,16 @@ export class ConfigService {
 
   modeChanges$: Observable<Modes>;
   viewModeChanges$: Observable<ViewModes>;
+  hideArchivedChanges$: Observable<boolean>;
   private config: Configuration;
   private modeSubject =  new BehaviorSubject<Modes>(undefined);
   private viewModeSubject =  new BehaviorSubject<ViewModes>(undefined);
+  private hideArchivedSubject =  new BehaviorSubject<boolean>(false);
   constructor(private storage: Storage) {
     this.modeChanges$ = this.modeSubject.asObservable();
     this.viewModeChanges$ = this.viewModeSubject.asObservable();
-    }
+    this.hideArchivedChanges$ = this.hideArchivedSubject.asObservable();
+  }
 
     toggleMode() {
       const config: Configuration = {...this.config, mode: this.isDarkMode ? Modes.light : Modes.dark};
@@ -77,6 +80,7 @@ export class ConfigService {
       const config: Configuration = {...this.config, hideArchived: !this.config.hideArchived};
       return this.storage.set(CONFIG_KEY,config).then(_ => {
         this.config = config;
+        this.hideArchivedSubject.next(this.config.hideArchived);
         return this.config.hideArchived;
       }
       ).catch(_ => this.config.hideArchived);
@@ -143,6 +147,22 @@ export class ConfigService {
       .then(resp => this.config = resp);
   }
 
+  addTheme(theme: ThemeUi): Promise<string> {
+    const id = StaticUtilsService.getRandomId();
+    const themesData = [...this.config.themesData];
+    themesData.push({
+      themeId: id,
+      colorId: theme.colorId,
+      themeTitle:theme.themeTitle,
+      themePosition: themesData.reduce((result, th) => (th.themePosition > result ? th.themePosition : result) , 0) + 1
+    });
+    return this.storage.set(CONFIG_KEY,{...this.config, themesData})
+      .then(config => {
+        this.config = config;
+        return id;
+      });
+  }
+
   setThemesData(data: ThemeUi[]) {
     const themesData = [...this.config.themesData];
     data.forEach(theme => {
@@ -197,6 +217,7 @@ export class ConfigService {
           showThemesToolbar: resp?.showThemesToolbar === false ? false : true,
           hideArchived: resp?.hideArchived || false
         };
+        this.hideArchivedSubject.next(this.config.hideArchived);
         return this.config;
       }
     );

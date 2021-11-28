@@ -1,5 +1,5 @@
-import { Component, QueryList, ViewChild, ViewChildren } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, ViewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { MyNoteUi } from 'src/app/shared/models/my-note';
 import { MyNotesService } from 'src/app/core/services/my-notes.service';
@@ -8,11 +8,14 @@ import { NoteAction } from 'src/app/shared/constants/note-action';
 import { NotesStatus } from 'src/app/shared/constants/notes-status';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { ConfigService } from 'src/app/core/services/config.service';
-import { LocalNotifications } from '@ionic-native/local-notifications/ngx';
 import { ModalComponent } from 'src/app/shared/components/modal/modal.component';
 import { ThemeUi } from 'src/app/shared/models/configuration-ui';
 import { EditTextAreaComponent } from './edit-text-area/edit-text-area.component';
 import { EditListComponent } from './edit-list/edit-list.component';
+import { NoteTypes } from 'src/app/shared/constants/note-types';
+import { NotificationsService } from 'src/app/core/services/notifications.service';
+import { StaticUtilsService } from 'src/app/core/services/static-utils.service';
+import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-edit-note',
@@ -33,6 +36,7 @@ export class EditNotePage {
   actions = NoteAction;
   notesStatus = NotesStatus;
   themes: ThemeUi[];
+  notifications: string[] = [];
   get enableImagePicker() {
     return !this.data?.images || this.data.images?.length < 3;
   }
@@ -42,11 +46,13 @@ export class EditNotePage {
     private utilsServ: UtilsService,
     private navCtrl: NavController,
     private config: ConfigService,
-    private localNotifications: LocalNotifications
+    private notificationsService: NotificationsService
 
   ) {
-
-  }
+    this.notificationsService.changes$
+    .pipe(tap(() => this.getNotifications()))
+    .subscribe();
+}
 
   ionViewWillEnter() {
     this.loading = true;
@@ -73,7 +79,8 @@ export class EditNotePage {
         position: null
       };
     }
-    this.isNote = this.data.type === 1;
+    this.isNote = this.data.type === NoteTypes.note;
+    this.getNotifications();
 
   }
 
@@ -124,16 +131,21 @@ export class EditNotePage {
     }
   }
 
-  onSelectDate(date: Date) {
+  onSelectDateTime(date: Date) {
     this.calendarModalCmp.onHide();
-    this.localNotifications.schedule({
-      text:  this.data.content,
-      trigger: {at: new Date(date.getTime())},
-      led: 'FF0000',
-      data: this.data,
-      sound: null
-   });
+    this.notificationsService.schedule({
+      date, noteId: this.data.id,
+      title: this.data.type === NoteTypes.list ? this.data.title : undefined,
+      body: this.data.type === NoteTypes.note ? this.data.content :
+      this.data.listItems.reduce((result, item) => result + item + ',', '')
+    });
+    this.utilsServ.showToast(`Se ha creado la notificación para el día ${StaticUtilsService.getDateStr(date)}`, false, 5000);
   }
+
+  onCancelCreateAlert() {
+    this.showCalendar = false;
+  }
+
 
   onSelectColor(colorId) {
     const colorData = this.config.getThemeData(colorId) || this.config.defaultThemeIdData;
@@ -171,6 +183,11 @@ export class EditNotePage {
       this.save()
         .then(() => this.navCtrl.back());
     }
+  }
+
+  private getNotifications() {
+    this.notifications = this.notificationsService.getScheduledNotificationsByNoteId(this.data?.id).map(data =>
+      StaticUtilsService.getDateStr(data.schedule.at));
   }
 
   private  switchColorPalette() {
@@ -284,7 +301,7 @@ export class EditNotePage {
         return this.service.save({
           ...this.data,
           ...data,
-          type: this.isNote ? 1 : 2
+          type: this.isNote ? NoteTypes.note : NoteTypes.list
         }).catch(_ => {
           this.utilsServ.showToast('Ha ocurrido un error guardando la nota', true);
         });

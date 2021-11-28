@@ -1,16 +1,20 @@
 .themes-page {
-  ion-list ion-item {
+  &__theme {
     border-bottom: #ebebeb 1px solid;
-  }
-  &__btn {
+    button {
       background-color: inherit;
-    &--disabled {
-      opacity: 0.5;
     }
-  }
-  &__input {
-    &--disabled {
-      opacity: 0.5;
+    &--selected {
+      --background: rgb(223 214 214 / 50%);
+    }
+    &--unselected {
+      opacity: 40%;
+      ion-input {
+        opacity: 0.5;
+      }
+      button {
+        opacity: 0.5;
+      }
     }
   }
   &__add-button {

@@ -1,6 +1,8 @@
 
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ConfigService } from 'src/app/core/services/config.service';
+import { StaticUtilsService } from 'src/app/core/services/static-utils.service';
+import { COLORS } from 'src/app/shared/constants/colors';
 import { ThemeUi } from 'src/app/shared/models/configuration-ui';
 
 @Component({
@@ -9,19 +11,50 @@ import { ThemeUi } from 'src/app/shared/models/configuration-ui';
   styleUrls: ['./theme-selector.component.scss']
 })
 export class ThemeSelectorComponent implements OnInit{
-  @Input() themes: ThemeUi[] = [];
   @Output() selectThemeEv = new EventEmitter<string>();
+  themes: ThemeUi[] = [];
   fontSize;
+  newTheme: ThemeUi;
+  themeSelectedId: string;
+  idColorNewTheme = 0;
   constructor(private config: ConfigService) {}
 
   ngOnInit() {
     this.fontSize = this.config.fontSize;
+    this.themes = this.config.getThemesData();
+    this.newTheme = {
+      themeId: StaticUtilsService.getRandomId(),
+      themeTitle: '',
+      ...COLORS[Object.keys(COLORS)[this.idColorNewTheme]],
+      themePosition: this.themes.reduce((result, theme) =>
+        (theme.themePosition > result ? theme.themePosition : result) , 0) + 1
+    };
   }
 
 
-  onSelectStyle(colorId) {
-    this.selectThemeEv.emit(colorId);
+  onChangeColor() {
+    this.idColorNewTheme++;
+    if (Object.entries(COLORS).length === this.idColorNewTheme) {
+      this.idColorNewTheme = 0;
+    }
+    this.newTheme = {
+      ...this.newTheme,
+      ...COLORS[Object.keys(COLORS)[this.idColorNewTheme]]
+    };
   }
+
+  onAccept() {
+    if (this.themeSelectedId === this.newTheme.themeId) {
+      this.config.addTheme(this.newTheme).then(id => this.selectThemeEv.emit(id));
+    } else {
+      this.selectThemeEv.emit(this.themeSelectedId);
+    }
+  }
+
+  onCancel() {
+    this.selectThemeEv.emit(null);
+  }
+
 
 
 }

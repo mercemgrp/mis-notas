@@ -9,8 +9,12 @@ import { NotesStatus } from 'src/app/shared/constants/notes-status';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { ConfigService } from 'src/app/core/services/config.service';
 import { ModalComponent } from 'src/app/shared/components/modal/modal.component';
-import { LocalNotifications } from '@ionic-native/local-notifications/ngx';
 import { ThemeUi } from 'src/app/shared/models/configuration-ui';
+import { NoteTypes } from 'src/app/shared/constants/note-types';
+import { StaticUtilsService } from 'src/app/core/services/static-utils.service';
+import { NotificationsService } from 'src/app/core/services/notifications.service';
+import { tap } from 'rxjs/operators';
+
 @Component({
   selector: 'app-view-note',
   templateUrl: 'view-note.page.html',
@@ -20,6 +24,7 @@ export class ViewNotePage {
   @ViewChild('colorSelectorModalCmp') colorSelectorModalComp: ModalComponent;
   @ViewChild('calendarModalCmp') calendarModalCmp: ModalComponent;
   data: MyNoteUi;
+  notifications: string[] = [];
   showThemeSelector = false;
   showCalendar = false;
   loading = false;
@@ -35,11 +40,15 @@ export class ViewNotePage {
     private router: Router,
     private utils: UtilsService,
     private config: ConfigService,
-    private localNotifications: LocalNotifications
+    private notificationsService: NotificationsService
     ) {
+      this.notificationsService.changes$
+      .pipe(tap(() => this.getNotifications()))
+      .subscribe();
   }
 
   ionViewWillEnter() {
+
     this.loading = true;
     this.themes = this.config.getThemesData();
     const note = this.service.get(this.activatedRoute.snapshot.params.id);
@@ -48,6 +57,7 @@ export class ViewNotePage {
       ...note,
       ...colorData
     };
+    this.getNotifications();
 
   }
 
@@ -59,16 +69,17 @@ export class ViewNotePage {
     this.data = null;
   }
 
-  onSelectDate(date: Date) {
+  onSelectDateTime(date: Date) {
     this.calendarModalCmp.onHide();
-    this.localNotifications.schedule({
-      text:  this.data.content,
-      trigger: {at: new Date(date.getTime())},
-      led: 'FF0000',
-      data: this.data,
-      sound: null
-   });
+    this.notificationsService.schedule({
+      date, noteId: this.data.id,
+      title: this.data.type === NoteTypes.list ? this.data.title : undefined,
+      body: this.data.type === NoteTypes.note ? this.data.content :
+      this.data.listItems.reduce((result, item) => result + item + ',', '')
+    });
+    this.utils.showToast(`Se ha creado la notificación para el día ${StaticUtilsService.getDateStr(date)}`, false, 5000);
   }
+
 
   onBack() {
     this.loading = true;
@@ -128,23 +139,39 @@ export class ViewNotePage {
     this.imageSelected = image;
   }
 
-  onSelectColor(themeId) {
+  onSelectTheme(themeId) {
     this.loading = true;
+    this.colorSelectorModalComp.onHide();
+    if (themeId) {
+      this.onSaveTheme(themeId);
+    }
+
+  }
+
+  onCancelCreateAlert() {
+    this.showCalendar = false;
+  }
+
+  private onSaveTheme(themeId) {
     const editedNote = {
       ...this.data,
       themeId
     };
-    this.colorSelectorModalComp.onHide();
     this.service.save(editedNote)
-      .then(() => {
-        const themeData = this.config.getThemeData(themeId) || this.config.defaultThemeIdData;
-        this.data = {
-          ...this.data,
-          ...themeData
-        };
-      })
-      .catch(_ => this.utils.showToast('Ha ocurrido un error guardando el color', true))
-      .finally(() => this.loading = false);
+    .then(() => {
+      const themeData = this.config.getThemeData(themeId) || this.config.defaultThemeIdData;
+      this.data = {
+        ...this.data,
+        ...themeData
+      };
+    })
+    .catch(_ => this.utils.showToast('Ha ocurrido un error guardando el color', true))
+    .finally(() => this.loading = false);
+  }
+
+  private getNotifications() {
+    this.notifications = this.notificationsService.getScheduledNotificationsByNoteId(this.data?.id).map(data =>
+      StaticUtilsService.getDateStr(data.schedule.at));
   }
 
   private showCalendarFn() {

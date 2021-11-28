@@ -6,7 +6,11 @@
 <ng-template #mainToolbar>
 <ion-toolbar class="toolbar-custom note-header__toolbar" [class.note-header__toolbar--hide]="showToolbarImage">
   <ion-buttons slot="start">
-    <ion-back-button defaultHref="/"></ion-back-button>
+    <ion-button *ngIf="showedModal"
+      (click)="emitAction(actionButtons.switchColorSelector)">
+      <ion-icon slot="icon-only" [name]="'close'"></ion-icon>
+    </ion-button>
+    <ion-back-button [class.u-no-visible]="showedModal" defaultHref="/"></ion-back-button>
   </ion-buttons>
   <ion-buttons slot="end"> 
     <ion-button  *ngFor="let button of buttons" [class]="button.class" [disabled]="loading"

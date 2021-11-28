@@ -3,10 +3,11 @@
   >ion-title {
     text-align: center;
     padding: 10px;
-    border-bottom: 1px solid black;
+    border-bottom: 1px solid var(--ion-color-dark);
   }
   &__content {
     padding: 10px 0px;
+    border-bottom: 1px solid var(--ion-color-dark);;
     .arrow-button {
       display: flex;
       place-self: center;
@@ -48,10 +49,18 @@
             padding: 0px;
           }
         }
+        &--disabled {
+          opacity: 50%;
+        }
+        &--today ion-button {
+          border: 1px solid var(--ion-color-dark);;
+          font-weight: 600;
+          border-radius: 10px;
+        }
         &--checked ion-button {
           font-weight: 600;
           border-radius: 10px;
-          border: 1px solid black;
+          border: 1px solid var(--ion-color-dark);;
           color: var(--ion-color-light);
           background-color: var(--ion-color-dark);
         }

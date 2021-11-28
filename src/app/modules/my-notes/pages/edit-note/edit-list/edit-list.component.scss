@@ -1,18 +1,22 @@
 .edit-list {
-  color: #000000;
-  ion-input {
-    color: #000000;
+  color: #111111;
+  &__items {
+    margin-top: 2px;
+    ion-item {
+      --highlight-height: 0px;
+      --border-color: transparent;
+      margin: -4px 0px;
+    }
+    ion-item.sc-ion-input-md-h:not(.item-label),
+    ion-item:not(.item-label) .sc-ion-input-md-h {
+      padding: 0px 5px;
+      --padding-start: 5px;
+    }
   }
-  ion-item {
-    --highlight-height: 0px;
-    --border-color: transparent;
+  ion-input {
+    color: #111111;
   }
 
-  ion-item.sc-ion-input-md-h:not(.item-label),
-  ion-item:not(.item-label) .sc-ion-input-md-h {
-    padding: 0px 5px;
-    --padding-start: 5px;
-  }
   &__action-btn {
    ion-button::part(native) {
       background-color: transparent;

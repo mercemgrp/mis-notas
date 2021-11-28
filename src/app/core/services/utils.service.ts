@@ -49,13 +49,13 @@ export class UtilsService {
     return alert.onDidDismiss();
   }
 
-  async showToast(message, isError = false) {
+  async showToast(message, isError = false, duration = 2000) {
     const toast = await this.toastController.create({
       color: isError ? 'danger' : 'dark',
       animated: true,
       cssClass: ['my-toast', `u-txt${this.configServ.fontSize}` ],
       message,
-      duration: 2000
+      duration
     });
     toast.present();
   }

@@ -2,20 +2,20 @@
   ion-card-header {
     padding: 10px 5px 0px 10px;
     ion-card-title {
-      color: #000000;
+      color: #111111;
       display: flex;
       justify-content: right;
     }
     ion-card-subtitle {
       font-size: 10px;
       margin-top: 2px;
-      color: #000000;
+      color: #111111;
     }
   }
   
   ion-card-content {
     padding: 5px 10px;
-    color: #000000;
+    color: #111111;
   }
   &--checked {
     text-decoration: line-through;

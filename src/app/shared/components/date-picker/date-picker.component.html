@@ -1,0 +1,47 @@
+<div class="date-picker">
+  <app-calendar (selectDateEv)="onSelectDate($event)"></app-calendar>
+  <ng-form *ngIf="form" [formGroup]="form">
+    <ion-item class="u-flex" color="light">
+
+      <ion-label>Seleccione hora</ion-label>
+      <ion-input class="date-picker__hours" type="text" placeholder="08" formControlName="hours" type="number" min="0"
+        max="24" maxlength="2"></ion-input>
+      :
+      <ion-input #minutesInput type="text" placeholder="00" formControlName="minutes" maxlength="2" min="0" max="59"
+        type="number"></ion-input>
+
+    </ion-item>
+    <!--<ion-item>
+  <ion-list>
+    <ion-radio-group name="auto" value="tesla">
+      <ion-item>
+        <ion-label>Solo una</ion-label>
+        <ion-radio value="one"></ion-radio>
+      </ion-item>
+      <ion-item>
+        <ion-label>Todas las semanas</ion-label>
+        <ion-radio value="weekly"></ion-radio>
+      </ion-item>
+      <ion-item>
+        <ion-label>Todos los meses</ion-label>
+        <ion-radio value="monthlys"></ion-radio>
+      </ion-item>
+    </ion-radio-group>
+  </ion-list>
+</ion-item>
+-->
+  </ng-form>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="onCancel()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="onAccept()">
+        <ion-icon slot="icon-only" name="checkmark"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</div>

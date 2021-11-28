@@ -4,18 +4,22 @@
   z-index: 1;
   transition: background 700ms;
   background: rgb(34 36 40 / 60%);
+  
   position: fixed;
   width: 100%;
   height: 100%;
   top: 0px;
   opacity: 0;
+  &--dark {
+    background: rgb(75 81 92 / 60%);
+  }
   &__content {
     z-index: 1;
     width: 100%;
     height: fit-content;
     background-color: var(--ion-color-light);
     position: absolute;
-    top: -50%;
+    top: -100%;
     margin-top: 56px;
   }
 }

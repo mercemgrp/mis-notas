@@ -46,7 +46,7 @@
 </ion-content>
 
 <ng-template #themeSelectorTmpl>
-  <app-theme-selector [themes]="themes" (selectThemeEv)="onSelectColor($event)"></app-theme-selector>
+  <app-theme-selector (selectThemeEv)="onSelectColor($event)"></app-theme-selector>
 </ng-template>
 <ng-template #notesTmpl let-myNotes="myNotes" let-showOptions="showOptions">
   <div #noteElem *ngFor="let data of myNotes || []; let i = index" class="note-wrapper note-{{data.id}}"

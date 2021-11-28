@@ -1,4 +1,5 @@
-<div [class]="'modal modal-'+id" (click)="onHide($event)">
+<div [class]="'modal modal-'+id" (click)="onHide($event)"
+  [class.modal--dark]="isDarkMode">
   <div class="modal__content"
     (click)="$event.stopPropagation()">
     <div *ngTemplateOutlet="template"></div>

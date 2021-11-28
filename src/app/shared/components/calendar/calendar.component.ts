@@ -1,5 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ConfigService } from 'src/app/core/services/config.service';
+import { MONTHS_NAMES } from '../../constants/months-names';
+import { WEEK_DAYS } from '../../constants/weeks-days';
 
 const MAX_NUMBER_OF_ROWS = 6;
 @Component({
@@ -8,6 +10,10 @@ const MAX_NUMBER_OF_ROWS = 6;
   styleUrls: ['./calendar.component.scss'],
 })
 export class CalendarComponent implements OnInit {
+  @Input() notifications: {
+    date: Date;
+    color: string;
+  }[] = [];
   @Input() currentDate: Date = new Date();
   @Output() selectDateEv = new EventEmitter<Date>();
   get fontSize() {
@@ -29,14 +35,13 @@ export class CalendarComponent implements OnInit {
    currentDate.setDate(0);
     return currentDate.getDate();
   }
-  weeksDays = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
-  monthsNames = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
-    'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
   monthName = '';
   year;
   calendar: {day: number; enabled: boolean; notifications: []}[][] = [];
   currentBaseDate: Date;
-  checkedDay;
+  checkedDay: number;
+  today: number;
+  weeksDays = WEEK_DAYS;
 
   constructor(private config: ConfigService) { }
 
@@ -44,6 +49,7 @@ export class CalendarComponent implements OnInit {
     this.currentBaseDate = this.firstDayOfMonth(this.currentDate);
     this.setVariables();
     this.renderCalendar();
+    console.log('loaded');
 
   }
 
@@ -68,16 +74,18 @@ export class CalendarComponent implements OnInit {
       return;
     }
     const date = new Date(`${this.currentBaseDate.getFullYear()}-${this.currentBaseDate.getMonth()+1}-${day}`);
+    this.checkedDay = day;
     this.selectDateEv.emit(date);
   }
 
   private setVariables() {
-    this.checkedDay = '';
+    this.checkedDay = undefined;
+    this.today = undefined;
     const today = new Date();
     if (today.getMonth() === this.currentBaseDate.getMonth() && today.getFullYear() === this.currentBaseDate.getFullYear()) {
-      this.checkedDay = today.getDate();
+      this.today = today.getDate();
     }
-    this.monthName = this.monthsNames[this.currentBaseDate.getMonth()];
+    this.monthName = MONTHS_NAMES[this.currentBaseDate.getMonth()];
     this.year = this.currentBaseDate.getFullYear();
   }
   private firstDayOfMonth(date: Date) {

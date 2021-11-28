@@ -2,7 +2,8 @@ import { Component, Input, OnInit, QueryList, ViewChildren } from '@angular/core
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { IonInput } from '@ionic/angular';
 import { ConfigService } from 'src/app/core/services/config.service';
-import { MyNoteUi } from 'src/app/shared/models/my-note';
+import { StaticUtilsService } from 'src/app/core/services/static-utils.service';
+import { ListItem, MyNoteUi } from 'src/app/shared/models/my-note';
 
 @Component({
   selector: 'app-edit-list',
@@ -17,23 +18,27 @@ export class EditListComponent implements OnInit {
     return this.config.fontSize;
   }
   title = '';
-  listItems: {checked: boolean; item: string}[] = [];
+  listItems: ListItem[] = [];
   constructor(private config: ConfigService, private fb: FormBuilder) { }
 
   ngOnInit() {
-        this.listItems = this.data.listItems || [];
-        this.title = this.data.title;
+      this.listItems = this.data.listItems || [];
+      this.title = this.data.title;
       this.createForm();
-      this.focusContent();
+      this.focusContent(true);
   }
 
   onSubmit(): Promise<any> {
     return new Promise((resolve, reject) => {
       if (this.editForm.valid) {
           this.readForm();
+          const itemsFiltered = this.listItems.filter(item => item.item);
+          if (!itemsFiltered.length) {
+            reject('¡Error! Añade al menos un elemento');
+          }
           resolve({
             title: this.title,
-            listItems: this.listItems
+            listItems: itemsFiltered
           });
       } else {
         reject('Error! Faltan datos');
@@ -41,21 +46,18 @@ export class EditListComponent implements OnInit {
     });
 
   }
-  onDelete(i) {
+  onDelete(id) {
     this.readForm();
-
-    this.listItems =  this.listItems.filter((item, index) => index !== i );
-    setTimeout(() => {
-      this.createForm();
-    });
+    this.listItems =  this.listItems.filter((item) => item.id !== id);
+    this.editForm.removeControl(id);
   }
-  onCheck(i) {
-    const elem = this.listItems.find((item, index) => index === i );
+  onCheck(id) {
+    const elem = this.listItems.find((item) => item.id === id );
     elem.checked = !elem.checked;
     if (elem.checked) {
-      this.editForm.get('item' +i).disable();
+      this.editForm.get(elem.id).disable();
      } else {
-        this.editForm.get('item' +i).enable();
+        this.editForm.get(elem.id).enable();
      }
   }
   addListItem() {
@@ -64,8 +66,9 @@ export class EditListComponent implements OnInit {
     if (allValuesArray.some(val => !val)) {
       return;
     }
-      this.listItems.push({checked: false, item: ''});
-      this.editForm.addControl('item' + (this.listItems.length-1), new FormControl(''));
+    const id = StaticUtilsService.getRandomId();
+      this.listItems.push({checked: false, item: '', id});
+      this.editForm.addControl(id, new FormControl(''));
       this.focusContent();
   }
 
@@ -73,33 +76,36 @@ export class EditListComponent implements OnInit {
       this.addListItem();
   }
   private readForm() {
+    const valuesActived = Object.entries(this.editForm.value).filter(item => item[0] !== 'title').map(item => item[0]);
     const value = this.editForm.getRawValue();
+    const list = Object.entries(value).filter(item => item[0] !== 'title');
     this.title = value.title;
-    this.listItems = this.listItems.map((item, index) => ({item: value['item'+index] || '', checked: item.checked}))
-      .filter(item => item.item);
+    this.listItems = list.map((elem: [string, string]) => ({
+        item: elem[1] || '', checked: !valuesActived.includes(elem[0]), id: elem[0]
+      }));
   }
   private createForm() {
-
-        this.editForm = this.fb.group({
+        const editForm = this.fb.group({
           title: [this.title]
         });
-        this.listItems.forEach((item, i) => {
-          this.editForm.addControl('item' + i, new FormControl(item.item, []));
+        this.listItems.forEach((item) => {
+          editForm.addControl(item.id, new FormControl(item.item, []));
           if (item.checked) {
-          this.editForm.get('item' + i).disable();
+          editForm.get(item.id).disable();
           }
         });
+        this.editForm = editForm;
         if (!this.listItems.length) {
           this.addListItem();
         }
   }
 
-  private focusContent() {
+  private focusContent(init = false) {
     setTimeout(() => {
         this.input?.last?.setFocus();
         this.input?.last?.getInputElement().then(input => input.setSelectionRange(
           input.value.length,
           input.value.length));
-    }, 800);
+    }, init ? 1000 : 250);
   }
 }

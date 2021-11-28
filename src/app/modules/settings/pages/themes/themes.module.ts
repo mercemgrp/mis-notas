@@ -7,7 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { ThemesPageRoutingModule } from './themes-routing.module';
 
 import { ThemesPage } from './themes.page';
-import { ColorSelectorComponent } from './color-selector/color-selector.component';
+import { ThemeEditorComponent } from './color-selector/theme-editor.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
@@ -19,6 +19,6 @@ import { SharedModule } from 'src/app/shared/shared.module';
     ThemesPageRoutingModule,
     SharedModule
   ],
-  declarations: [ThemesPage, ColorSelectorComponent]
+  declarations: [ThemesPage, ThemeEditorComponent]
 })
 export class ThemesPageModule {}

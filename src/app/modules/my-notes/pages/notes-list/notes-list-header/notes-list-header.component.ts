@@ -1,6 +1,6 @@
 
-import { Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, QueryList, SimpleChanges, ViewChild } from '@angular/core';
-import { IonSegment, IonSegmentButton, MenuController } from '@ionic/angular';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { IonSegment, MenuController } from '@ionic/angular';
 import { NoteActionButtons } from 'src/app/shared/constants/note-action-buttons';
 import { NotesStatus } from 'src/app/shared/constants/notes-status';
 import { ThemeUi } from 'src/app/shared/models/configuration-ui';

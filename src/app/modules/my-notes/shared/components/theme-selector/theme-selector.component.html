@@ -1,18 +1,29 @@
+<div class="theme-selector">
+    <ion-list>
+      <ion-item class="u-width-100" *ngFor="let theme of themes"
+      [class.theme-selector__item--selected]="theme.themeId === themeSelectedId"
+      (click)="themeSelectedId=theme.themeId">
+        <div class="square u-margin-right-5" [style]="'background:' + theme.c2"> </div>
+        <span *ngIf="theme.themeTitle" class="u-txt-{{fontSize}}">{{theme.themeTitle}}</span>
+        <span *ngIf="!theme.themeTitle" class="u-c-grey u-txt-{{fontSize}}">Sin título</span>
+      </ion-item>
+      <ion-item class="u-width-100" [class.theme-selector__item--selected]="newTheme.themeId === themeSelectedId">
+        <div (click)="onChangeColor()" class="square u-margin-right-5" [style]="'background:' + newTheme.c2"> </div>
+          <ion-input [placeholder]="'Añada una nueva temática'"
+          (click)="themeSelectedId=newTheme.themeId" [(ngModel)]="newTheme.themeTitle"></ion-input>
+      </ion-item>
+    </ion-list>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="onCancel()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
 
-    <ul class="theme-selector">
-      <li *ngFor="let theme of themes" (click)="onSelectStyle(theme.themeId)">
-        <ion-item class="u-width-100">
-          <button>
-            <div [style]="'background:' + theme.c2"> </div>
-          </button>
-          <span *ngIf="theme.themeTitle" class="u-txt-{{fontSize}}">{{theme.themeTitle}}</span>
-          <span *ngIf="!theme.themeTitle" class="u-c-grey u-txt-{{fontSize}}">Sin título</span>
-          <ion-button slot="end" fill="clear">
-            <ion-icon slot="icon-only" name="checkmark"></ion-icon>
-          </ion-button>
-        </ion-item>
-       
-      </li>
-    </ul>
-
-
+    <ion-buttons slot="end">
+      <ion-button (click)="onAccept()">
+        <ion-icon slot="icon-only" name="checkmark"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</div>

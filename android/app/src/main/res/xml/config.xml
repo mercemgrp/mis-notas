@@ -32,10 +32,6 @@
     <param name="onload" value="true"/>
   </feature>
 
-  <feature name="LocalNotification">
-    <param name="android-package" value="de.appplant.cordova.plugin.localnotification.LocalNotification"/>
-  </feature>
-
   <feature name="NativeKeyboard">
     <param name="android-package" value="nl.xservices.plugins.nativekeyboard.NativeKeyboard"/>
     <param name="onload" value="true"/>

@@ -5,6 +5,7 @@ import { ConfigService } from 'src/app/core/services/config.service';
 import { MyNotesService } from 'src/app/core/services/my-notes.service';
 import { StaticUtilsService } from 'src/app/core/services/static-utils.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
+import { ModalComponent } from 'src/app/shared/components/modal/modal.component';
 import { COLORS } from 'src/app/shared/constants/colors';
 import { ThemeUi } from 'src/app/shared/models/configuration-ui';
 
@@ -14,6 +15,7 @@ import { ThemeUi } from 'src/app/shared/models/configuration-ui';
   styleUrls: ['./themes.page.scss'],
 })
 export class ThemesPage implements OnInit {
+  @ViewChild(ModalComponent) colorSelectorModalCmp: ModalComponent;
   @ViewChild(IonBackButtonDelegate) backButton: IonBackButtonDelegate;
   @ViewChildren(IonInput) inputs: QueryList<IonInput>;
 
@@ -21,11 +23,11 @@ export class ThemesPage implements OnInit {
     return this.configService.fontSize;
   }
   themesData: ThemeUi[] = [];
-  form: FormGroup;
+  // form: FormGroup;
   changes = false;
   loading = false;
-  showColorSelector = false;
-  idSelected: string;
+  showThemeEditor = false;
+  themeSelected: ThemeUi;
   constructor(
     private formBuilder: FormBuilder,
     private configService: ConfigService,
@@ -35,22 +37,22 @@ export class ThemesPage implements OnInit {
 
   ngOnInit() {
     this.themesData = this.configService.getThemesData();
-    this.createForm();
+   // this.createForm();
     setTimeout(() => {
       this.setUIBackButtonAction();
     });
   }
 
   ionViewDidEnter() {
-    this.focusContent();
+   // this.focusContent();
   }
   onCloseColorSelector() {
-    this.showColorSelector = false;
+    this.showThemeEditor = false;
   }
-  async onDelete(themeId) {
-    if(this.myNotesServ.getActived(themeId).length > 0) {
+  async onDelete() {
+    if(this.myNotesServ.getActived(this.themeSelected.themeId).length > 0) {
       await this.utilsServ.showBasicAlert('No puede borrar la temática porque hay notas que la tienen asignada');
-    } else if(this.myNotesServ.getArchived(themeId).length > 0) {
+    } else if(this.myNotesServ.getArchived(this.themeSelected.themeId).length > 0) {
       await this.utilsServ.showBasicAlert('No puede borrar la temática porque hay notas archivadas que la tienen asignada');
     } else {
       this.loading = true;
@@ -58,64 +60,79 @@ export class ThemesPage implements OnInit {
         if (data.role === 'cancel') {
           this.loading = false;
         } else {
-          this.continueDelete(themeId);
+        //  this.updateDataFromForm();
+          this.continueDelete(this.themeSelected.themeId);
         }
       });
     }
   }
-  onSelectColor(colorId) {
-    this.themesData.push({
-      themeId: StaticUtilsService.getRandomId(),
-      themeTitle: '',
-      colorId,
-      c1: COLORS[colorId].c1,
-      c2: COLORS[colorId].c2,
-      themePosition: this.themesData.reduce((result, theme) =>
-        (theme.themePosition > result ? theme.themePosition : result) , 0) + 1
-    });
-    this.form.addControl(this.themesData[this.themesData.length-1].themeId, new FormControl('',  [Validators.required]));
+
+  onEdit() {
+    this.showThemeEditor = true;
+  }
+  onEditTheme(data: {colorId: string; title: string}) {
+    if (!data.colorId || !data.title) {
+      this.utilsServ.showToast('Seleccione un color y añada un título', true);
+      return;
+    }
+    if (this.themeSelected) {
+      this.themeSelected = {
+        ...this.themeSelected,
+        ...COLORS[data.colorId],
+        themeTitle: data.title
+      };
+      const themeIndex = this.themesData.findIndex(theme => theme.themeId === this.themeSelected.themeId);
+        this.themesData[themeIndex] = {...this.themeSelected};
+    } else {
+      const themeId = StaticUtilsService.getRandomId();
+      this.themesData.push({
+        themeId,
+        themeTitle: data.title,
+        colorId: data.colorId,
+        c1: COLORS[data.colorId].c1,
+        c2: COLORS[data.colorId].c2,
+        themePosition: this.themesData.reduce((result, theme) =>
+          (theme.themePosition > result ? theme.themePosition : result) , 0) + 1
+      });
+    //  this.form.addControl(themeId, new FormControl('',  [Validators.required]));
+    }
     this.themesData = [...this.themesData];
+    this.themeSelected = null;
+    this.onSave();
     this.onCloseColorSelector();
   }
 
 
-  onAddTheme() {
-    if (!this.form.valid) {
-      return;
-    }
-    this.showColorSelector = true;
-    this.updateDataFromForm();
+  onAddTheme(ev) {
+    ev?.stopPropagation();
+    this.themeSelected = null;
+    this.showThemeEditor = true;
+   // this.updateDataFromForm();
   }
   onUnselect() {
-    this.idSelected='';
+    this.themeSelected = null;
+    if (this.showThemeEditor) {
+      this.colorSelectorModalCmp.onHide();
+    }
   }
 
   onSwitch(ascendant) {
     this.loading = true;
-    const indexTheme1 = this.themesData.findIndex(th => th.themeId === this.idSelected);
+    const indexTheme1 = this.themesData.findIndex(th => th.themeId === this.themeSelected.themeId);
     const indexTheme2 = ascendant ? indexTheme1 - 1 : indexTheme1 + 1;
     this.configService.switchTheme(this.themesData[indexTheme1], this.themesData[indexTheme2])
       .then(themes => this.themesData = themes)
       .catch(_ => this.utilsServ.showToast('Ha ocurrido un error', true))
       .finally(() => this.loading = false);
   }
-  onSelectTheme(e: Event, id) {
+  onSelectTheme(e: Event, theme: ThemeUi) {
     e?.stopPropagation();
     e?.preventDefault();
-    if (!this.themesData.find(th => th.themeId === id).colorId) {
-      this.idSelected = id;
-      this.showColorSelector = true;
-    } else {
-      this.idSelected = this.idSelected !== id ? id : undefined;
-    }
+      this.themeSelected = theme;
   }
   onSave() {
-    if (!this.form.valid) {
-      this.utilsServ.showToast('No puede añadir más temáticas, tienes que poner título a todas las temáticas añadidas por ti ');
-      return;
-    }
     this.loading = true;
-    this.updateDataFromForm();
+   // this.updateDataFromForm();
     return this.configService.setThemesData(this.themesData)
       .then(_ => this.utilsServ.showToast('Se han guardado los cambios'))
       .catch(_ => this.utilsServ.showToast('Ha ocurrido un error', true))
@@ -133,19 +150,9 @@ export class ThemesPage implements OnInit {
     .catch(_ => this.utilsServ.showToast('Ha ocurrido un error', true))
       .finally(() => {
         this.loading = false;
-        this.changes = false;
         this.themesData = this.themesData.filter(theme => theme.themeId !==  themeId);
         this.onUnselect();
       });
-  }
-
-  private focusContent() {
-    setTimeout(() => {
-      this.inputs.first.getInputElement().then(
-        inp =>  inp.setSelectionRange(this.themesData[0].themeTitle.length, this.themesData[0].themeTitle.length));
-      this.inputs.first.setFocus();
-      this.form.markAsUntouched();
-    });
   }
 
   private setUIBackButtonAction() {
@@ -156,26 +163,6 @@ export class ThemesPage implements OnInit {
         this.navCtrl.back();
       }
     };
-  }
-
-  private createForm() {
-    this.form = this.formBuilder.group({});
-    this.themesData.forEach((c, index) => {
-      this.form.addControl(c.themeId, new FormControl(c.themeTitle,
-        Object.keys(COLORS).includes(c.themeId) ? [] : [Validators.required]));
-    });
-    this.form.valueChanges.subscribe(() => this.changes = true);
-  }
-
-  private updateDataFromForm() {
-    const values = this.form.value;
-    const entries = Object.entries(values);
-    entries.forEach(entry => {
-      const currentTheme = this.themesData.find(theme => theme.themeId === entry[0]);
-      if (currentTheme) {
-        currentTheme.themeTitle = (entry[1] as string).trim();
-      }
-    });
   }
 
 }

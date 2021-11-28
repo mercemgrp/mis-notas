@@ -18,6 +18,7 @@ export class NoteHeaderComponent implements OnInit, OnChanges{
   @Input() action: NoteAction;
   @Input() loading: boolean;
   @Input() showToolbarImage: boolean;
+  @Input() showedModal: boolean;
   @Output() backButtonPressedEv = new EventEmitter();
   @Output() clickNoteToolEv = new EventEmitter<number>();
 
@@ -79,10 +80,10 @@ export class NoteHeaderComponent implements OnInit, OnChanges{
       }, {
         type: this.actionButtons.switchColorSelector,
         icon: 'color-palette'
-      },/* {
+      },{
         type: this.actionButtons.toggleCalendar,
         icon: 'notifications'
-      } */ {
+      }, {
         type: this.actionButtons.delete,
         icon: 'trash',
         hidden: this.action === this.actions.create

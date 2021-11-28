@@ -2,6 +2,7 @@
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { NoteTypes } from 'src/app/shared/constants/note-types';
 import { MyNote } from '../../shared/models/my-note';
 import { StaticUtilsService } from './static-utils.service';
 
@@ -125,19 +126,19 @@ export class MyNotesService {
     let externalData = {
       id: data.id,
       themeId: data.themeId,
-      type: data.type || 1,
+      type: data.type || NoteTypes.note,
       images: data.images,
       position: data.position,
       archived: data.archived
     } as MyNote;
-    if (externalData.type === 1) {
+    if (externalData.type === NoteTypes.note) {
       externalData = {
         ...externalData,
         content: data.content,
         title: '',
         listItems: []
       };
-    } else if (externalData.type === 2) {
+    } else if (externalData.type === NoteTypes.list) {
       externalData = {
         ...externalData,
         title: data.title,

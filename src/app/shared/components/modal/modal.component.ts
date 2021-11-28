@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output, TemplateRef } from '@angular/core';
 import { createAnimation } from '@ionic/angular';
+import { ConfigService } from 'src/app/core/services/config.service';
 import { StaticUtilsService } from 'src/app/core/services/static-utils.service';
 import { HEADER_HEIGHT } from '../../constants/header-px';
 
@@ -9,11 +10,14 @@ import { HEADER_HEIGHT } from '../../constants/header-px';
   styleUrls: ['./modal.component.scss'],
 })
 export class ModalComponent implements OnInit {
+  get isDarkMode() {
+    return this.config.isDarkMode;
+  }
   @Input() template: TemplateRef<any>;
   @Output() closeEv = new EventEmitter();
 
   id = StaticUtilsService.getRandomId();
-  constructor() { }
+  constructor(private config: ConfigService) { }
 
   ngOnInit() {
     setTimeout(() => {
@@ -39,8 +43,8 @@ export class ModalComponent implements OnInit {
       .then(() => {
         createAnimation()
           .addElement(document.querySelector(`.modal-${this.id} .modal__content`))
-          .duration(350)
-          .fromTo('top', '-50%', '0%')
+          .duration(500)
+          .fromTo('top', '-100%', '0%')
           .play();
       });
   }
@@ -48,9 +52,9 @@ export class ModalComponent implements OnInit {
   private hide() {
     createAnimation()
       .addElement(document.querySelector(`.modal-${this.id} .modal__content`))
-      .duration(350)
+      .duration(500)
       .fromTo('margin-top', `${HEADER_HEIGHT}px`, '0px')
-      .fromTo('top', '0%', '-50%')
+      .fromTo('top', '0%', '-100%')
       .play()
       .then(() => {
         createAnimation()

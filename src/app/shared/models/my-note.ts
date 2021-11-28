@@ -1,10 +1,10 @@
 
-
+export interface ListItem {id: string; checked: boolean; item: string};
 export interface MyNote {
   id: string;
   type: 1 | 2;
   title?: string;
-  listItems?: {checked: boolean; item: string}[];
+  listItems?: ListItem[];
   content?: string;
   images?: string[];
   createdDate?: string;

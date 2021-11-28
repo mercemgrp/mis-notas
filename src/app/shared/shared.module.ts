@@ -7,6 +7,7 @@ import { FullScreenImageComponent } from './components/full-screen-image/full-sc
 import { ImagesListComponent } from './components/images-list/images-list.component';
 import { CalendarComponent } from './components/calendar/calendar.component';
 import { ModalComponent } from './components/modal/modal.component';
+import { DatePickerComponent } from './components/date-picker/date-picker.component';
 
 
 @NgModule({
@@ -14,6 +15,7 @@ import { ModalComponent } from './components/modal/modal.component';
     FullScreenImageComponent,
     ImagesListComponent,
     CalendarComponent,
+    DatePickerComponent,
     FormatDatePipe,
     ModalComponent
   ],
@@ -26,6 +28,7 @@ import { ModalComponent } from './components/modal/modal.component';
   exports: [
     FullScreenImageComponent,
     CalendarComponent,
+    DatePickerComponent,
     ImagesListComponent,
     FormatDatePipe,
     ModalComponent
