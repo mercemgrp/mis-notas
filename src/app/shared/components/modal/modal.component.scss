@@ -1,5 +1,4 @@
 .modal {
-  height: 100%;
   display: block;
   z-index: 1;
   transition: background 700ms;
@@ -14,9 +13,10 @@
     background: rgb(75 81 92 / 60%);
   }
   &__content {
+    position: relative;
     z-index: 1;
     width: 100%;
-    height: fit-content;
+    max-height: 50%;
     background-color: var(--ion-color-light);
     position: absolute;
     top: -100%;

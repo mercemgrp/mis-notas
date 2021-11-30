@@ -52,7 +52,11 @@ export class DatePickerComponent implements OnInit {
       this.date.setHours(+value.hours);
       this.date.setMinutes(+value.minutes);
       this.date.setSeconds(0);
-      this.acceptEv.emit(this.date);
+      if (this.date < new Date()) {
+        this.utils.showToast('No puede añadir una notificación para una fecha pasada', true);
+      } else {
+        this.acceptEv.emit(this.date);
+      }
     }
   }
 

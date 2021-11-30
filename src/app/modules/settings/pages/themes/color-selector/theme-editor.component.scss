@@ -3,8 +3,9 @@
   padding-left: 10px;
   .color-selector {
     &__color {
+      border: 0px;
       &--selected {
-        border: 1px solid black;
+        border-bottom: 3px solid;
       }
     }
     display: flex;
@@ -27,6 +28,14 @@
         margin-right: auto;
       }
     }
+  }
+  .title-input {
+    ion-label {
+      font-weight: 600;
+    }
+  }
+  ion-item::part(native) {
+    --background: transparent;
   }
 }
 

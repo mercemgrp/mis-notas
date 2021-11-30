@@ -36,7 +36,8 @@ export class EditNotePage {
   actions = NoteAction;
   notesStatus = NotesStatus;
   themes: ThemeUi[];
-  notifications: string[] = [];
+  notifications: {id: number; date: string}[] = [];
+  newNotificationsDates: Date[] = [];
   get enableImagePicker() {
     return !this.data?.images || this.data.images?.length < 3;
   }
@@ -133,33 +134,69 @@ export class EditNotePage {
 
   onSelectDateTime(date: Date) {
     this.calendarModalCmp.onHide();
-    this.notificationsService.schedule({
-      date, noteId: this.data.id,
-      title: this.data.type === NoteTypes.list ? this.data.title : undefined,
-      body: this.data.type === NoteTypes.note ? this.data.content :
-      this.data.listItems.reduce((result, item) => result + item + ',', '')
-    });
-    this.utilsServ.showToast(`Se ha creado la notificación para el día ${StaticUtilsService.getDateStr(date)}`, false, 5000);
+    this.newNotificationsDates.push(date);
+    this.utilsServ.showToast(`Se creará la nota cuando termines la edición`, false, 5000);
   }
 
   onCancelCreateAlert() {
-    this.showCalendar = false;
+    this.calendarModalCmp.onHide();
+  }
+
+  onCreateNotifications() {
+    if (this.newNotificationsDates.length) {
+      this.newNotificationsDates.forEach(date => {
+        const listItemsStr = this.data.listItems?.filter(item => !item.checked)
+        .reduce((result, item) => result + item.item + ',', '');
+        this.notificationsService.schedule({
+        date, noteId: this.data.id,
+        title: this.data.type === NoteTypes.list ? this.data.title : undefined,
+        body: this.data.type === NoteTypes.note ? this.data.content : listItemsStr
+      });
+      this.utilsServ.showToast(`Se ha creado la notificación para el día ${StaticUtilsService.getDateStr(date)}`, false, 5000);
+      });
+    }
   }
 
 
-  onSelectColor(colorId) {
-    const colorData = this.config.getThemeData(colorId) || this.config.defaultThemeIdData;
-    this.data = {
-      ...this.data,
-      ...colorData
-    };
+
+  onSelectTheme(themeId) {
     this.colorSelectorModalComp.onHide();
+    if (themeId) {
+      const themeData = this.config.getThemeData(themeId) || this.config.defaultThemeIdData;
+      this.data = {
+        ...this.data,
+        ...themeData
+      };
+    }
+
+  }
+
+  onCloseThemeSelector() {
+    this.showThemeSelector = false;
   }
 
   onSelectImage(image) {
     this.imageSelected = image;
   }
 
+  async onDeleteNotification(id) {
+    this.loading = true;
+    await this.utilsServ.showAlert('La notificación va a ser eliminada ¿Desea continuar?').then(data => {
+      if (data.role === 'cancel') {
+        this.loading = false;
+      } else {
+        this.continueDeleteNotification(id);
+      }
+    });
+}
+
+continueDeleteNotification(id) {
+  this.notificationsService.deleteNotification(id).then(() => {
+    this.utilsServ.showToast('Se ha eliminado la notificación');
+    this.getNotifications();
+  })
+  .finally(() => this.loading = false);
+}
 
   onBack() {
     this.loading = true;
@@ -181,15 +218,18 @@ export class EditNotePage {
   onSave() {
     if (!this.loading) {
       this.save()
-        .then(() => this.navCtrl.back());
+        .then(() => this.navCtrl.back())
+        .catch(() => this.utilsServ.showToast('Rellene los datos correctamente', true));
     }
   }
 
-  private getNotifications() {
-    this.notifications = this.notificationsService.getScheduledNotificationsByNoteId(this.data?.id).map(data =>
-      StaticUtilsService.getDateStr(data.schedule.at));
-  }
 
+  private getNotifications() {
+    this.notifications = this.notificationsService.getScheduledNotificationsByNoteId(this.data?.id).map(data => ({
+      id: data.id,
+      date: StaticUtilsService.getDateStr(new Date(data.schedule.at))
+    }));
+  }
   private  switchColorPalette() {
     if (this.showCalendar) {
       return;
@@ -302,7 +342,9 @@ export class EditNotePage {
           ...this.data,
           ...data,
           type: this.isNote ? NoteTypes.note : NoteTypes.list
-        }).catch(_ => {
+        })
+        .then(() => this.onCreateNotifications())
+        .catch(_ => {
           this.utilsServ.showToast('Ha ocurrido un error guardando la nota', true);
         });
       }).catch(err => {

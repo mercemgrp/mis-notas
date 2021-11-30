@@ -11,6 +11,8 @@ import { ThemeUi } from 'src/app/shared/models/configuration-ui';
   styleUrls: ['./theme-selector.component.scss']
 })
 export class ThemeSelectorComponent implements OnInit{
+  @Input() currentThemeSelectedId: string;
+  @Input() canAdd;
   @Output() selectThemeEv = new EventEmitter<string>();
   themes: ThemeUi[] = [];
   fontSize;
@@ -29,6 +31,7 @@ export class ThemeSelectorComponent implements OnInit{
       themePosition: this.themes.reduce((result, theme) =>
         (theme.themePosition > result ? theme.themePosition : result) , 0) + 1
     };
+    this.themeSelectedId = this.currentThemeSelectedId;
   }
 
 
@@ -41,6 +44,10 @@ export class ThemeSelectorComponent implements OnInit{
       ...this.newTheme,
       ...COLORS[Object.keys(COLORS)[this.idColorNewTheme]]
     };
+  }
+
+  onSelectTheme(themeId) {
+    this.themeSelectedId= themeId;
   }
 
   onAccept() {

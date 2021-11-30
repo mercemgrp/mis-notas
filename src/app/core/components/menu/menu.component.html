@@ -1,8 +1,8 @@
 <ion-menu side="end" contentId="main" menuId="mainMenu" class="main-menu">
   <ion-header class="main-menu__header">
     <ion-toolbar>
-      <ion-title color="primary">
-        <h1>Menú</h1>
+      <ion-title>
+        <h1>Configuración</h1>
       </ion-title>
       <ion-buttons slot="end">
         <ion-button (click)="onCloseMainMenu()">
@@ -32,7 +32,7 @@
           <ion-label slot="start">12px</ion-label>
           <ion-label slot="end">20px</ion-label>
         </ion-range>
-        <ion-badge color="secondary" class="u-txt-{{currentFontSize}}">{{currentFontSize}}px</ion-badge>
+        <ion-badge color="tertiary" class="u-txt-{{currentFontSize}}">{{currentFontSize}}px</ion-badge>
       </ion-item>
       <ion-item class="menu__hide-archived">
        <ion-checkbox color="primary" [checked]="hideArchived" (ionChange)="onToggleHideArchived()"></ion-checkbox>
@@ -40,7 +40,7 @@
       </ion-item>
       <ion-item class="menu__colors-btn" [class.menu__colors-btn--dark]="isDarkMode">
         <button class="u-txt-{{currentFontSize}}" (click)="onNavigateToThemesPage()">
-          <span class="u-c-red">Te<span class="u-c-yellow">ma</span></span>
+          <span class="u-c-red">Te<span class="u-c-yellow">má</span></span>
           <span class="u-c-blue"></span><span class="u-c-pink">ti</span>
           <span class="u-c-yellow">ca</span><span class="u-c-red">s</span>
         </button>

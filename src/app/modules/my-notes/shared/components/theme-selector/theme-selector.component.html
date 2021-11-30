@@ -1,18 +1,24 @@
 <div class="theme-selector">
-    <ion-list>
-      <ion-item class="u-width-100" *ngFor="let theme of themes"
-      [class.theme-selector__item--selected]="theme.themeId === themeSelectedId"
-      (click)="themeSelectedId=theme.themeId">
-        <div class="square u-margin-right-5" [style]="'background:' + theme.c2"> </div>
-        <span *ngIf="theme.themeTitle" class="u-txt-{{fontSize}}">{{theme.themeTitle}}</span>
-        <span *ngIf="!theme.themeTitle" class="u-c-grey u-txt-{{fontSize}}">Sin título</span>
-      </ion-item>
-      <ion-item class="u-width-100" [class.theme-selector__item--selected]="newTheme.themeId === themeSelectedId">
-        <div (click)="onChangeColor()" class="square u-margin-right-5" [style]="'background:' + newTheme.c2"> </div>
-          <ion-input [placeholder]="'Añada una nueva temática'"
-          (click)="themeSelectedId=newTheme.themeId" [(ngModel)]="newTheme.themeTitle"></ion-input>
-      </ion-item>
-    </ion-list>
+  <ion-list [scrollLeft]="">
+    <ion-item *ngFor="let theme of themes;let i=index" [class.theme-selector__theme]="true"
+      [class.theme-selector__theme--selected]="themeSelectedId && theme.themeId === themeSelectedId"
+      (click)="onSelectTheme(theme.themeId)">
+      <ion-label class="u-txt-{{fontSize}}">{{theme.themeTitle}}</ion-label>
+      <div class="themes-page__btn">
+        <div *ngIf="theme.c2" class="rectangle" [style]="'background:' + theme.c2"></div>
+      </div>
+    </ion-item>
+    <ion-item *ngIf="canAdd" [class.theme-selector__theme]="true"
+      [class.theme-selector__theme--selected]="themeSelectedId && newTheme.themeId === themeSelectedId"
+      (click)="onSelectTheme(newTheme.themeId)">
+      <ion-input [placeholder]="'Añada una nueva temática'" (click)="onSelectTheme(newTheme.themeId)"
+        [(ngModel)]="newTheme.themeTitle"></ion-input>
+        <div class="themes-page__btn">
+          <div *ngIf="newTheme.c2" class="rectangle" [style]="'background:' + newTheme.c2"
+          (click)="onChangeColor()"></div>
+        </div>
+    </ion-item>
+  </ion-list>
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-button (click)="onCancel()">

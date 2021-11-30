@@ -1,5 +1,4 @@
 import {  Component, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { IonBackButtonDelegate, IonInput, NavController } from '@ionic/angular';
 import { ConfigService } from 'src/app/core/services/config.service';
 import { MyNotesService } from 'src/app/core/services/my-notes.service';
@@ -15,7 +14,7 @@ import { ThemeUi } from 'src/app/shared/models/configuration-ui';
   styleUrls: ['./themes.page.scss'],
 })
 export class ThemesPage implements OnInit {
-  @ViewChild(ModalComponent) colorSelectorModalCmp: ModalComponent;
+  @ViewChild(ModalComponent) themeEditorModalComp: ModalComponent;
   @ViewChild(IonBackButtonDelegate) backButton: IonBackButtonDelegate;
   @ViewChildren(IonInput) inputs: QueryList<IonInput>;
 
@@ -29,7 +28,6 @@ export class ThemesPage implements OnInit {
   showThemeEditor = false;
   themeSelected: ThemeUi;
   constructor(
-    private formBuilder: FormBuilder,
     private configService: ConfigService,
     private utilsServ: UtilsService,
     private navCtrl: NavController,
@@ -37,16 +35,15 @@ export class ThemesPage implements OnInit {
 
   ngOnInit() {
     this.themesData = this.configService.getThemesData();
-   // this.createForm();
     setTimeout(() => {
       this.setUIBackButtonAction();
     });
   }
 
-  ionViewDidEnter() {
-   // this.focusContent();
+  onHideThemeEditorComp() {
+    this.themeEditorModalComp.onHide();
   }
-  onCloseColorSelector() {
+  onHideThemeEditor() {
     this.showThemeEditor = false;
   }
   async onDelete() {
@@ -60,7 +57,6 @@ export class ThemesPage implements OnInit {
         if (data.role === 'cancel') {
           this.loading = false;
         } else {
-        //  this.updateDataFromForm();
           this.continueDelete(this.themeSelected.themeId);
         }
       });
@@ -68,7 +64,11 @@ export class ThemesPage implements OnInit {
   }
 
   onEdit() {
-    this.showThemeEditor = true;
+    if (!this.showThemeEditor) {
+      this.showThemeEditor = true;
+    } else {
+      this.onHideThemeEditorComp();
+    }
   }
   onEditTheme(data: {colorId: string; title: string}) {
     if (!data.colorId || !data.title) {
@@ -91,28 +91,31 @@ export class ThemesPage implements OnInit {
         colorId: data.colorId,
         c1: COLORS[data.colorId].c1,
         c2: COLORS[data.colorId].c2,
+        c3: COLORS[data.colorId].c3,
         themePosition: this.themesData.reduce((result, theme) =>
           (theme.themePosition > result ? theme.themePosition : result) , 0) + 1
       });
-    //  this.form.addControl(themeId, new FormControl('',  [Validators.required]));
     }
     this.themesData = [...this.themesData];
     this.themeSelected = null;
-    this.onSave();
-    this.onCloseColorSelector();
+    this.onSave().then(() => this.onHideThemeEditorComp());
   }
 
 
   onAddTheme(ev) {
     ev?.stopPropagation();
-    this.themeSelected = null;
-    this.showThemeEditor = true;
-   // this.updateDataFromForm();
+    if (this.showThemeEditor) {
+      this.onHideThemeEditorComp();
+    } else {
+      this.themeSelected = null;
+      this.showThemeEditor = true;
+    }
+    
   }
   onUnselect() {
     this.themeSelected = null;
     if (this.showThemeEditor) {
-      this.colorSelectorModalCmp.onHide();
+      this.themeEditorModalComp.onHide();
     }
   }
 
@@ -128,11 +131,10 @@ export class ThemesPage implements OnInit {
   onSelectTheme(e: Event, theme: ThemeUi) {
     e?.stopPropagation();
     e?.preventDefault();
-      this.themeSelected = theme;
+      this.themeSelected = this.themeSelected?.themeId !== theme.themeId ? theme : null;
   }
   onSave() {
     this.loading = true;
-   // this.updateDataFromForm();
     return this.configService.setThemesData(this.themesData)
       .then(_ => this.utilsServ.showToast('Se han guardado los cambios'))
       .catch(_ => this.utilsServ.showToast('Ha ocurrido un error', true))

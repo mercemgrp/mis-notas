@@ -1,34 +1,23 @@
-<ion-header [translucent]="true" class="notes-list-header" [class]="{
-  'transition-margin-top-700': !loading,
-  'marginTop56': (!loading && hide && selectedLenght === 0 && !showThemesToolbar) || selectedLenght,
-  'marginTop104': !loading && hide && selectedLenght === 0 && showThemesToolbar
-
-}">
+<ion-header [translucent]="true" class="notes-list-header"
+[class]="{'transition-margin-top-700': !loading,
+'marginTop56': hide && !showThemesToolbar && !showNotesToolbar,
+'marginTop104': hide && showThemesToolbar }"
+>
   <ng-content *ngTemplateOutlet="mainToolbar"></ng-content>
-  <ng-content *ngTemplateOutlet="filterByThemeToolbar"></ng-content>
   <ng-content *ngTemplateOutlet="notesToolsToolbar"></ng-content>
+  <ng-content *ngTemplateOutlet="filterByThemeToolbar"></ng-content>
 </ion-header>
 
-<ng-template #filterByThemeToolbar>
-  <ion-segment #segment scrollable mode="md"
-    class="notes-list-header__segments transition-margin-top-700"
-    [class.marginTop-48]="!showedThemeToolbar "
-    [class.marginTop0]="showedThemeToolbar" [value]="'theme_default'" (ionChange)="filterByTheme($event)">
-    <ion-segment-button value="theme_default">
-      <ion-label color="medium">Todas</ion-label>
-    </ion-segment-button>
-    <ion-segment-button [value]="'theme_'+(theme.themeId)" *ngFor="let theme of themes;let i = index">
-      <ion-label *ngIf="theme.themeTitle" [style.color]="theme.c2">{{theme.themeTitle}}</ion-label>
-      <div *ngIf="!theme.themeTitle" class="square" [style.background]="theme.c2"></div>
-    </ion-segment-button>
-  </ion-segment>
-</ng-template>
+
 <ng-template #mainToolbar>
-  <ion-toolbar [class.notes-list-header__toolbar]="true">
-    <ion-title color="primary"><h1>{{title}}</h1></ion-title>
+  <ion-toolbar [class.notes-list-header__toolbar]="true"
+  [class.notes-list-header__toolbar--hide]="showNotesToolbar">
+    <ion-title>
+      <h1>{{title}}</h1>
+    </ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="onSwitchFilter()">
-        <ion-icon [class.icon-filter--checked]="showedThemeToolbar" slot="icon-only" name="filter"></ion-icon>
+        <ion-icon [class.icon-filter--checked]="showThemesToolbar" slot="icon-only" name="filter"></ion-icon>
       </ion-button>
       <ion-button (click)="onOpenMainMenu()">
         <ion-icon slot="icon-only" name="menu"></ion-icon>
@@ -37,37 +26,53 @@
   </ion-toolbar>
 </ng-template>
 <ng-template #notesToolsToolbar>
-  <ion-toolbar [class.top0]="selectedLenght === 0" [class.notes-list-header__secondary-toolbar]="true"
-    [class.notes-list-header__secondary-toolbar--hide]="selectedLenght === 0">
+  <ion-toolbar *ngIf="showNotesToolbar" [class.notes-list-header__notes-tools-toolbar]="true">
     <ion-buttons slot="start">
-      <ion-button slot="start" (click)="emitAction(actionButtons.closeToolbar)">
+      <ion-button slot="start" (click)="emitAction(actionButtons.closeToolbar)" [disabled]="!showNotesToolbar">
         <ion-icon slot="icon-only" name="close"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-button *ngIf="notesStatus === status.active" [disabled]="loading || selectedLenght !== 1"
+      <ion-button *ngIf="notesStatus === status.active"
+        [disabled]="loading || selectedLenght !== 1 || !showNotesToolbar"
         (click)="emitAction(actionButtons.switchAscendent)">
         <ion-icon slot="icon-only" name="arrow-up"></ion-icon>
       </ion-button>
-      <ion-button *ngIf="notesStatus === status.active" [disabled]="loading || selectedLenght !== 1"
+      <ion-button *ngIf="notesStatus === status.active"
+        [disabled]="loading || selectedLenght !== 1 || !showNotesToolbar"
         (click)="emitAction(actionButtons.switchDescendent)">
         <ion-icon slot="icon-only" name="arrow-down"></ion-icon>
       </ion-button>
-      <ion-button *ngIf="notesStatus === status.active" [disabled]="loading"
+      <ion-button *ngIf="notesStatus === status.active" [disabled]="loading || !showNotesToolbar"
         (click)="emitAction(actionButtons.archive)">
         <ion-icon slot="icon-only" name="archive"></ion-icon>
       </ion-button>
-      <ion-button *ngIf="notesStatus === status.active" [disabled]="loading || selectedLenght !== 1"
-        class="important-button" (click)="emitAction(actionButtons.edit)">
+      <ion-button *ngIf="notesStatus === status.active"
+        [disabled]="loading || selectedLenght !== 1 || !showNotesToolbar" [class.important-button]="!showedModal"
+        (click)="emitAction(actionButtons.edit)">
         <ion-icon slot="icon-only" name="pencil"></ion-icon>
       </ion-button>
-      <ion-button *ngIf="notesStatus === status.active" [disabled]="loading"
-        (click)="emitAction(actionButtons.switchColorSelector)">
+      <ion-button *ngIf="notesStatus === status.active" [disabled]="loading || !showNotesToolbar"
+        (click)="emitAction(actionButtons.switchColorSelector)"
+        [class.selected-button]="showedModal">
         <ion-icon slot="icon-only" name="color-palette"></ion-icon>
       </ion-button>
-      <ion-button [disabled]="loading" (click)="emitAction(actionButtons.delete)">
+      <ion-button [disabled]="loading || !showNotesToolbar" (click)="emitAction(actionButtons.delete)">
         <ion-icon slot="icon-only" name="trash"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
+</ng-template>
+<ng-template #filterByThemeToolbar>
+  <ion-segment #segment scrollable mode="md" [disabled]="showNotesToolbar"
+    class="notes-list-header__theme-toolbar transition-margin-top-700" [class.margin-top-48]="!showThemesToolbar || showNotesToolbar"
+    [class.margin-top-0]="showThemesToolbar && !showNotesToolbar" [value]="'theme_default'" (ionChange)="filterByTheme($event)">
+    <ion-segment-button value="theme_default">
+      <ion-label color="medium">Todas</ion-label>
+    </ion-segment-button>
+    <ion-segment-button [value]="'theme_'+(theme.themeId)" *ngFor="let theme of themes;let i = index">
+      <ion-label *ngIf="theme.themeTitle" [style.color]="theme.c2">{{theme.themeTitle}}</ion-label>
+      <div *ngIf="!theme.themeTitle" class="square" [style.background]="theme.c1"></div>
+    </ion-segment-button>
+  </ion-segment>
 </ng-template>

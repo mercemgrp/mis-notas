@@ -7,8 +7,9 @@
   (backButtonPressedEv)="onBack()" (clickNoteToolEv)="onFireHeaderButtonAction($event)">
 </app-note-header>
 <ion-content [fullscreen]="true" class="edit-note-page">
-  <ion-item >
-    <ion-title *ngIf="data">{{data.themeTitle | uppercase}}</ion-title>
+  <ion-title *ngIf="data?.id">{{data.themeTitle | uppercase}}</ion-title>
+  <ion-item *ngIf="!data?.id">
+    <ion-title>{{data?.themeTitle | uppercase}}</ion-title>
     <ion-icon *ngIf="!data?.id" [color]="isNote ? 'dark' : 'primary'" name="list"></ion-icon>
     <ion-toggle *ngIf="!data?.id" [checked]="isNote" name="isNoteType" color="primary" (ionChange)="onToggleNoteType($event)"></ion-toggle>
     <ion-icon *ngIf="!data?.id" [color]="isNote ? 'primary' : 'dark'" name="grid"></ion-icon>
@@ -17,7 +18,10 @@
   <app-edit-text-area #myNoteEdit *ngIf="data && isNote" [data]="data"></app-edit-text-area>
   <app-edit-list #myNoteEdit *ngIf="data && !isNote" [data]="data"></app-edit-list>
   <ion-item *ngFor="let notif of notifications">
-    <ion-label><ion-icon slot="start" name="notifications"></ion-icon> {{notif }}</ion-label>
+    <ion-label><ion-icon slot="start" name="notifications"></ion-icon> {{notif.date}}</ion-label>
+    <ion-button (click)="onDeleteNotification(notif.id)" fill="clear">
+      <ion-icon color="dark" slot="icon-only" name="trash"></ion-icon>
+    </ion-button>
   </ion-item>
   <app-images-list [images]="data?.images" (openImageEv)="onSelectImage($event)"></app-images-list>
   <app-modal #calendarModalCmp *ngIf="showCalendar" [template]="calendarTmpl" (closeEv)="showCalendar=false"></app-modal>
@@ -29,6 +33,8 @@
   <app-date-picker (acceptEv)="onSelectDateTime($event)" (cancelEv)="onCancelCreateAlert()"></app-date-picker>
 </ng-template>
 <ng-template #themeSelectorTmpl>
-  <app-theme-selector *ngIf="showThemeSelector" (selectThemeEv)="onSelectColor($event)"(closeEv)="showThemeSelector=false">
+  <app-theme-selector *ngIf="showThemeSelector"  [currentThemeSelectedId]="data?.themeId"
+  [canAdd]="true"
+  (selectThemeEv)="onSelectTheme($event)"(closeEv)="onCloseThemeSelector()">
 </app-theme-selector>
 </ng-template>

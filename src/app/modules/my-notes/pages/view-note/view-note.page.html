@@ -10,7 +10,10 @@
   <ion-title *ngIf="data?.themeTitle">{{data.themeTitle | uppercase}}</ion-title>
   <app-my-note *ngIf="data" [data]="data" isFullPage="true" (clickEv)="onEdit()"></app-my-note>
   <ion-item *ngFor="let notif of notifications">
-    <ion-label><ion-icon slot="start" name="notifications"></ion-icon> {{notif}}</ion-label>
+    <ion-label><ion-icon slot="start" name="notifications"></ion-icon> {{notif.date}}</ion-label>
+    <ion-button (click)="onDeleteNotification(notif.id)" fill="clear">
+      <ion-icon slot="icon-only" name="trash" color="dark"></ion-icon>
+    </ion-button>
   </ion-item>
   <app-images-list [images]="data?.images" (openImageEv)="onSelectImage($event)"></app-images-list>
   <app-modal #calendarModalCmp *ngIf="showCalendar" [template]="calendarTmpl" (closeEv)="showCalendar=false"></app-modal>
@@ -23,6 +26,8 @@
 </ng-template>
 <ng-template #themeSelectorTmpl>
   <app-theme-selector *ngIf="showThemeSelector"
+  [currentThemeSelectedId]="data?.themeId"
+  [canAdd]="true"
   (selectThemeEv)="onSelectTheme($event)">
 </app-theme-selector>
 </ng-template>

@@ -1,7 +1,12 @@
 .notes-list-header {
+  &.marginTop56 {
+    margin-top: -56px;
+  }
+  &.marginTop104 {
+    margin-top: -104px;
+  }
   &__toolbar {
     position: relative;
-    transition: opacity 700ms;
     opacity: 1;
     z-index: 10;
     @media (min-width: 992px) {
@@ -9,7 +14,7 @@
     }
     .icon-filter {
       &--checked {
-        color:red
+        color:var(--ion-color-primary);
       }
     }
     &--hide {
@@ -23,21 +28,18 @@
       }
     }
   }
-  &__secondary-toolbar {
+  &__notes-tools-toolbar {
     position: relative;
-    transition: opacity 700ms;
     opacity: 1;
     z-index: 10;
-    &--hide {
-      position: absolute;
-      opacity: 0;
-      z-index: -1;
-    }
   }
-  &__segments {
+  &__theme-toolbar {
     background-color: var(--ion-color-light);
-    ion-segment-button ion-title {
-      font-size: 12px;
+    &.margin-top-48{
+      margin-top: -48px
+    }
+    &.margin-top-0{
+      margin-top: 0px
     }
     ion-segment-button.segment-button-checked {
       ::ng-deep {
@@ -46,29 +48,5 @@
         }
       }
     }
-  }
-  &.marginTop56 {
-    margin-top: -56px;
-  }
-  .marginTop-48{
-    margin-top: -48px
-  }
-  .marginTop-100{
-    margin-top: -100px
-  }
-  .marginTop0{
-    margin-top: 0px
-  }
-  &.marginTop104 {
-    margin-top: -104px;
-  }
-  .transition-margin-top-700 {
-    transition: margin-top 700ms;
-  }
-  &.transition-margin-bottom-700 {
-    transition: margin-bottom 700ms;
-  }
-  .top0 {
-    top: 0px;
   }
 }

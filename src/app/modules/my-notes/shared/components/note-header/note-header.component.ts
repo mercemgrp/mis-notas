@@ -25,6 +25,7 @@ export class NoteHeaderComponent implements OnInit, OnChanges{
   actionButtons = NoteActionButtons;
   status = NotesStatus;
   actions = NoteAction;
+  lastActionId;
   buttons = [];
   constructor() {}
 
@@ -35,12 +36,11 @@ export class NoteHeaderComponent implements OnInit, OnChanges{
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.isArchived || changes.action) {
-      this.createButtons();
-    }
+    this.createButtons();
   }
 
   emitAction(id) {
+    this.lastActionId = id;
     this.clickNoteToolEv.emit(id);
   }
 
@@ -50,43 +50,59 @@ export class NoteHeaderComponent implements OnInit, OnChanges{
     };
   }
 
+
+  hide(id) {
+    return false;
+  }
+
   private createButtons() {
     if (this.isArchived) {
       this.buttons = [{
         type: this.actionButtons.switchColorSelector,
-        icon: 'color-palette'
+        icon: 'color-palette',
+        disabled: this.loading
       }, {
         type: this.actionButtons.unarchive,
-        icon: 'push'
+        icon: 'push',
+        disabled: this.loading|| this.showedModal
       }, {
         type: this.actionButtons.delete,
-        icon: 'trash'
+        icon: 'trash',
+        disabled: this.loading|| this.showedModal
       }];
     } else {
       this.buttons = [{
-        type: this.actionButtons.archive,
-        icon: 'archive',
-        hidden: this.actions.create === this.action
-      }, {
         type: this.actionButtons.save,
         icon: 'save',
         hidden: this.actions.view === this.action,
-        class: 'important-button'
+        class: !this.showedModal ? 'important-button' : '',
+        disabled: this.loading|| this.showedModal
       }, {
         type: this.actionButtons.edit,
         icon: 'pencil',
         hidden: this.actions.view !== this.action,
-        class: 'important-button'
+        class: !this.showedModal ? 'important-button' : '',
+        disabled: this.loading|| this.showedModal
       }, {
         type: this.actionButtons.switchColorSelector,
-        icon: 'color-palette'
+        icon: 'color-palette',
+        disabled: this.loading || (this.showedModal && this.lastActionId !== this.actionButtons.switchColorSelector),
+        class: this.showedModal && this.lastActionId === this.actionButtons.switchColorSelector ? 'selected-button' : ''
       },{
         type: this.actionButtons.toggleCalendar,
-        icon: 'notifications'
+        icon: 'notifications',
+        disabled: this.loading || (this.showedModal && this.lastActionId !== this.actionButtons.toggleCalendar),
+        class: this.showedModal && this.lastActionId === this.actionButtons.toggleCalendar ? 'selected-button' : ''
       }, {
+        type: this.actionButtons.archive,
+        icon: 'archive',
+        hidden: false,
+        disabled: this.loading || this.showedModal
+      },{
         type: this.actionButtons.delete,
         icon: 'trash',
-        hidden: this.action === this.actions.create
+        hidden: this.action === this.actions.create,
+        disabled: this.loading || this.showedModal
       }];
     }
   }

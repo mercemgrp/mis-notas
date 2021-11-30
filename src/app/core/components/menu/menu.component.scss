@@ -6,10 +6,10 @@
     }
     .menu {
       &__toggle-item {
-        border-bottom: 1px solid var(--ion-color-dark);
+        border-bottom: var(--ion-color-secondary) 1px solid;
       }
       &__font-change-item {
-        border-bottom: 1px solid var(--ion-color-dark);
+        border-bottom: var(--ion-color-secondary) 1px solid;
         padding-left: 0px;
         ion-range.range-has-pin {
           padding-top: 0px;
@@ -36,7 +36,7 @@
         
       }
       &__hide-archived {
-        border-bottom: 1px solid var(--ion-color-dark);
+        border-bottom: var(--ion-color-secondary) 1px solid;
         ion-checkbox {
           margin-right: 5px;
         }

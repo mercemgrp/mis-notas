@@ -1,68 +1,54 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar class="toolbar-custom">
     <ion-buttons slot="start">
-      <ion-button *ngIf="themeSelected || showThemeEditor" (click)="onUnselect()">
+      <ion-back-button defaultHref="/" [disabled]="showThemeEditor" [class.ion-hide]="themeSelected"></ion-back-button>
+      <ion-button *ngIf="themeSelected" (click)="onUnselect()" [disabled]="showThemeEditor">
         <ion-icon slot="icon-only" name="close"></ion-icon>
       </ion-button>
-      <ion-back-button *ngIf="!themeSelected  && !showThemeEditor" defaultHref="/"></ion-back-button>
     </ion-buttons>
-      
+
     <ion-title>
       <h1>Temáticas</h1>
     </ion-title>
     <ion-buttons slot="end">
-      <ion-button *ngIf="themeSelected" (click)="onSwitch(true)">
+      <ion-button *ngIf="themeSelected" (click)="onSwitch(true)" [disabled]="showThemeEditor">
         <ion-icon slot="icon-only" name="arrow-up"></ion-icon>
       </ion-button>
-      <ion-button *ngIf="themeSelected" (click)="onSwitch(false)">
+      <ion-button *ngIf="themeSelected" (click)="onSwitch(false)" [disabled]="showThemeEditor">
         <ion-icon slot="icon-only" name="arrow-down"></ion-icon>
       </ion-button>
-      <ion-button *ngIf="themeSelected" (click)="onEdit()">
+      <ion-button *ngIf="themeSelected" class="selected-button" (click)="onEdit()">
         <ion-icon slot="icon-only" name="pencil"></ion-icon>
       </ion-button>
-      <ion-button *ngIf="themeSelected" (click)="onDelete()">
+      <ion-button *ngIf="themeSelected" (click)="onDelete()" [disabled]="showThemeEditor">
         <ion-icon slot="icon-only" name="trash"></ion-icon>
+      </ion-button>
+      <ion-button *ngIf="!themeSelected" class="selected-button" (click)="onAddTheme($event)">
+        <ion-icon slot="icon-only" name="add"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content (click)="onUnselect()" class="themes-page">
-    <ion-list>
-      <ion-item *ngFor="let theme of themesData;let i=index"
-      [class.themes-page__theme]="true"
+  <ion-list>
+    <ion-item *ngFor="let theme of themesData;let i=index" [class.themes-page__theme]="true"
       [class.themes-page__theme--unselected]="themeSelected && theme.themeId !== themeSelected.themeId"
       [class.themes-page__theme--selected]="themeSelected && theme.themeId === themeSelected.themeId"
       (click)="onSelectTheme($event, theme)">
-     <!--   <ion-input type="text" placeholder="" formControlName="{{theme.themeId}}" [value]="theme.themeTitle"
-          class="u-txt-{{fontSize}}"
-          placeholder="Añada un título">
-        </ion-input>
-      -->
-        <ion-label class="u-txt-{{fontSize}}">{{theme.themeTitle}}</ion-label>
-        <div class="themes-page__btn">
-          <div *ngIf="theme.c2" class="rectangle" [style]="'background:' + theme.c2"></div>
-          <span *ngIf="!theme.c2">Seleccione un color</span>
-        </div>
-   <!--     <ion-button [class.u-no-visible]="theme.basicTheme" (click)="onDelete()" expand="block" fill="clear" shape="round">
-            <ion-icon slot="icon-only" name="trash"></ion-icon>
-        </ion-button>
-        -->
-      </ion-item>
-    </ion-list>
-    <ion-item class="themes-page__add-button">
-        <ion-buttons slot="start">
-          <ion-button  expand="full" color="primary" fill="solid" (click)="onAddTheme($event)">
-            <ion-icon slot="icon-only" name="add" clas="u-c-black"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-     
+      <ion-label class="u-txt-{{fontSize}}">{{theme.themeTitle}}</ion-label>
+      <div class="themes-page__btn">
+        <div *ngIf="theme.c1" class="rectangle" [style]="'background:' + theme.c1"></div>
+        <span *ngIf="!theme.c1">Seleccione un color</span>
+      </div>
     </ion-item>
-  <app-modal *ngIf="showThemeEditor" [template]="colorSelectorTmpl"
-  (closeEv)="onCloseColorSelector()">
+  </ion-list>
+
+  <app-modal *ngIf="showThemeEditor" [template]="themeEditorTmpl" (closeEv)="onHideThemeEditor()">
   </app-modal>
 </ion-content>
 
-<ng-template #colorSelectorTmpl>
-  <app-theme-editor [data]="themeSelected" (selectColorEv)="onEditTheme($event)" (closeEv)="onCloseColorSelector()"></app-theme-editor>
+<ng-template #themeEditorTmpl>
+  <app-theme-editor [data]="themeSelected" (selectColorEv)="onEditTheme($event)" (closeEv)="onHideThemeEditorComp()">
+  </app-theme-editor>
 </ng-template>

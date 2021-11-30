@@ -8,6 +8,7 @@ import { ConfigService } from './core/services/config.service';
 import { map, takeUntil } from 'rxjs/operators';
 import { ActionPerformed, LocalNotifications } from '@capacitor/local-notifications';
 import { Router } from '@angular/router';
+
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',

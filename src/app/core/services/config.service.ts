@@ -110,6 +110,7 @@ export class ConfigService {
       themeTitle: theme.themeTitle || '',
       c1: COLORS[theme.colorId]?.c1,
       c2: COLORS[theme.colorId]?.c2,
+      c3: COLORS[theme.colorId]?.c3,
       basicTheme: Object.keys(COLORS).includes(theme.themeId),
     })).sort((a, b) => (a.themePosition || 0) - (b.themePosition || 0));
   }
@@ -185,25 +186,10 @@ export class ConfigService {
 
   private getConfigData() {
     const defaultThemesData: Theme[] = [{
-      themeId: COLORS.blue.colorId,
-      colorId: COLORS.blue.colorId,
-      themeTitle: '',
-      themePosition: 1,
-    }, {
-      themeId: COLORS.red.colorId,
-      colorId: COLORS.red.colorId,
-      themeTitle: '',
-      themePosition: 2
-    }, {
-      themeId: COLORS.pink.colorId,
-      colorId: COLORS.pink.colorId,
-      themeTitle: '',
-      themePosition: 3
-    }, {
       themeId: COLORS.yellow.colorId,
       colorId: COLORS.yellow.colorId,
-      themeTitle: '',
-      themePosition: 4
+      themeTitle: 'Por defecto',
+      themePosition: 1,
     }];
     return this.storage.get(CONFIG_KEY).then(
       (resp: Configuration) => {

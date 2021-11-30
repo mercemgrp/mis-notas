@@ -24,7 +24,7 @@ export class ViewNotePage {
   @ViewChild('colorSelectorModalCmp') colorSelectorModalComp: ModalComponent;
   @ViewChild('calendarModalCmp') calendarModalCmp: ModalComponent;
   data: MyNoteUi;
-  notifications: string[] = [];
+  notifications: {id: number; date: string}[] = [];
   showThemeSelector = false;
   showCalendar = false;
   loading = false;
@@ -71,11 +71,13 @@ export class ViewNotePage {
 
   onSelectDateTime(date: Date) {
     this.calendarModalCmp.onHide();
+    const listItemsStr = this.data.listItems?.filter(item => !item.checked)
+      .reduce((result, item) => result + item.item + ',', '');
     this.notificationsService.schedule({
       date, noteId: this.data.id,
       title: this.data.type === NoteTypes.list ? this.data.title : undefined,
-      body: this.data.type === NoteTypes.note ? this.data.content :
-      this.data.listItems.reduce((result, item) => result + item + ',', '')
+      body: this.data.type === NoteTypes.note ? this.data.content : listItemsStr
+
     });
     this.utils.showToast(`Se ha creado la notificación para el día ${StaticUtilsService.getDateStr(date)}`, false, 5000);
   }
@@ -139,17 +141,38 @@ export class ViewNotePage {
     this.imageSelected = image;
   }
 
+  async onDeleteNotification(id) {
+      this.loading = true;
+      await this.utils.showAlert('La notificación va a ser eliminada ¿Desea continuar?').then(data => {
+        if (data.role === 'cancel') {
+          this.loading = false;
+        } else {
+          this.continueDeleteNotification(id);
+        }
+      });
+  }
+
+  continueDeleteNotification(id) {
+    this.notificationsService.deleteNotification(id).then(() => {
+      this.utils.showToast('Se ha eliminado la notificación');
+      this.getNotifications();
+    })
+    .finally(() => this.loading = false);
+  }
+
   onSelectTheme(themeId) {
     this.loading = true;
     this.colorSelectorModalComp.onHide();
     if (themeId) {
       this.onSaveTheme(themeId);
+    } else {
+      this.loading = false;
     }
 
   }
 
   onCancelCreateAlert() {
-    this.showCalendar = false;
+    this.calendarModalCmp.onHide();
   }
 
   private onSaveTheme(themeId) {
@@ -170,8 +193,10 @@ export class ViewNotePage {
   }
 
   private getNotifications() {
-    this.notifications = this.notificationsService.getScheduledNotificationsByNoteId(this.data?.id).map(data =>
-      StaticUtilsService.getDateStr(data.schedule.at));
+    this.notifications = this.notificationsService.getScheduledNotificationsByNoteId(this.data?.id).map(data => ({
+      id: data.id,
+      date: StaticUtilsService.getDateStr(new Date(data.schedule.at))
+    }));
   }
 
   private showCalendarFn() {

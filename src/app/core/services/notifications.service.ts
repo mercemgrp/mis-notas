@@ -18,14 +18,18 @@ export class NotificationsService {
   loadPendingNotifications() {
     LocalNotifications.getPending().then(
       notific => {
-        this.notifications = notific.notifications || [];
+        this.notifications = notific.notifications?.filter(notif => new Date(notif.schedule.at) >= new Date())|| [];
         this.changesSubject.next(true);
       }
     );
   }
 
   getScheduledNotificationsByNoteId(id) {
-    return this.notifications?.filter(notif => notif.extra.id === id) || [];
+    return this.notifications?.filter(notif => notif.extra.id && notif.extra.id === id) || [];
+  }
+
+  deleteNotification(id) {
+    return LocalNotifications.cancel({notifications: [{id }]}).then(() => this.loadPendingNotifications());
   }
 
   schedule(data: {date: Date; noteId: string; title: string; body: string }) {
@@ -40,7 +44,8 @@ export class NotificationsService {
       },
       sound: null
    };
-    LocalNotifications.schedule({notifications: [notification]});
-    this.loadPendingNotifications();
+    LocalNotifications.schedule({notifications: [notification]}).then(() => {
+      this.loadPendingNotifications();
+    });
   }
 }

@@ -2,6 +2,29 @@
 .theme-selector {
   display: flex;
   flex-direction: column;
+  ion-list {
+    max-height: 250px;
+    overflow-y: auto;
+  }
+  &__theme {
+
+    border-bottom: var(--ion-color-secondary) 1px solid;
+    button {
+      background-color: inherit;
+    }
+    &--selected {
+      --background: rgb(223 214 214 / 50%);
+    }
+    &--unselected {
+      opacity: 40%;
+      ion-input {
+        opacity: 0.5;
+      }
+      button {
+        opacity: 0.5;
+      }
+    }
+  }
   &__item {
     &--selected {
       --background: rgb(223 214 214 / 50%);

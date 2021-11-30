@@ -7,15 +7,6 @@
     &--selected {
       --background: rgb(223 214 214 / 50%);
     }
-    &--unselected {
-      opacity: 40%;
-      ion-input {
-        opacity: 0.5;
-      }
-      button {
-        opacity: 0.5;
-      }
-    }
   }
   &__add-button {
     border-bottom: #ebebeb 0px solid;

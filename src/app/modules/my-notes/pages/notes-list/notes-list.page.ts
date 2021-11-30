@@ -190,7 +190,7 @@ export class NotestListPage implements OnInit, OnDestroy {
     this.config.setShowThemeToolbar(value);
   }
 
-  unselectTheme() {
+  unselectTheme(e) {
     this.themeSelected = null;
     this.updateData(false);
     this.unselectNotes();
