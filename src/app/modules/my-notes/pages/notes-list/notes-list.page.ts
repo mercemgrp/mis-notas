@@ -13,6 +13,7 @@ import { ConfigService } from 'src/app/core/services/config.service';
 import { ModalComponent } from 'src/app/shared/components/modal/modal.component';
 import { tap } from 'rxjs/operators';
 import { IonContent } from '@ionic/angular';
+import { NotificationsService } from 'src/app/core/services/notifications.service';
 
 @Component({
   selector: 'app-notes-list',
@@ -63,7 +64,8 @@ export class NotestListPage implements OnInit, OnDestroy {
     private router: Router,
     private myNotesService: MyNotesService,
     private utilsServ: UtilsService,
-    private config: ConfigService) {}
+    private config: ConfigService,
+    private notificationsService: NotificationsService) {}
 
   ngOnInit() {
     this.viewIsListMode = this.config.viewIsListMode;
@@ -113,8 +115,10 @@ export class NotestListPage implements OnInit, OnDestroy {
     } else {
       const noteSelected = this.contentElement.getElementsByClassName('note-' + noteSelectedId)[0];
       if (!noteSelected) {
+        console.log('no existe');
         return new Promise((resolve) => resolve(false));
       } else {
+        console.log('existe');
         return this.scrollIntoNoteSelected(noteSelected).then(resp => resp);
       }
 
@@ -139,6 +143,7 @@ export class NotestListPage implements OnInit, OnDestroy {
       } else if(isBefore) {
         scrollTo = this.currentScrollPosition - this.contentElement.offsetHeight;
       }
+      console.log('scrollTo', scrollTo);
       return this.content.scrollToPoint(0, scrollTo, 500)
         .then(() => {
           this.scrollPosition = this.currentScrollPosition;
@@ -261,7 +266,9 @@ export class NotestListPage implements OnInit, OnDestroy {
   }
 
   onSelectNote( data: MyNoteUi) {
-    data.selected = !data.selected;
+    if (data) {
+      data.selected = !data.selected;
+    }
   }
   private closeToolbar() {
     if (this.showModalThemeSelector) {
@@ -287,6 +294,10 @@ export class NotestListPage implements OnInit, OnDestroy {
   }
 
   private switch(ascendant = true) {
+    console.log('scrollIntoNote init');
+    if (this.loading) {
+      return;
+    }
     const index1 = this.myNotesActived.findIndex(note => note.selected);
     const noteSelected = this.myNotesActived[index1];
     const index2 = ascendant ? index1 -1 : index1 + 1;
@@ -310,7 +321,10 @@ export class NotestListPage implements OnInit, OnDestroy {
           });
           setTimeout(() => {
             this.scrollIntoNote(noteSelected.id).then(() => {
-              this.loading = false;
+              setTimeout(() => {
+                this.loading = false;
+              }, 500);
+              console.log('scrollIntoNote finish');
             });
           });
         } else {
@@ -334,7 +348,10 @@ export class NotestListPage implements OnInit, OnDestroy {
     this.loading = true;
     this.myNotesService
       .archive(this.activedSelected)
-      .then(() => this.updateData(true))
+      .then(() => {
+        this.updateData(true);
+        this.utilsServ.showToast('Las notas seleccionadas se han archivado');
+        })
       .catch(_ => this.utilsServ.showToast('Ha ocurrido un error', true))
       .finally(() => (this.loading = false));
   }
@@ -342,7 +359,13 @@ export class NotestListPage implements OnInit, OnDestroy {
     this.loading = true;
     this.myNotesService
       .delete(this.activedSelected)
-      .then(() => this.updateData(true))
+      .then(() => {
+        this.updateData(true);
+        this.notificationsService.deleteNotificationsFromNoteId(this.activedSelected.map(note => note.id))
+        .finally(() => {
+          this.utilsServ.showToast('Las notas seleccionadas se han eliminado');
+        });
+        })
       .catch(_ => this.utilsServ.showToast('Ha ocurrido un error', true))
       .finally(() => (this.loading = false));
   }
@@ -354,20 +377,20 @@ export class NotestListPage implements OnInit, OnDestroy {
   private async archive() {
     this.loading = true;
     await this.utilsServ.showAlert('Las notas seleccionadas van a ser archivadas, ¿Desea continuar?').then(data => {
-      if (data.role === 'cancel') {
-        this.loading = false;
-      } else {
+      if (data.role === 'ok') {
         this.continueArchive();
+      } else {
+        this.loading = false;
       }
     });
   }
   private async delete() {
     this.loading = true;
     await this.utilsServ.showAlert('Las notas seleccionadas van a ser eliminadas, ¿Desea continuar?').then(data => {
-      if (data.role === 'cancel') {
-        this.loading = false;
-      } else {
+      if (data.role === 'ok') {
         this.continueDelete();
+      } else {
+        this.loading = false;
       }
     });
   }

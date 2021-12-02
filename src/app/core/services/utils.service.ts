@@ -15,7 +15,7 @@ export class UtilsService {
 
     async showBasicAlert(message): Promise<any> {
       const alert = await this.alertCtrl.create({
-        cssClass:  `u-txt${this.configServ.fontSize}`,
+        cssClass:  `u-txt-${this.configServ.fontSize}`,
         message,
         buttons: [
           {
@@ -30,7 +30,7 @@ export class UtilsService {
     }
   async showAlert(message): Promise<any> {
     const alert = await this.alertCtrl.create({
-      cssClass:  `u-txt${this.configServ.fontSize}`,
+      cssClass:  `u-txt-${this.configServ.fontSize}`,
       message,
       buttons: [
         {

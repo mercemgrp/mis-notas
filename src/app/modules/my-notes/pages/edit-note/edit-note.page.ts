@@ -146,7 +146,7 @@ export class EditNotePage {
     if (this.newNotificationsDates.length) {
       this.newNotificationsDates.forEach(date => {
         const listItemsStr = this.data.listItems?.filter(item => !item.checked)
-        .reduce((result, item) => result + item.item + ',', '');
+        .reduce((result, item) => result + item.item + '\n', '');
         this.notificationsService.schedule({
         date, noteId: this.data.id,
         title: this.data.type === NoteTypes.list ? this.data.title : undefined,
@@ -182,10 +182,10 @@ export class EditNotePage {
   async onDeleteNotification(id) {
     this.loading = true;
     await this.utilsServ.showAlert('La notificación va a ser eliminada ¿Desea continuar?').then(data => {
-      if (data.role === 'cancel') {
-        this.loading = false;
-      } else {
+      if (data.role === 'ok') {
         this.continueDeleteNotification(id);
+      } else {
+        this.loading = false;
       }
     });
 }
@@ -245,10 +245,10 @@ continueDeleteNotification(id) {
   private async archive() {
     this.loading = true;
     await this.utilsServ.showAlert('La nota va a ser archivada, ¿Desea continuar?').then(data => {
-      if (data.role === 'cancel') {
-        this.loading = false;
-      } else {
+      if (data.role === 'ok') {
         this.continueArchive();
+      } else {
+        this.loading = false;
       }
     });
   }
@@ -267,10 +267,10 @@ continueDeleteNotification(id) {
   private async unarchive() {
     this.loading = true;
     await this.utilsServ.showAlert('La nota va a ser recuperada, ¿Desea continuar?').then(data => {
-      if (data.role === 'cancel') {
-        this.loading = false;
-      } else {
+      if (data.role === 'ok') {
         this.continueUnarchive();
+      } else {
+        this.loading = false;
       }
     });
   }
@@ -317,36 +317,35 @@ continueDeleteNotification(id) {
     private async delete() {
       this.loading = true;
       await this.utilsServ.showAlert('La nota va a ser eliminada, ¿Desea continuar?').then(data => {
-        if (data.role === 'cancel') {
-          this.loading = false;
-        } else {
+        if (data.role === 'ok') {
           this.continueDelete();
+        } else {
+          this.loading = false;
         }
       });
     }
   private continueDelete() {
     this.loading = true;
     this.service.delete(this.data)
+    .then(() => {
+      this.notificationsService.deleteNotificationsFromNoteId(this.data.id).finally(() => {
+        this.utilsServ.showToast('La nota se ha eliminado');
+      });
+      })
     .catch(_ => this.utilsServ.showToast('Ha ocurrido un error eliminando la nota', true))
     .finally(() => {
       this.loading = false;
-      this.utilsServ.showToast('La nota ha sido borrada');
       this.navCtrl.back();
     });
   }
   private save(isBack?) {
     return this.myNoteEdit?.onSubmit()
       .then(data => {
-        this.loading = true;
-        return this.service.save({
-          ...this.data,
-          ...data,
-          type: this.isNote ? NoteTypes.note : NoteTypes.list
-        })
-        .then(() => this.onCreateNotifications())
-        .catch(_ => {
-          this.utilsServ.showToast('Ha ocurrido un error guardando la nota', true);
-        });
+        if (this.data.id) {
+          return this.modify(data);
+        } else {
+          return this.create(data);
+        }
       }).catch(err => {
         if (!isBack) {
           this.utilsServ.showToast(err);
@@ -357,6 +356,36 @@ continueDeleteNotification(id) {
 
       }
       );
-    }
+  }
+
+  private create(data) {
+    this.loading = true;
+        this.data.type = this.isNote ? NoteTypes.note : NoteTypes.list;
+        return this.service.create({
+          ...this.data,
+          ...data
+        })
+        .then(id => {
+          this.data.id = id;
+          this.utilsServ.showToast('La nota se ha creado');
+          this.onCreateNotifications();
+        })
+        .catch(_ => {
+          this.utilsServ.showToast('Ha ocurrido un error guardando la nota', true);
+        });
+
+  }
+
+  private modify(data) {
+    this.loading = true;
+        return this.service.save({
+          ...this.data,
+          ...data
+        })
+        .then(() => this.onCreateNotifications())
+        .catch(_ => {
+          this.utilsServ.showToast('Ha ocurrido un error guardando la nota', true);
+        });
+  }
 
 }

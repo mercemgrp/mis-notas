@@ -41,6 +41,14 @@ export class MyNotesService {
     return this.myNotes.find(elem => elem.id === id);
   }
 
+  create(data: MyNote): Promise<string> {
+    const currentNotes = this.myNotes;
+    const id = this.createNote(currentNotes, data);
+    return this.setInStorage(currentNotes).then(
+      () => id
+    );
+  }
+
   save(data: MyNote | MyNote[]): Promise<MyNote[]> {
     const currentNotes = this.myNotes;
     let currentData: MyNote[] = [];
@@ -50,7 +58,7 @@ export class MyNotesService {
       currentData = [data];
     }
     currentData.forEach(note => {
-      this.addOrModifyNote(currentNotes, note);
+      this.modifyNote(currentNotes, note);
     });
     return this.setInStorage(currentNotes);
   }
@@ -122,7 +130,43 @@ export class MyNotesService {
       .catch(_ => null);
   }
 
-  private addOrModifyNote(currentNotes: MyNote[], data: MyNote) {
+  private modifyNote(currentNotes: MyNote[], data: MyNote) {
+    const noteData = this.prepareNoteData(data);
+    const index = currentNotes.findIndex(elem => elem.id === noteData.id);
+    const myNote: MyNote = {
+      ...noteData,
+      createdDate: this.get(noteData.id).createdDate,
+      modifiedDate: new Date().toISOString()
+    };
+    currentNotes[index] = StaticUtilsService.copyDeep(myNote);
+  }
+
+  private createNote(currentNotes: MyNote[], data: MyNote) {
+    const noteData = this.prepareNoteData(data);
+    const randomId = StaticUtilsService.getRandomId();
+    const myNote: MyNote = {
+      ...noteData,
+      id: randomId,
+      position: this.lastPosition + 1,
+      createdDate: new Date().toISOString(),
+      modifiedDate: new Date().toISOString()
+    };
+    currentNotes.push(myNote);
+    return myNote.id;
+  }
+
+  private setInStorage(data: MyNote[]): Promise<MyNote[]> {
+    return this.storage
+      .set(CONFIG_KEY, data)
+      .then(resp => {
+        this._myNotes = StaticUtilsService.copyDeep(resp);
+        this.myNotesSubject.next(this.myNotes);
+        return this.myNotes;
+      })
+      .catch(() => null);
+  }
+
+  private prepareNoteData(data) {
     let externalData = {
       id: data.id,
       themeId: data.themeId,
@@ -146,43 +190,6 @@ export class MyNotesService {
         content: ''
       };
     }
-    if (data.id) {
-      this.modifyNote(currentNotes, externalData);
-    } else {
-      this.createNote(currentNotes, externalData);
-    }
-  }
-
-  private modifyNote(currentNotes: MyNote[], externalData: MyNote) {
-    const index = currentNotes.findIndex(elem => elem.id === externalData.id);
-    const myNote: MyNote = {
-      ...externalData,
-      createdDate: this.get(externalData.id).createdDate,
-      modifiedDate: new Date().toISOString()
-    };
-    currentNotes[index] = StaticUtilsService.copyDeep(myNote);
-  }
-
-  private createNote(currentNotes: MyNote[], externalData: MyNote) {
-    const randomId = StaticUtilsService.getRandomId();
-    const myNote: MyNote = {
-      ...externalData,
-      id: randomId,
-      position: this.lastPosition + 1,
-      createdDate: new Date().toISOString(),
-      modifiedDate: new Date().toISOString()
-    };
-    currentNotes.push(myNote);
-  }
-
-  private setInStorage(data: MyNote[]): Promise<MyNote[]> {
-    return this.storage
-      .set(CONFIG_KEY, data)
-      .then(resp => {
-        this._myNotes = StaticUtilsService.copyDeep(resp);
-        this.myNotesSubject.next(this.myNotes);
-        return this.myNotes;
-      })
-      .catch(() => null);
+    return externalData;
   }
 }

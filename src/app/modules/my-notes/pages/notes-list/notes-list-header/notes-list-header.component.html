@@ -1,7 +1,7 @@
 <ion-header [translucent]="true" class="notes-list-header"
 [class]="{'transition-margin-top-700': !loading,
 'marginTop56': hide && !showThemesToolbar && !showNotesToolbar,
-'marginTop104': hide && showThemesToolbar }"
+'marginTop104': hide && showThemesToolbar && !showNotesToolbar}"
 >
   <ng-content *ngTemplateOutlet="mainToolbar"></ng-content>
   <ng-content *ngTemplateOutlet="notesToolsToolbar"></ng-content>
@@ -65,7 +65,7 @@
 </ng-template>
 <ng-template #filterByThemeToolbar>
   <ion-segment #segment scrollable mode="md" [disabled]="showNotesToolbar"
-    class="notes-list-header__theme-toolbar transition-margin-top-700" [class.margin-top-48]="!showThemesToolbar || showNotesToolbar"
+    class="notes-list-header__theme-toolbar transition-margin-top-700" [class.margin-top-48]="!showThemesToolbar"
     [class.margin-top-0]="showThemesToolbar && !showNotesToolbar" [value]="'theme_default'" (ionChange)="filterByTheme($event)">
     <ion-segment-button value="theme_default">
       <ion-label color="medium">Todas</ion-label>

@@ -28,6 +28,13 @@ export class NotificationsService {
     return this.notifications?.filter(notif => notif.extra.id && notif.extra.id === id) || [];
   }
 
+  deleteNotificationsFromNoteId(id: string | string[]) {
+    const allIds = typeof id === 'string' ? [id] : id;
+    const ids: {id: number}[] = allIds.reduce((result, currentId) =>
+      result.concat(this.getScheduledNotificationsByNoteId(currentId).map(notif => ({id: notif.id}))), []);
+      return LocalNotifications.cancel({notifications: ids}).then(() => this.loadPendingNotifications());
+  }
+
   deleteNotification(id) {
     return LocalNotifications.cancel({notifications: [{id }]}).then(() => this.loadPendingNotifications());
   }
@@ -36,13 +43,15 @@ export class NotificationsService {
     const notification = {
       id: +StaticUtilsService.getRandomId(),
       title: data.title,
-      smallIcon: 'favicon.ico',
+      smallIcon: 'res://icon.png',
       body: data.body,
       schedule: {at: new Date(data.date.getTime())},
       extra: {
         id: data.noteId
       },
-      sound: null
+      sound: null,
+      vibrate: true,
+      led: 'FF0000'
    };
     LocalNotifications.schedule({notifications: [notification]}).then(() => {
       this.loadPendingNotifications();

@@ -72,7 +72,7 @@ export class ViewNotePage {
   onSelectDateTime(date: Date) {
     this.calendarModalCmp.onHide();
     const listItemsStr = this.data.listItems?.filter(item => !item.checked)
-      .reduce((result, item) => result + item.item + ',', '');
+      .reduce((result, item) => result + item.item + '\n', '');
     this.notificationsService.schedule({
       date, noteId: this.data.id,
       title: this.data.type === NoteTypes.list ? this.data.title : undefined,
@@ -144,10 +144,10 @@ export class ViewNotePage {
   async onDeleteNotification(id) {
       this.loading = true;
       await this.utils.showAlert('La notificación va a ser eliminada ¿Desea continuar?').then(data => {
-        if (data.role === 'cancel') {
-          this.loading = false;
-        } else {
+        if (data.role === 'ok') {
           this.continueDeleteNotification(id);
+        } else {
+          this.loading = false;
         }
       });
   }
@@ -213,10 +213,10 @@ export class ViewNotePage {
   private async archive() {
     this.loading = true;
     await this.utils.showAlert('La nota va a ser archivada, ¿Desea continuar?').then(data => {
-      if (data.role === 'cancel') {
-        this.loading = false;
-      } else {
+      if (data.role === 'ok') {
         this.continueArchive();
+      } else {
+        this.loading = false;
       }
     });
   }
@@ -240,10 +240,10 @@ export class ViewNotePage {
   private async unarchive() {
     this.loading = true;
     await this.utils.showAlert('La nota va a ser recuperada, ¿Desea continuar?').then(data => {
-      if (data.role === 'cancel') {
-        this.loading = false;
-      } else {
+      if (data.role === 'ok') {
         this.continueUnarchive();
+      } else {
+        this.loading = false;
       }
     });
   }
@@ -312,20 +312,25 @@ export class ViewNotePage {
     private async delete() {
       this.loading = true;
       await this.utils.showAlert('La nota va a ser eliminada, ¿Desea continuar?').then(data => {
-        if (data.role === 'cancel') {
-          this.loading = false;
-        } else {
+        if (data.role === 'ok') {
           this.continueDelete();
+
+        } else {
+          this.loading = false;
         }
       });
     }
   private continueDelete() {
     this.loading = true;
     this.service.delete(this.data)
+    .then(() => {
+      this.notificationsService.deleteNotificationsFromNoteId(this.data.id).finally(() => {
+        this.utils.showToast('La nota se ha eliminado');
+      });
+      })
     .catch(_ => this.utils.showToast('Ha ocurrido un error eliminando la nota', true))
     .finally(() => {
       this.loading = false;
-      this.utils.showToast('La nota ha sido borrada');
       this.navCtrl.back();
     });
   }

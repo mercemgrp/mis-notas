@@ -1,6 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
-import { SplashScreen } from '@capacitor/splash-screen';
 import { StatusBar } from '@capacitor/status-bar';
 import { Platform } from '@ionic/angular';
 import { Subject } from 'rxjs';
@@ -37,8 +36,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private initializeApp() {
     this.platform.ready().then(() => {
       if (Capacitor.isNativePlatform()) {
-        SplashScreen.hide();
-        StatusBar.hide();
+        // StatusBar.hide();
         StatusBar.setOverlaysWebView({overlay: false});
         LocalNotifications.addListener('localNotificationActionPerformed', (payload: ActionPerformed) => {
           this.router.navigate(['my-notes/view/' + payload.notification.extra.id]);
@@ -69,7 +67,7 @@ export class AppComponent implements OnInit, OnDestroy {
       if (!info.visible) {
         StatusBar.show();
       }
-      const color = this.configService.isDarkMode ? '#222428' : '#2a5ba7';
+      const color = this.configService.isDarkMode ? '#222428' : '#364672';
       StatusBar.setBackgroundColor({color});
       this.setMode();
     });

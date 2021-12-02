@@ -54,7 +54,8 @@
     <ion-button *ngIf="showOptions" class="note-wrapper__btn" style="background-color:{{data.c2}}"
       (click)="onSelectNote(data)">
     </ion-button>
-    <app-my-note [data]="data" class="note-wrapper__content" [showTitle]="!themeSelected" (click)="onViewNote(data)">
+    <app-my-note [data]="data" class="note-wrapper__content" [showTitle]="!themeSelected"
+      (press)="onSelectNote(showOptions ? data : null)" (click)="onViewNote(data)">
     </app-my-note>
   </div>
 </ng-template>

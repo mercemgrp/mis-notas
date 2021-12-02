@@ -2,6 +2,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ConfigService } from 'src/app/core/services/config.service';
 import { StaticUtilsService } from 'src/app/core/services/static-utils.service';
+import { UtilsService } from 'src/app/core/services/utils.service';
 import { COLORS } from 'src/app/shared/constants/colors';
 import { ThemeUi } from 'src/app/shared/models/configuration-ui';
 
@@ -19,7 +20,9 @@ export class ThemeSelectorComponent implements OnInit{
   newTheme: ThemeUi;
   themeSelectedId: string;
   idColorNewTheme = 0;
-  constructor(private config: ConfigService) {}
+  constructor(
+    private config: ConfigService,
+    private utils: UtilsService) {}
 
   ngOnInit() {
     this.fontSize = this.config.fontSize;
@@ -52,7 +55,11 @@ export class ThemeSelectorComponent implements OnInit{
 
   onAccept() {
     if (this.themeSelectedId === this.newTheme.themeId) {
-      this.config.addTheme(this.newTheme).then(id => this.selectThemeEv.emit(id));
+      if(!this.newTheme.themeTitle) {
+        this.utils.showToast('La temática tiene que tener título', true);
+      } else {
+        this.config.addTheme(this.newTheme).then(id => this.selectThemeEv.emit(id));
+      }
     } else {
       this.selectThemeEv.emit(this.themeSelectedId);
     }

@@ -54,10 +54,10 @@ export class ThemesPage implements OnInit {
     } else {
       this.loading = true;
       this.utilsServ.showAlert('Va a eliminar la temática, desea continuar?').then(data => {
-        if (data.role === 'cancel') {
-          this.loading = false;
-        } else {
+        if (data.role === 'ok') {
           this.continueDelete(this.themeSelected.themeId);
+        } else {
+          this.loading = false;
         }
       });
     }
@@ -110,7 +110,6 @@ export class ThemesPage implements OnInit {
       this.themeSelected = null;
       this.showThemeEditor = true;
     }
-    
   }
   onUnselect() {
     this.themeSelected = null;

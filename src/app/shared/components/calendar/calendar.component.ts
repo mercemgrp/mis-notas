@@ -19,17 +19,17 @@ export class CalendarComponent implements OnInit {
   get fontSize() {
     return this.config.fontSize;
   }
-  get firstWeekDay() {
+  private get firstWeekDay() {
     const currentDate =  new Date(this.currentBaseDate.getTime());
     return new Date(`${currentDate.getFullYear()}-${currentDate.getMonth()+1}-01`).getDay();
   }
-  get lastWeekDay() {
+  private get lastWeekDay() {
     const currentDate = new Date(this.currentBaseDate.getTime());
     currentDate.setMonth(currentDate.getMonth() + 1);
     currentDate.setDate(0);
     return new Date(`${currentDate.getFullYear()}-${currentDate.getMonth()+1}-${currentDate.getDate()}`).getDay();
   }
-  get lastDayOfMonth() {
+  private get lastDayOfMonth() {
     const currentDate = new Date(this.currentBaseDate.getTime());
     currentDate.setMonth(currentDate.getMonth() + 1);
    currentDate.setDate(0);
@@ -49,8 +49,6 @@ export class CalendarComponent implements OnInit {
     this.currentBaseDate = this.firstDayOfMonth(this.currentDate);
     this.setVariables();
     this.renderCalendar();
-    console.log('loaded');
-
   }
 
   onBack() {
