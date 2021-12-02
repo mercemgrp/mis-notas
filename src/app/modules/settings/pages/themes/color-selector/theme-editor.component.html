@@ -5,7 +5,7 @@
       [class.color-selector__color--selected]="color.colorId === colorSelected"
       [class.color-selector__color]="true"
       [style]="{'border-color': color.c2}">
-        <button (click)="onSelectStyle(color.colorId)">
+        <button (click)="onSelectColor(color.colorId)">
           <div [style]="'background:' + color.c2"> </div>
         </button>
       </li>

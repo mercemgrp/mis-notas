@@ -170,6 +170,7 @@ export class ConfigService {
       const currentTheme = themesData.find(th => th.themeId === theme.themeId);
       if (currentTheme) {
         currentTheme.themeTitle = theme.themeTitle.trim();
+        currentTheme.colorId = theme.colorId
       } else {
         themesData.push({
           themeId: StaticUtilsService.getRandomId(),
@@ -186,7 +187,7 @@ export class ConfigService {
 
   private getConfigData() {
     const defaultThemesData: Theme[] = [{
-      themeId: COLORS.yellow.colorId,
+      themeId: 'default-theme',
       colorId: COLORS.yellow.colorId,
       themeTitle: 'Por defecto',
       themePosition: 1,

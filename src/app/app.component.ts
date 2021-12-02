@@ -36,7 +36,6 @@ export class AppComponent implements OnInit, OnDestroy {
   private initializeApp() {
     this.platform.ready().then(() => {
       if (Capacitor.isNativePlatform()) {
-        // StatusBar.hide();
         StatusBar.setOverlaysWebView({overlay: false});
         LocalNotifications.addListener('localNotificationActionPerformed', (payload: ActionPerformed) => {
           this.router.navigate(['my-notes/view/' + payload.notification.extra.id]);

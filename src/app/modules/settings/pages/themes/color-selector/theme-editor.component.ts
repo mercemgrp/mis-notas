@@ -27,7 +27,7 @@ export class ThemeEditorComponent implements OnInit{
   }
 
 
-  onSelectStyle(colorId) {
+  onSelectColor(colorId) {
     this.colorSelected  = colorId;
   }
 

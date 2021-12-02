@@ -39,7 +39,7 @@ export class NotificationsService {
     return LocalNotifications.cancel({notifications: [{id }]}).then(() => this.loadPendingNotifications());
   }
 
-  schedule(data: {date: Date; noteId: string; title: string; body: string }) {
+  schedule(data: {date: Date; noteId: string; title: string; body: string }): Promise<any> {
     const notification = {
       id: +StaticUtilsService.getRandomId(),
       title: data.title,
@@ -53,8 +53,9 @@ export class NotificationsService {
       vibrate: true,
       led: 'FF0000'
    };
-    LocalNotifications.schedule({notifications: [notification]}).then(() => {
+    return LocalNotifications.schedule({notifications: [notification]}).then(() => {
       this.loadPendingNotifications();
+      return true;
     });
   }
 }

@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { ImagePicker, ImagePickerOptions } from '@ionic-native/image-picker/ngx';
-import { AlertController, ToastController } from '@ionic/angular';
+import { AlertController, ToastController, ToastOptions } from '@ionic/angular';
 import { ConfigService } from './config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UtilsService {
+  private notificationsHeap: ToastOptions[] = [];
   constructor(
     private alertCtrl: AlertController,
     private toastController: ToastController,
@@ -50,14 +51,29 @@ export class UtilsService {
   }
 
   async showToast(message, isError = false, duration = 2000) {
-    const toast = await this.toastController.create({
-      color: isError ? 'danger' : 'dark',
-      animated: true,
-      cssClass: ['my-toast', `u-txt${this.configServ.fontSize}` ],
-      message,
-      duration
-    });
-    toast.present();
+      this.notificationsHeap.push({
+        color: isError ? 'danger' : 'dark',
+        animated: true,
+        cssClass: ['my-toast', `u-txt-${this.configServ.fontSize}` ],
+        message,
+        duration
+      });
+      if (this.notificationsHeap.length === 1) {
+        this.showNextToast();
+      }
+  }
+
+  async showNextToast() {
+    if (this.notificationsHeap.length) {
+      const duration = this.notificationsHeap[0].duration;
+      const toast = await this.toastController.create(this.notificationsHeap[0]);
+      toast.present().then(() => {
+        setTimeout(() => {
+          this.notificationsHeap.shift();
+          this.showNextToast();
+        }, duration);
+      });
+    }
   }
 
   pickImage(): Promise<string[]> {

@@ -18,7 +18,7 @@ export class MenuComponent implements OnInit {
     private menu: MenuController,
     private configService: ConfigService,
     private router: Router,
-    private utils: UtilsService) { }
+    private utilsServ: UtilsService) { }
 
     ngOnInit() {
       this.isDarkMode = this.configService.isDarkMode;
@@ -34,7 +34,7 @@ export class MenuComponent implements OnInit {
   onFontSizeRangeChanges($event) {
     this.configService.changeFontSize($event.detail.value)
       .then(fontSize => this.currentFontSize = fontSize)
-      .catch(() => this.utils.showToast('Ha ocurrido un error cambiando la fuente', true));
+      .catch(() => this.utilsServ.showToast('Ha ocurrido un error cambiando la fuente', true));
   }
 
   onToggleNightMode() {

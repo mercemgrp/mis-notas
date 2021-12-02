@@ -18,7 +18,7 @@ export class DatePickerComponent implements OnInit {
   loaded = false;
   constructor(
     private fb: FormBuilder,
-    private utils: UtilsService) { }
+    private utilsServ: UtilsService) { }
 
   ngOnInit() {
     setTimeout(() => {
@@ -45,15 +45,15 @@ export class DatePickerComponent implements OnInit {
   onAccept() {
     const value = this.form.value;
     if (!this.date) {
-      this.utils.showToast('Seleccione una fecha', true);
+      this.utilsServ.showToast('Seleccione una fecha', true);
     } else if (!this.form.valid || value.hours < 0 || value.hours > 23 || value.minutes < 0 || value.minutes > 59) {
-      this.utils.showToast('Indique una hora correcta', true);
+      this.utilsServ.showToast('Indique una hora correcta', true);
     } else {
       this.date.setHours(+value.hours);
       this.date.setMinutes(+value.minutes);
       this.date.setSeconds(0);
       if (this.date < new Date()) {
-        this.utils.showToast('No puede añadir una notificación para una fecha pasada', true);
+        this.utilsServ.showToast('No puede añadir una notificación para una fecha pasada', true);
       } else {
         this.acceptEv.emit(this.date);
       }

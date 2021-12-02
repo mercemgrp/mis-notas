@@ -135,29 +135,12 @@ export class EditNotePage {
   onSelectDateTime(date: Date) {
     this.calendarModalCmp.onHide();
     this.newNotificationsDates.push(date);
-    this.utilsServ.showToast(`Se creará la nota cuando termines la edición`, false, 5000);
+    this.utilsServ.showToast(`Se creará la nota cuando termines la edición`, false);
   }
 
   onCancelCreateAlert() {
     this.calendarModalCmp.onHide();
   }
-
-  onCreateNotifications() {
-    if (this.newNotificationsDates.length) {
-      this.newNotificationsDates.forEach(date => {
-        const listItemsStr = this.data.listItems?.filter(item => !item.checked)
-        .reduce((result, item) => result + item.item + '\n', '');
-        this.notificationsService.schedule({
-        date, noteId: this.data.id,
-        title: this.data.type === NoteTypes.list ? this.data.title : undefined,
-        body: this.data.type === NoteTypes.note ? this.data.content : listItemsStr
-      });
-      this.utilsServ.showToast(`Se ha creado la notificación para el día ${StaticUtilsService.getDateStr(date)}`, false, 5000);
-      });
-    }
-  }
-
-
 
   onSelectTheme(themeId) {
     this.colorSelectorModalComp.onHide();
@@ -223,6 +206,23 @@ continueDeleteNotification(id) {
     }
   }
 
+  private onCreateNotifications() {
+    const listItemsStr = this.data.listItems?.filter(item => !item.checked)
+        .reduce((result, item) => result + item.item + ' \n ', '');
+    if (this.newNotificationsDates.length) {
+      this.newNotificationsDates.forEach((date, i) => {
+      this.notificationsService.schedule({
+        date, noteId: this.data.id,
+        title: this.data.type === NoteTypes.list ? this.data.title : undefined,
+        body: this.data.type === NoteTypes.note ? this.data.content : listItemsStr
+      })
+      .then(() => this.utilsServ.showToast(
+        `Se ha creado la notificación para el día ${StaticUtilsService.getDateStr(date)}`, false, 2500))
+      .catch(() => this.utilsServ.showToast(
+        `Ha ocurrido un error al crear la notificación para el día ${StaticUtilsService.getDateStr(date)}`, false,2500));
+      });
+    }
+  }
 
   private getNotifications() {
     this.notifications = this.notificationsService.getScheduledNotificationsByNoteId(this.data?.id).map(data => ({
@@ -360,32 +360,37 @@ continueDeleteNotification(id) {
 
   private create(data) {
     this.loading = true;
-        this.data.type = this.isNote ? NoteTypes.note : NoteTypes.list;
-        return this.service.create({
+        this.data = {
           ...this.data,
-          ...data
-        })
+          ...data,
+          type: this.isNote ? NoteTypes.note : NoteTypes.list
+        };
+        return this.service.create(this.data)
         .then(id => {
           this.data.id = id;
-          this.utilsServ.showToast('La nota se ha creado');
+          this.utilsServ.showToast('La nota se ha creado', false);
           this.onCreateNotifications();
         })
         .catch(_ => {
-          this.utilsServ.showToast('Ha ocurrido un error guardando la nota', true);
+          this.utilsServ.showToast('Ha ocurrido un error creando la nota', true);
         });
 
   }
 
   private modify(data) {
     this.loading = true;
-        return this.service.save({
-          ...this.data,
-          ...data
-        })
-        .then(() => this.onCreateNotifications())
-        .catch(_ => {
-          this.utilsServ.showToast('Ha ocurrido un error guardando la nota', true);
-        });
+    this.data = {
+      ...this.data,
+      ...data
+    };
+    return this.service.save(this.data)
+    .then(() => {
+      this.utilsServ.showToast('La nota se ha modficado', false);
+      this.onCreateNotifications();
+    })
+    .catch(_ => {
+      this.utilsServ.showToast('Ha ocurrido un error guardando la nota', true);
+    });
   }
 
 }

@@ -71,6 +71,7 @@ export class ThemesPage implements OnInit {
     }
   }
   onEditTheme(data: {colorId: string; title: string}) {
+    debugger;
     if (!data.colorId || !data.title) {
       this.utilsServ.showToast('Seleccione un color y añada un título', true);
       return;
@@ -81,8 +82,8 @@ export class ThemesPage implements OnInit {
         ...COLORS[data.colorId],
         themeTitle: data.title
       };
-      const themeIndex = this.themesData.findIndex(theme => theme.themeId === this.themeSelected.themeId);
-        this.themesData[themeIndex] = {...this.themeSelected};
+      const index = this.themesData.findIndex(theme => theme.themeId === this.themeSelected.themeId);
+       this.themesData[index] = this.themeSelected;
     } else {
       const themeId = StaticUtilsService.getRandomId();
       this.themesData.push({

@@ -22,7 +22,7 @@ export class ThemeSelectorComponent implements OnInit{
   idColorNewTheme = 0;
   constructor(
     private config: ConfigService,
-    private utils: UtilsService) {}
+    private utilsServ: UtilsService) {}
 
   ngOnInit() {
     this.fontSize = this.config.fontSize;
@@ -56,7 +56,7 @@ export class ThemeSelectorComponent implements OnInit{
   onAccept() {
     if (this.themeSelectedId === this.newTheme.themeId) {
       if(!this.newTheme.themeTitle) {
-        this.utils.showToast('La temática tiene que tener título', true);
+        this.utilsServ.showToast('La temática tiene que tener título', true);
       } else {
         this.config.addTheme(this.newTheme).then(id => this.selectThemeEv.emit(id));
       }

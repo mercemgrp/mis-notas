@@ -38,7 +38,7 @@ export class ViewNotePage {
     private activatedRoute: ActivatedRoute,
     private service: MyNotesService,
     private router: Router,
-    private utils: UtilsService,
+    private utilsServ: UtilsService,
     private config: ConfigService,
     private notificationsService: NotificationsService
     ) {
@@ -72,14 +72,16 @@ export class ViewNotePage {
   onSelectDateTime(date: Date) {
     this.calendarModalCmp.onHide();
     const listItemsStr = this.data.listItems?.filter(item => !item.checked)
-      .reduce((result, item) => result + item.item + '\n', '');
+      .reduce((result, item) => result + item.item + ' \n ', '');
     this.notificationsService.schedule({
       date, noteId: this.data.id,
       title: this.data.type === NoteTypes.list ? this.data.title : undefined,
       body: this.data.type === NoteTypes.note ? this.data.content : listItemsStr
 
-    });
-    this.utils.showToast(`Se ha creado la notificación para el día ${StaticUtilsService.getDateStr(date)}`, false, 5000);
+    }).then(() => this.utilsServ.showToast(
+      `Se ha creado la notificación para el día ${StaticUtilsService.getDateStr(date)}`, false, 2500))
+    .catch(() => this.utilsServ.showToast(
+      `Ha ocurrido un error al crear la notificación para el día ${StaticUtilsService.getDateStr(date)}`, false, 2500));
   }
 
 
@@ -143,7 +145,7 @@ export class ViewNotePage {
 
   async onDeleteNotification(id) {
       this.loading = true;
-      await this.utils.showAlert('La notificación va a ser eliminada ¿Desea continuar?').then(data => {
+      await this.utilsServ.showAlert('La notificación va a ser eliminada ¿Desea continuar?').then(data => {
         if (data.role === 'ok') {
           this.continueDeleteNotification(id);
         } else {
@@ -154,7 +156,7 @@ export class ViewNotePage {
 
   continueDeleteNotification(id) {
     this.notificationsService.deleteNotification(id).then(() => {
-      this.utils.showToast('Se ha eliminado la notificación');
+      this.utilsServ.showToast('Se ha eliminado la notificación');
       this.getNotifications();
     })
     .finally(() => this.loading = false);
@@ -188,7 +190,7 @@ export class ViewNotePage {
         ...themeData
       };
     })
-    .catch(_ => this.utils.showToast('Ha ocurrido un error guardando el color', true))
+    .catch(_ => this.utilsServ.showToast('Ha ocurrido un error guardando el color', true))
     .finally(() => this.loading = false);
   }
 
@@ -212,7 +214,7 @@ export class ViewNotePage {
 
   private async archive() {
     this.loading = true;
-    await this.utils.showAlert('La nota va a ser archivada, ¿Desea continuar?').then(data => {
+    await this.utilsServ.showAlert('La nota va a ser archivada, ¿Desea continuar?').then(data => {
       if (data.role === 'ok') {
         this.continueArchive();
       } else {
@@ -225,21 +227,21 @@ export class ViewNotePage {
     this.service
     .archive(this.data)
     .then(() => {
-      this.utils.showToast('La nota ha sido archivada');
+      this.utilsServ.showToast('La nota ha sido archivada');
       this.navCtrl.back();
     })
-    .catch(_ => this.utils.showToast('Ha ocurrido un error archivando la nota', true))
+    .catch(_ => this.utilsServ.showToast('Ha ocurrido un error archivando la nota', true))
     .finally(() => (this.loading = false));
   }
   private edit() {
     this.loading = true;
     this.router.navigate(['/my-notes/edit', this.data.id])
-      .catch(() => this.utils.showToast('Ha ocurrido un error', true));
+      .catch(() => this.utilsServ.showToast('Ha ocurrido un error', true));
   }
 
   private async unarchive() {
     this.loading = true;
-    await this.utils.showAlert('La nota va a ser recuperada, ¿Desea continuar?').then(data => {
+    await this.utilsServ.showAlert('La nota va a ser recuperada, ¿Desea continuar?').then(data => {
       if (data.role === 'ok') {
         this.continueUnarchive();
       } else {
@@ -252,10 +254,10 @@ export class ViewNotePage {
     this.service
       .unarchive(this.data)
       .then(() => {
-        this.utils.showToast('La nota ha sido recuperada');
+        this.utilsServ.showToast('La nota ha sido recuperada');
         this.navCtrl.back();
       })
-      .catch(_ => this.utils.showToast('Ha ocurrido un error', true))
+      .catch(_ => this.utilsServ.showToast('Ha ocurrido un error', true))
       .finally(() => (this.loading = false));
   }
 
@@ -275,15 +277,15 @@ export class ViewNotePage {
     })
       .then(() => {
         this.data.images = imagesCopy;
-        this.utils.showToast('La imagen se ha eliminado correctamente');
+        this.utilsServ.showToast('La imagen se ha eliminado correctamente');
       })
-      .catch(_ => this.utils.showToast('Ha ocurrido un error eliminando la imagen', true))
+      .catch(_ => this.utilsServ.showToast('Ha ocurrido un error eliminando la imagen', true))
       .finally(() => this.loading = false);
   }
 
   private pickImage() {
     this.data.images = this.data.images || [];
-    this.utils.pickImage()
+    this.utilsServ.pickImage()
     .then(images => {
       const newImages = this.data.images.concat(...images);
       this.service.save({
@@ -291,10 +293,10 @@ export class ViewNotePage {
         images: newImages
       })
         .then(() => this.data.images = newImages)
-        .catch(_ => this.utils.showToast('Ha ocurrido un error guardando la imagen', true))
+        .catch(_ => this.utilsServ.showToast('Ha ocurrido un error guardando la imagen', true))
         .finally(() => this.loading = false);
     })
-    .catch(() => this.utils.showToast('Ha ocurrido un error', true));
+    .catch(() => this.utilsServ.showToast('Ha ocurrido un error', true));
   }
 
   private  switchColorPalette() {
@@ -311,7 +313,7 @@ export class ViewNotePage {
 
     private async delete() {
       this.loading = true;
-      await this.utils.showAlert('La nota va a ser eliminada, ¿Desea continuar?').then(data => {
+      await this.utilsServ.showAlert('La nota va a ser eliminada, ¿Desea continuar?').then(data => {
         if (data.role === 'ok') {
           this.continueDelete();
 
@@ -325,10 +327,10 @@ export class ViewNotePage {
     this.service.delete(this.data)
     .then(() => {
       this.notificationsService.deleteNotificationsFromNoteId(this.data.id).finally(() => {
-        this.utils.showToast('La nota se ha eliminado');
+        this.utilsServ.showToast('La nota se ha eliminado');
       });
       })
-    .catch(_ => this.utils.showToast('Ha ocurrido un error eliminando la nota', true))
+    .catch(_ => this.utilsServ.showToast('Ha ocurrido un error eliminando la nota', true))
     .finally(() => {
       this.loading = false;
       this.navCtrl.back();
