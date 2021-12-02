@@ -28,7 +28,10 @@ export class EditListComponent implements OnInit {
       this.focusContent(true);
   }
 
-  onSubmit(): Promise<any> {
+  onSubmit(): Promise<{
+    title: string;
+    listItems: ListItem[];
+  }> {
     return new Promise((resolve, reject) => {
       if (this.editForm.valid) {
           this.readForm();

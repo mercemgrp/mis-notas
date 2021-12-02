@@ -24,7 +24,7 @@ export class EditTextAreaComponent implements OnInit {
   }
 
   onSubmit(): Promise<{
-    content: string
+    content: string;
   }> {
     return new Promise((resolve, reject) => {
       if (this.editForm.valid) {
